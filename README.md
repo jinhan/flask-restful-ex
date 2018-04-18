@@ -1,2 +1,13 @@
 # flask-restful-ex
-for robot-journalism project
+
+> This project takes parameter input from the front-end and returns meta information for card news.
+
+### Create virtual environment
+	conda create -n election python=3.6
+	source activate election
+
+### Install Prerequisites
+	pip install -r requirements.txt
+
+### Run Server
+	python api.py

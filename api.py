@@ -1,10 +1,11 @@
 from flask import Flask
 from flask_restful import Resource, Api, reqparse
+from generator import generateMeta
 
 app = Flask(__name__)
 api = Api(app)
 
-class RequestCards(Resource):
+class RequestAPI(Resource):
     # get requests and parsing
     def post(self):
         parser = reqparse.RequestParser()
@@ -15,19 +16,10 @@ class RequestCards(Resource):
         args = parser.parse_args()
         print(args)
 
-        return args
-        # return generateCards(args)
+        meta = generateMeta(args)
+        return meta
 
-    # create cards and return json
-    # def generateCards(self, args):
-        # match name from id
-
-class RequestImages(Resource):
-    def post(self):
-        return {'status': 'success'}
-
-api.add_resource(RequestCards, '/cards', endpoint='cards')
-api.add_resource(RequestImages, '/images', endpoint='images')
+api.add_resource(RequestAPI, '/api', endpoint='api')
 
 if __name__ == '__main__':
     app.run(debug=True)
