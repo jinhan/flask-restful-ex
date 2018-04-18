@@ -11,3 +11,6 @@
 
 ### Run Server
 	python api.py
+
+### Usage
+	/api?type=1&region=1&party=1&candidate=1
