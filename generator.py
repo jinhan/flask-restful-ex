@@ -32,6 +32,7 @@ def generateMeta(args):
 			meta_cards.append(meta_card)
 	meta['cards'] = meta_cards
 
+	sess.close()
 	return meta
 
 
@@ -162,9 +163,10 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 
 		rank1 = None
 
-	elif card_seq is 8:
-		vals.append(time.hour)
-		# ranks = sess.query(Open).filter(Open.sendtime<=time).order_by(Open.sendtime.desc()).group_by(Open.suncode).subquery()
+	# elif card_seq is 8:
+		# vals.append(time.hour)
+		# ranks = sess.query(OpenView.rank01), OpenView.sun_name2).filter(OpenView.sendtime<=time).group_by(OpenView.suncode).subquery()
+		# print(ranks)
 
 
 
@@ -173,3 +175,8 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		card_data[k] = v
 
 	return card_data, rank1
+
+# def get_count(q):
+#     count_q = q.statement.with_only_columns([func.count()]).order_by(None)
+#     count = q.session.execute(count_q).scalar()
+# 	return count
