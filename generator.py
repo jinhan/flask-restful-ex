@@ -20,7 +20,6 @@ def generateMeta(args):
 	meta['design_variation'] = randint(0,3)
 	meta_cards = []
 	for i, card_seq in enumerate(card_seqs):
-			print(card_seq)
 			meta_card = {}
 			meta_card['order'] = i+1
 
@@ -266,7 +265,6 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 
 	elif card_seq is 10:
 		region1 = region[0]
-		print(region1)
 
 		sido_type = '시장'
 
