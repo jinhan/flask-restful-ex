@@ -228,7 +228,7 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		}
 		RANK1 = rank1_party
 		title = hourConverter(time.hour) + ', ' + str(rank1_party_num) + '개 1위'
-		rate = 'default'
+		rate = rank1_party
 
 	elif card_seq is 9:
 		sub_ranks = sess.query(OpenViewSido.rank01.label('rank01'), OpenViewSido.sun_name1).filter(OpenViewSido.sendtime<=time, OpenViewSido.rank01!=0).group_by(OpenViewSido.sun_name1).subquery()
