@@ -3,6 +3,7 @@ import datetime
 from templates import text_templates, seq2type
 from orm import *
 from sqlalchemy.sql import func
+from random import randint
 
 
 def generateMeta(args):
@@ -16,6 +17,7 @@ def generateMeta(args):
 
 	meta = {}
 	meta['card_count'] = len(card_seqs)
+	meta['design_variation'] = randint(0,3)
 	meta_cards = []
 	for i, card_seq in enumerate(card_seqs):
 			print(card_seq)
