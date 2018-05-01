@@ -45,14 +45,14 @@ def getCardSeqs(type, region, party, candidate, time):
 # each by card
 def generateTextsImgsViss(type, region, party, candidate, time, card_seq):
 	# db queries
-	text_data, RANK1, title, rate, graph, map = query_card_data(type, region, party, candidate, time, card_seq)
+	text_data, RANK1, title, rate, name, graph, map = query_card_data(type, region, party, candidate, time, card_seq)
 	text = text_templates[card_seq].format(**text_data)
 
 	# img template gen
 	img_type = seq2type[card_seq]
 	img_party = RANK1
 
-	data = {'title': title, 'rate': rate, 'text': text, 'graph': graph, 'map': map} #'raw': raw_data
+	data = {'title': title, 'rate': rate, 'name': name, 'text': text, 'graph': graph, 'map': map} #'raw': raw_data
 	return img_type, img_party, data
 
 
@@ -88,6 +88,7 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		RANK1 = 'default'
 		title = None
 		rate = None
+		name = None
 		graph = None
 		map = None
 
@@ -101,6 +102,7 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		RANK1 = 'default'
 		title = '최종 투표율'
 		rate = round(toorate_avg_nat[0])
+		name = None
 		graph = None
 		map = None
 
@@ -132,6 +134,7 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		RANK1 = 'default'
 		title = None
 		rate = None
+		name = None
 		graph = None
 		map = generateMap(None, ranks)
 
@@ -166,6 +169,7 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		RANK1 = 'default'
 		title = None
 		rate = None
+		name = None
 		graph = None
 		map = generateMap(region1, each_toorate)
 
@@ -186,6 +190,7 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		RANK1 = 'default'
 		title = hourConverter(time.hour) + ', 평균 개표율'
 		rate = round(openrate_avg_nat[0])
+		name = None
 		graph = None
 		map = None
 
@@ -203,6 +208,7 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		RANK1 = 'default'
 		title = None
 		rate = None
+		name = None
 		graph = generateGraph(openrate_sunname1_rank1)
 		map = None
 
@@ -258,6 +264,7 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		RANK1 = 'default'
 		title = None
 		rate = None
+		name = None
 		graph = None
 		map = generateMap(region1, each_openrate)
 
@@ -290,7 +297,8 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		}
 		RANK1 = rank1_party
 		title = hourConverter(time.hour) + ', ' + str(rank1_party_num) + '개 1위'
-		rate = rank1_party
+		rate = None
+		name = rank1_party
 		graph = None
 		map = None
 
@@ -327,6 +335,7 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		RANK1 = rank1_party
 		title = None
 		rate = None
+		name = None
 		graph = generateGraph(sub_ranks)
 		map = None
 
@@ -364,6 +373,7 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		RANK1 = region1_rank1_party
 		title = None
 		rate = None
+		name = None
 		graph = generateGraph(region1_rank)
 		map = None
 
@@ -403,7 +413,8 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		RANK1 = region2_rank1_party
 		title = None
 		rate = None
+		name = None
 		graph = generateGraph(region2_rank)
 		map = None
 
-	return data, RANK1, title, rate, graph, map
+	return data, RANK1, title, rate, name, graph, map
