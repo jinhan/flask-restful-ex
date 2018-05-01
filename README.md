@@ -11,4 +11,5 @@
 	python api.py
 
 ### Usage
+	/api?type=1&region=11210000
 	/api?type=1&region=1&party=1&candidate=1
