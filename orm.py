@@ -34,10 +34,12 @@ Base.prepare(engine, reflect=True)
 # Base = automap_base()
 # Base.prepare(engine, reflect=True)
 
-Vote13 = Base.classes.snu_2018_vote_13
+# Vote13 = Base.classes.snu_2018_vote_13
 District = Base.classes.sbs_2017_district
 Candidate = Base.classes.sbs_2017_candidates
 OpenSido = Base.classes.snu_2018_open_sido_mayor
+PastVote = Base.classes.sbs_2012_vote
+CurrentVote = Base.classes.snu_2018_vote
 
 # sess = Session(engine)
 sess = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
