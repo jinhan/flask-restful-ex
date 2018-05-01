@@ -1,7 +1,5 @@
 # flask-restful-ex
 
-> This project takes parameter input from the front-end and returns meta information for card news.
-
 ### Create virtual environment
 	conda create -n election python=3.6
 	source activate election
