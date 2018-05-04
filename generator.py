@@ -4,6 +4,7 @@ from templates import text_templates, seq2type
 from orm import *
 from sqlalchemy.sql import func
 from random import randint
+from graph import generateMap, generateGraph
 
 
 def generateMeta(args):
@@ -38,7 +39,8 @@ def generateMeta(args):
 
 def getCardSeqs(type, region, party, candidate, time):
 
-	card_seqs = [1,2,3,4,5,6,7,8,9,10,11]
+	# card_seqs = [1,2,3,4,5,6,7,8,9,10,11]
+	card_seqs = [7]
 	return card_seqs
 
 
@@ -65,12 +67,13 @@ def hourConverter(h):
 		return '오후 ' + str(h - 12) + '시'
 
 
-def generateMap(r, q):
-	return "https://s3.amazonaws.com/"
-
-
-def generateGraph(q):
-	return "https://s3.amazonaws.com/"
+# def generateMap(r, q):
+#
+# 	return "https://s3.amazonaws.com/"
+#
+#
+# def generateGraph(q):
+# 	return "https://s3.amazonaws.com/"
 
 
 def query_card_data(type, region, party, candidate, time, card_seq):
@@ -143,7 +146,9 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 
 		toorate_region1 = sess.query(func.max(CurrentVote.toorate)).filter(CurrentVote.tootime<=time.hour, CurrentVote.sun_name1==region1).first()
 
-		each_toorate = sess.query(func.max(CurrentVote.toorate).label('max')).filter(CurrentVote.tootime<=time.hour).group_by(CurrentVote.sun_name1)
+		each_toorate = sess.query(func.max(CurrentVote.toorate).label('max'), CurrentVote.sun_name1).filter(CurrentVote.tootime<=time.hour).group_by(CurrentVote.sun_name1)
+
+
 		toorate_avg_nat = sess.query(func.avg(each_toorate.subquery().columns.max)).first()
 		toorate_region1_toorate_avg_nat = toorate_region1[0] - toorate_avg_nat[0]
 
@@ -171,7 +176,7 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		rate = None
 		name = None
 		graph = None
-		map = generateMap(region1, each_toorate)
+		map = generateMap(region2, each_toorate.all())
 
 	elif card_seq is 5:
 		each_openrate = sess.query(func.max(OpenSido.openrate).label('max')).filter(OpenSido.sendtime<=time).group_by(OpenSido.sun_name1)
@@ -252,6 +257,10 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		each_openrate_region1 = sess.query(func.max(OpenSido.openrate).label('max'), OpenSido.sun_name2.label('name')).filter(OpenSido.sendtime<=time, OpenSido.sun_name1==region1).group_by(OpenSido.sun_name2).subquery()
 		openrate_region1_rank1 = sess.query(each_openrate_region1).order_by(each_openrate_region1.c.max.desc()).first()
 
+
+		openrate_region1_sub =  sess.query(func.max(OpenSido.openrate), OpenSido.sun_name2).filter(OpenSido.sendtime<=time, OpenSido.sun_name1==region1).group_by(OpenSido.sun_name2).all()
+
+
 		data = {
 			'hour': hourConverter(time.hour),
 			'region1': region1,
@@ -266,7 +275,7 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		rate = None
 		name = None
 		graph = None
-		map = generateMap(region1, each_openrate)
+		map = generateMap(region1, openrate_region1_sub)
 
 	elif card_seq is 8:
 		sub_ranks = sess.query(OpenViewSido.rank01.label('rank01'), OpenViewSido.sun_name2).filter(OpenViewSido.sendtime<=time, OpenViewSido.rank01!=0).group_by(OpenViewSido.sun_name2).subquery()
