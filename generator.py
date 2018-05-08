@@ -40,7 +40,7 @@ def generateMeta(args):
 def getCardSeqs(type, region, party, candidate, time):
 
 	# card_seqs = [1,2,3,4,5,6,7,8,9,10,11]
-	card_seqs = [7]
+	card_seqs = [3, 7]
 	return card_seqs
 
 
@@ -139,7 +139,7 @@ def query_card_data(type, region, party, candidate, time, card_seq):
 		rate = None
 		name = None
 		graph = None
-		map = generateMap(None, ranks)
+		map = generateMap('전국', ranks)
 
 	elif card_seq is 4:
 		region1 = region[0]

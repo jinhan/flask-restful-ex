@@ -1,7 +1,6 @@
-# conda create -n election python=3.6
 flask-restful==0.3.6
 pandas==0.22.0
 SQLAlchemy==1.2.6
 pymysql==0.8.0
-#flask-sqlalchemy==2.3.2
 boto3
+Pillow
