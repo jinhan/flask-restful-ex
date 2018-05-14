@@ -9,10 +9,10 @@ class RequestAPI(Resource):
     # get requests and parsing
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('type', type=int, default=None)
-        parser.add_argument('region', type=int, default=None)
-        parser.add_argument('party', type=int, default=None)
-        parser.add_argument('candidate', type=int, default=None)
+        parser.add_argument('type', type=int, default=[], action='append')
+        parser.add_argument('region', type=int, default=[], action='append')
+        parser.add_argument('party', type=int, default=[], action='append')
+        parser.add_argument('candidate', type=int, default=[], action='append')
         args = parser.parse_args()
         print(args)
 

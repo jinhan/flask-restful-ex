@@ -46,7 +46,7 @@ def convertRegionName(r):
 
 # json from https://github.com/southkorea/southkorea-maps
 def generateMap(region, data):
-    print(data)
+    # print(data)
     if region == '서울':
         map = gpd.read_file("./geo/seoul_municipalities_geo.json")
         figsize = (14,10)
@@ -81,7 +81,7 @@ def generateMap(region, data):
         final_pic = data_result.plot(figsize=figsize, linewidth=0.25, edgecolor='black',column='percent', cmap='Blues')
         # print(data_result.head())
         for index, row in data_result.iterrows():
-            print(row['name'])
+            # print(row['name'])
             xy = row['geometry'].centroid.coords[:][0]
             xytext = row['geometry'].centroid.coords[:][0]
             # 전국
