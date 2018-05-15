@@ -414,7 +414,7 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 
 	elif card_seq is 11:
 		# poll 종류
-		poll = idx2poll(polls[index])
+		poll = polls[index]
 		poll_num_sunname = 100
 		# poll 종류에 대해 달라져야함
 		each_openrate = sess.query(func.max(OpenSido.openrate).label('max'), OpenSido.sun_name1).filter(OpenSido.sendtime<=time).group_by(OpenSido.sun_name1).order_by(func.max(OpenSido.openrate).desc())

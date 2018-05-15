@@ -13,7 +13,7 @@ from PIL import Image
 
 plt.xkcd()
 
-font_path = "./res/NanumBarunGothic.otf" or "./res/HYGTRE.TTF"
+font_path = "./res/H2GTRE.TTF"
 font_name = font_manager.FontProperties(fname = font_path).get_name()
 rc('font', family = font_name)
 
@@ -110,9 +110,9 @@ def generateMap(region, data):
         cropImage.save(crop_data, format='png', transparent=True)
 
         image_name = str(uuid.uuid4().hex) + ".png"
-        s3.Bucket(bucket).put_object(Key=image_name, Body=crop_data, ContentType="image/png")
+        # s3.Bucket(bucket).put_object(Key=image_name, Body=crop_data, ContentType="image/png")
 
-        # cropImage.save(image_name)
+        cropImage.save(image_name)
 
         img_data.close()
         crop_data.close()
