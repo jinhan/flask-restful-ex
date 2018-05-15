@@ -13,7 +13,7 @@ from PIL import Image
 
 plt.xkcd()
 
-font_path = "./res/NanumBarunGothic.otf" or "./res/HYGTRE.TTF" or "/usr/share/fonts/truetype/nanum/NanumGothic_Coding.ttf"
+font_path = "./res/NanumBarunGothic.otf" or "./res/HYGTRE.TTF"
 font_name = font_manager.FontProperties(fname = font_path).get_name()
 rc('font', family = font_name)
 
@@ -43,6 +43,7 @@ r2r = {
 }
 def convertRegionName(r):
     return r2r[r]
+
 
 # json from https://github.com/southkorea/southkorea-maps
 def generateMap(region, data):
@@ -109,9 +110,9 @@ def generateMap(region, data):
         cropImage.save(crop_data, format='png', transparent=True)
 
         image_name = str(uuid.uuid4().hex) + ".png"
-        # s3.Bucket(bucket).put_object(Key=image_name, Body=crop_data, ContentType="image/png")
+        s3.Bucket(bucket).put_object(Key=image_name, Body=crop_data, ContentType="image/png")
 
-        cropImage.save(image_name)
+        # cropImage.save(image_name)
 
         img_data.close()
         crop_data.close()
@@ -121,5 +122,46 @@ def generateMap(region, data):
     else:
         return None
 
-def generateGraph(q):
+
+parties_color = {
+    '더불어민주당' : '#2475FF',
+    '자유한국당' : '#CC0000',
+    '바른미래당' : '#00B4B4',
+    '민주평화당' : '#FFA500',
+    '정의당' : '#FFCC00'
+}
+
+def generateGraph(data):
+    print(data)
+    # sorted_parties=[]
+    # sorted_seats=[]
+    # sorted_color=[]
+
+    # # items = data.items()
+    # sorted_item=sorted(items,key=operator.itemgetter(1),reverse=True)
+    # for i in range(len(sorted_item)):
+    #     sorted_parties.append(sorted_item[i][0])
+    #     sorted_seats.append(sorted_item[i][1])
+
+    # for i in sorted_parties:
+    #     sorted_color.append(parties_color[i])
+
+    # fig = plt.figure(figsize=(12, 8))
+    # ax = fig.add_subplot(111)
+    # ax.invert_yaxis()
+
+    # ypos = np.arange(len(sorted_item))
+    # rects = plt.barh(ypos, sorted_seats, align='center', height=0.6,color=sorted_color)
+    # plt.yticks(ypos, sorted_parties,fontsize=14)
+
+    # for i, rect in enumerate(rects):
+    #     if rect.get_width() < 10:
+    #         ax.text(2 * rect.get_width(), rect.get_y() + rect.get_height() / 2.0, str(sorted_seats[i]) + '석',fontsize=14, ha='right', va='center')
+    #     else:
+    #         ax.text(0.95 * rect.get_width(), rect.get_y() + rect.get_height() / 2.0, str(sorted_seats[i]) + '석',fontsize=14, ha='right', va='center')
+        
+    # plt.xlabel('예상 당선자 수',fontsize=15)
+    # plt.show()
+
+
     return "https://s3.amazonaws.com/"

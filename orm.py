@@ -14,9 +14,9 @@ class OpenViewSido(object):
     def __init__(self, name):
        self.name = name
 
-# class OpenViewGusigun(object):
-#     def __init__(self, name):
-#        self.name = name
+class OpenViewGusigun(object):
+    def __init__(self, name):
+       self.name = name
 
 metadata = MetaData()
 metadata.reflect(engine, views=True)
@@ -24,8 +24,8 @@ metadata.reflect(engine, views=True)
 openviewsido= Table('view_2018_open_sido_mayor', metadata, autoload=True, autoload_with=engine)
 mapper(OpenViewSido, openviewsido, primary_key=[openviewsido.c.serial])
 
-# openviewgusigun= Table('view_2018_open_sido_mayor', metadata, autoload=True, autoload_with=engine)
-# mapper(OpenViewGusiguno, openviewgusigun, primary_key=[openviewgusigun.c.serial])
+openviewgusigun= Table('view_2018_open_gusigun_mayor', metadata, autoload=True, autoload_with=engine)
+mapper(OpenViewGusigun, openviewgusigun, primary_key=[openviewgusigun.c.serial])
 
 Base = automap_base(metadata=metadata)
 Base.prepare(engine, reflect=True)

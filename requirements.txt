@@ -4,3 +4,4 @@ SQLAlchemy==1.2.6
 pymysql==0.8.0
 boto3
 Pillow
+tossi

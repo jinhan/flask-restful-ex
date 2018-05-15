@@ -52,52 +52,53 @@ text_templates = {
 
 	'3-1': '이는 2014년 6회 지방선거의 같은 시간대 투표율 {past_toorate}%보다 {current_toorate_past_toorate}%포인트 {toorate_compare} 수치다. 이 시간까지 전국에서 투표율이 가장 높은 지역은 {toorate_rank1}이며, {toorate_rank}{josa} 그 뒤를 따르고 있다.', # 투표중
 
-	4: '{region1}의 투표율은 {toorate_region1}%로 전국 평균보다 {toorate_region1_toorate_avg_nat}% 포인트 {toorate_compare1} 수치이다. 또한, {region2}{josa} {toorate_region2}%를 기록하며 전국 평균보다 {toorate_region2_toorate_avg_nat}%포인트 {toorate_compare2} 투표율을 보였다.',
+	4: '{region1}의 투표율은 {toorate_region1}%로 전국 평균보다 {toorate_region1_toorate_avg_nat}% 포인트 {toorate_compare1} 수치이다. 또한, {region2}{josa} {toorate_region2}%를 기록하며 전국 평균보다 {toorate_region2_toorate_avg_nat}% 포인트 {toorate_compare2} 투표율을 보였다.', # region2 전국평균 = region1 전국평균 ?
 
 	'4-1': '{region1}의 투표율은 {toorate_region1}%로 전국 평균보다 {toorate_region1_toorate_avg_nat}% 포인트 {toorate_compare1} 수치이다. 또한, {region2}{josa} {toorate_region2}%를 기록하며 전국 평균보다 {toorate_region2_toorate_avg_nat}%포인트 {toorate_compare2} 투표율을 보이고 있다.', # 투표중
 
-	5: '{candidate1} 후보가 속해 있는 {candidate1_region}의 최종 투표율은 {candidate1_region_toorate}%를 기록했다.',
+	5: '{candidate} 후보가 속해 있는 {candidate_region}의 최종 투표율은 {candidate_region_toorate}%를 기록했다.',
 
-	'5-1': '{candidate1} 후보가 속해 있는 {candidate1_region}의 투표율은 {hour} 현재 {candidate1_region_toorate}%를 기록하고 있다.', # 투표중
+	'5-1': '{candidate} 후보가 속해 있는 {candidate_region}의 투표율은 {hour} 현재 {candidate_region_toorate}%를 기록하고 있다.', # 투표중
 
 	6: '투표율 특이사항',
 
 	### 개표율
-	7: '{hour} 현재 제7회 지방선거 개표는 전국 (선거구 수)개소에서 진행중이며 개표율은 전국 평균 {openrate_avg_nat}%이다. 개표는 이전 선거 동일 시간보다 {compare_openrate} 속도로 진행되고 있다. 따라서 이전 선거에 비해 {compare_openrate_plus} 시간에 선거 결과가 나타날 것으로 보인다.',
+	7: '{hour} 현재 제7회 지방선거 개표는 전국 (선거구 수)개소에서 진행중이며 개표율은 전국 평균 {openrate_avg_nat}%이다. 개표는 이전 선거 동일 시간보다 {openrate_compare} 속도로 진행되고 있다. 따라서 이전 선거에 비해 {openrate_compare_plus} 시간에 선거 결과가 나타날 것으로 보인다.',
 
 	8: '{hour} 현재 시도지사 선거에서 가장 개표가 빠른 지역은 {openrate_sunname1_rank1}으로 {openrate_sunname1_rank1_rate}%의 개표율을 보이고 있으며, {openrate_sunname1_rank2} 지역이 {openrate_sunname1_rank2_rate}%로 뒤따르고 있다.',
 
 	9: '{hour} 현재 시군구청장 선거에서 {openrate_sunname2_rank1} 지역이 {openrate_sunname2_rank1_rate}%로 개표가 가장 빠르게 이루어지고 있으며, {openrate_sunname2_rank2} 지역이 {openrate_sunname2_rank2_rate}%의 개표율로 그 뒤을 잇고 있다.',
 
-	10: '{hour} 현재 {region1} 지역 전체의 개표율은 {openrate_region1}%로 전국 평균보다 약 {openrate_region1_openrate_avg_nat}% 포인트 {compare_region1} 수치이다. {region1} 지역에서 개표가 가장 빠른 곳은 {openrate_region1_region2_rank1}로 {openrate_region1_region2_rank1_rate}%의 개표율을 보이고 있다. {region2}는 {openrate_region2}%로 전국 평균보다 {compare_region2} 개표율을 보이고 있다.', 
+	10: '{hour} 현재 {region1} 지역 전체의 개표율은 {openrate_region1}%로 전국 평균보다 약 {openrate_region1_openrate_avg_nat}% 포인트 {compare_region1} 수치이다. {region1} 지역에서 개표가 가장 빠른 곳은 {openrate_region1_region2_rank1}{josa1} {openrate_region1_region2_rank1_rate}%의 개표율을 보이고 있다. {region2}{josa2} {openrate_region2}%로 전국 평균보다 {compare_region2} 개표율을 보이고 있다.', 
 
 	'10-1': '{hour} 현재 {region1} 지역은 아직 개표가 시작되지 않았다.', # 개표율 = 0
 
-	11: '전국 {poll1_num_sunname}개의 {poll1} 선거에서 개표율 1위를 달리고 있는 {poll1_openrate_rank1} 지역은 {poll1_openrate_rank1_rate}%의 개표율을 보이고 있다. 그 뒤를 {poll1_openrate_rank2} 지역이 {poll1_openrate_rank1_rate}%로 따르고 있다. {poll1} 선거의 전국 평균 개표율은 {poll1_openrate_nat_rate}%이다.',
+	11: '전국 {poll_num_sunname}개의 {poll} 선거에서 개표율 1위를 달리고 있는 {poll_openrate_rank1} 지역은 {poll_openrate_rank1_rate}%의 개표율을 보이고 있다. 그 뒤를 {poll_openrate_rank2} 지역이 {poll_openrate_rank1_rate}%로 따르고 있다. {poll} 선거의 전국 평균 개표율은 {poll_openrate_nat_avg}%이다.',
 
-	'11-1': '{hour} 현재 {poll1}{josa} 아직 개표가 시작되지 않았다.',
+	'11-1': '{hour} 현재 {poll}{josa} 아직 개표가 시작되지 않았다.',
 
-	12: '{candidate1} 후보가 속해 있는 {candidate1_region} 지역의 {candidate1_poll} 선거 개표율은 {candidate1_poll_openrate}%이다.',
+	12: '{candidate} 후보가 속해 있는 {candidate_region} 지역의 {candidate_poll} 선거 개표율은 {candidate_poll_openrate}%이다.',
 
-	'12-1': '{candidate1} 후보가 속해 있는 {candidate1_region} 지역의 {candidate1_poll} 선거는 아직 개표가 시작되지 않았다.',
+	'12-1': '{candidate} 후보가 속해 있는 {candidate_region} 지역의 {candidate_poll} 선거는 아직 개표가 시작되지 않았다.',
 
 	13: '개표율 특이사항',
 
 	### 득표율
-	14: '{hour} 현재 제 7회 지방선거 개표가 진행중인 가운데, {sido_rank1_party}{josa} 우세한 것으로 나타났다.',
+	14: '{hour} 현재 제 7회 지방선거 개표가 진행중인 가운데, {rank1_party}{josa} 우세한 것으로 나타났다.',
 
-	15: '{hour} 현재 전국 (시도지사 선거구 수)개의 시·도지사 선거에서 {sido_rank1_party}{josa} {sido_rank1_party_num}개의 선거구에서 1위를 달리고 있다. 그 뒤를 {sido_ranks_party}{josa} 잇고 있다.',
+	15: '{hour} 현재 전국 (시도지사 선거구 수)개의 시·도지사 선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리고 있다. 그 뒤를 {ranks_party}{josa2} 잇고 있다.',
 
-	16: '{hour} 현재 총 (지방자치단체 선거구 수)개의 시군구청장을 선출하는 이번 지방선거에서 {gusigun_rank1_party}{josa} {gusigun_rank1_party_num}개의 선거구에서 1위를 달리고 있다. 그 뒤를 {gusigun_ranks_party}{josa} 잇고 있다.',
+	16: '{hour} 현재 총 (지방자치단체 선거구 수)개의 시군구청장을 선출하는 이번 지방선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리고 있다. 그 뒤를 {ranks_party}{josa2} 잇고 있다.',
 
-	17: '{hour} 현재 {region1}{region1_poll} 선거에서는 {region1_openrate}%의 개표율을 보이는 가운데 {region1_rank1_party} {region1_rank1_candidate} 후보가 {region1_rank1_rate}%의 득표율로 1위, {region1_rank2_party} {region1_rank2_candidate} 후보가 {region1_rank2_rate}%의 득표율로 2위를 달리고 있다.',
+	17: '{hour} 현재 {region1}{region1_poll} 선거에서는 {region1_openrate}%의 개표율을 보이는 가운데 {region1_rank1_party} {region1_rank1_name} 후보가 {region1_rank1_rate}%의 득표율로 1위, {region1_rank2_party} {region1_rank2_name} 후보가 {region1_rank2_rate}%의 득표율로 2위를 달리고 있다.',
 
-	'17-1': '{region1}{region1_poll} 선거에서 {region1_rank1_party} {region1_rank1_candidate} 후보가 {region1_rank1_rate}%의 득표율로 당선이 확정되었으며, {region1_rank2_party} {region1_rank2_candidate} 후보가 {region1_rank2_rate}%의 득표율로 2위를 기록했다.',
+	'17-1': '{region1}{region1_poll} 선거에서 {region1_rank1_party} {region1_rank1_name} 후보가 {region1_rank1_rate}%의 득표율로 당선이 확정되었으며, {region1_rank2_party} {region1_rank2_name} 후보가 {region1_rank2_rate}%의 득표율로 2위를 기록했다.',
 
-	18: '{hour} 현재 {candidate1} 후보가 속해 있는 {candidate1_region} 지역의 {candidate1_poll} 선거에서는 {candidate1_poll_rank1_candidate} 후보가 {candidate1_poll_rank1_rate}%의 득표율로 1위, {candidate1_poll_rank2_candidate} 후보가 {candidate1_poll_rank2_rate}%의 득표율로 2위를 달리고 있다.',
+	18: '{hour} 현재 {candidate} 후보가 속해 있는 {candidate_region} 지역의 {candidate_poll} 선거에서는 {candidate_poll_rank1_name} 후보가 {candidate_poll_rank1_rate}%의 득표율로 1위, {candidate_poll_rank2_name} 후보가 {candidate_poll_rank2_rate}%의 득표율로 2위를 달리고 있다.',
 
-	'18-1': '{hour} 현재 {candidate1} 후보가 속해 있는 {candidate1_region} 지역의 {candidate1_poll} 선거에서는 {candidate1_poll_rank1_candidate} 후보가 {candidate1_poll_rank1_rate}%의 득표율로 당선이 확정되었다.',
+	'18-1': '{hour} 현재 {candidate} 후보가 속해 있는 {candidate_region} 지역의 {candidate_poll} 선거에서는 {candidate_poll_rank1_name} 후보가 {candidate_poll_rank1_rate}%의 득표율로 당선이 확정되었다.',
 
+	## 선거구수.관심정당1.시도지사.1위, 관심정당1.시도지사.순위 
 	19: '{관심정당1}은 시도지사 선거에서 총 17개 선거구 중 {선거구수.관심정당1.시도지사.1위}개의 선거구에서 득표율 {관심정당1.시도지사.순위}위를 달리고 있다. 시군구청장 선거에서는 총 226개 선거구 중  {선거구수.관심정당1.시군구청장.1위}개의 선거구에서 득표율 {관심정당1.시도지사.순위}위를 달리고 있다.',
 
 	'19-1': '{관심정당1}은 시도지사선거에서 총 17개 선거구 중 {선거구수.관심정당1.시도지사.1위.당선확정}명의 후보의 당선이 확정되었다. 시군구청장 선거에서는 총 226개의 선거구 중 {선거구수.관심정당1.시군구청장.1위.당선확정}명의 후보의 당선이 확정되었다.',
