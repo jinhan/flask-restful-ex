@@ -18,3 +18,9 @@
 ### Usage
 	/api?type=1&region=11210000
 	/api?type=1&region=1&party=1&candidate=1
+
+## Debugging
+	```
+	from PyQt5 import QtCore, QtGui, QtWidgets ImportError: libGL.so.1: cannot open shared object file: No such file or directory
+	```
+	sudo apt install libgl1-mesa-glx

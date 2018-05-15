@@ -1,5 +1,8 @@
 import geopandas as gpd
 import pandas as pd
+
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 from matplotlib import font_manager, rc
 
