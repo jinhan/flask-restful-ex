@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
-from matplotlib import font_manager, rc
+# from matplotlib import font_manager, rc
 
 from decimal import *
 
@@ -17,8 +17,8 @@ from PIL import Image
 plt.xkcd()
 
 font_path = "./res/H2GTRE.TTF"
-font_name = font_manager.FontProperties(fname = font_path).get_name()
-rc('font', family = font_name)
+font_name = matplotlib.font_manager.FontProperties(fname = font_path).get_name()
+matplotlib.rc('font', family = font_name)
 
 
 s3 = boto3.resource('s3', region_name = 'ap-northeast-2',
@@ -50,10 +50,10 @@ def convertRegionName(r):
 
 # json from https://github.com/southkorea/southkorea-maps
 def generateMap(region, data):
-    # print(data)
+    print(data)
     if region == '서울':
         map = gpd.read_file("./geo/seoul_municipalities_geo.json")
-        figsize = (14,10)
+        figsize = (14,8)
         crop_area = (150,220,1180,880)
         votes = {}
         for d in data:
@@ -62,7 +62,7 @@ def generateMap(region, data):
 
     elif region == '전국':
         map = gpd.read_file("./geo/skorea_provinces_geo.json")
-        figsize = (20,20)
+        figsize = (14,14)
         crop_area = (160,50,830,830)
         votes = {}
         for d in data:
@@ -70,17 +70,18 @@ def generateMap(region, data):
                 key = convertRegionName(d[1])
                 votes[key] = int(d[0])
             except:
+                print(d[1])
                 pass
-   
+
     else:
         map = None
 
-
+    print(votes)
     if map is not None:
         votes_df = pd.DataFrame(list(votes.items()), columns=['name', 'percent'])
         data_result = pd.merge(map, votes_df, on='name')
         data_result['sum'] = data_result['name'].map(str) +' : '+ data_result['percent'].map(str) +'%'
-        # print(data_result)
+        print(data_result)
 
         final_pic = data_result.plot(figsize=figsize, linewidth=0.25, edgecolor='black',column='percent', cmap='Blues')
         # print(data_result.head())

@@ -7,7 +7,8 @@ from sqlalchemy.sql import func
 from sqlalchemy import MetaData, Table
 
 # engine = create_engine('mysql+pymysql://{id}:{pw}@{host}/election2018?charset=utf8mb4'.format(id=dbinfo.id, pw=dbinfo.pw, host=dbinfo.host), echo=False)
-engine = create_engine('mysql+pymysql://{id}:{pw}@{host}/election2018?charset=utf8mb4'.format(id=dbinfo.id, pw=dbinfo.pw, host=dbinfo.host), echo=False, pool_size=20, pool_recycle=500)
+engine = create_engine('mysql+pymysql://{id}:{pw}@{host}/election2018?charset=utf8mb4'.format(id=dbinfo.id, pw=dbinfo.pw, host=dbinfo.host), 
+        echo=False, pool_size=20, pool_recycle=500)
 
 ### using views
 class OpenViewSido(object):

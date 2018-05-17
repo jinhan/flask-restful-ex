@@ -41,7 +41,8 @@
 # }
 # 
 text_templates = {
-	1: '#{custom1} #{custom2} #{custom3}',
+	# 여러개 선택될 때는 ?
+	1: '{}',
 
 	### 투표율
 	2: '13일 오전 6시를 기해 시작된 제7회 전국동시지방선거가 오후 6시에 모두 마무리되었다. 이번 선거의 전국 최종 투표율은 {toorate_avg_nat}%로 집계되었다.',
@@ -49,13 +50,17 @@ text_templates = {
 	'2-1': '제7회 전국동시지방선거가 13일 오전 6시를 기해 전국의 (수치 미정)개 투표소에 시작되었으며, {hour} 현재 전국 투표율은 {toorate_avg_nat}%로 집계되었다.', # 투표중
 
 	3: '이는 2014년 6회 지방선거의 최종 투표율 {past_toorate}%보다 {current_toorate_past_toorate}%포인트 {toorate_compare} 수치다. 전국에서 투표율이 가장 높은 지역은 {toorate_rank1}이며, {toorate_rank}{josa} 그 뒤를 이었다.',
-
+	
 	'3-1': '이는 2014년 6회 지방선거의 같은 시간대 투표율 {past_toorate}%보다 {current_toorate_past_toorate}%포인트 {toorate_compare} 수치다. 이 시간까지 전국에서 투표율이 가장 높은 지역은 {toorate_rank1}이며, {toorate_rank}{josa} 그 뒤를 따르고 있다.', # 투표중
+	# 전국 단위 비교
 
-	4: '{region1}의 투표율은 {toorate_region1}%로 전국 평균보다 {toorate_region1_toorate_avg_nat}% 포인트 {toorate_compare1} 수치이다. 또한, {region2}{josa} {toorate_region2}%를 기록하며 전국 평균보다 {toorate_region2_toorate_avg_nat}% 포인트 {toorate_compare2} 투표율을 보였다.', # region2 전국평균 = region1 전국평균 ?
+	4: '{region1}의 투표율은 {toorate_region1}%로 전국 평균보다 {toorate_region1_toorate_avg_nat}% 포인트 {toorate_compare1} 수치이다. 또한, {region2}{josa} {toorate_region2}%를 기록하며 전국 평균보다 {toorate_region2_toorate_avg_nat}% 포인트 {toorate_compare2} 투표율을 보였다.', 
+	# region2 전국평균 = region1 전국평균 ?
+	# 관심지역 서브의 비교
 
 	'4-1': '{region1}의 투표율은 {toorate_region1}%로 전국 평균보다 {toorate_region1_toorate_avg_nat}% 포인트 {toorate_compare1} 수치이다. 또한, {region2}{josa} {toorate_region2}%를 기록하며 전국 평균보다 {toorate_region2_toorate_avg_nat}%포인트 {toorate_compare2} 투표율을 보이고 있다.', # 투표중
 
+	# 후보자 db
 	5: '{candidate} 후보가 속해 있는 {candidate_region}의 최종 투표율은 {candidate_region_toorate}%를 기록했다.',
 
 	'5-1': '{candidate} 후보가 속해 있는 {candidate_region}의 투표율은 {hour} 현재 {candidate_region_toorate}%를 기록하고 있다.', # 투표중
@@ -63,6 +68,7 @@ text_templates = {
 	6: '투표율 특이사항',
 
 	### 개표율
+	# 지난 선거의 시간대 별 개표율 
 	7: '{hour} 현재 제7회 지방선거 개표는 전국 (선거구 수)개소에서 진행중이며 개표율은 전국 평균 {openrate_avg_nat}%이다. 개표는 이전 선거 동일 시간보다 {openrate_compare} 속도로 진행되고 있다. 따라서 이전 선거에 비해 {openrate_compare_plus} 시간에 선거 결과가 나타날 것으로 보인다.',
 
 	8: '{hour} 현재 시도지사 선거에서 가장 개표가 빠른 지역은 {openrate_sunname1_rank1}으로 {openrate_sunname1_rank1_rate}%의 개표율을 보이고 있으며, {openrate_sunname1_rank2} 지역이 {openrate_sunname1_rank2_rate}%로 뒤따르고 있다.',

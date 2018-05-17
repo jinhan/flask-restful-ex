@@ -50,51 +50,53 @@ def generateMeta(args):
 def getCardSeqs(polls, regions, parties, candidates, time):
 	card_seqs = []
 
-	each_openrate = sess.query(func.max(OpenSido.openrate).label('max')).filter(OpenSido.sendtime<=time).group_by(OpenSido.sun_name1)
-	openrate = sess.query(func.avg(each_openrate.subquery().columns.max)).first()[0]
-	# print(openrate)
+	# each_openrate = sess.query(func.max(OpenSido.openrate).label('max')).filter(OpenSido.sendtime<=time).group_by(OpenSido.sun_name1).subquery()
 
-	if time.hour < 19: # 투표중
-		card_seqs.extend([1, 2, 3, 23]) # 6 특이사항
-		card_seqs.extend([4] * len(regions))
-		card_seqs.extend([5] * len(candidates))
-		card_seqs.sort()
+	# openrate = sess.query(func.avg(each_openrate.c.max)).scalar()
+	# # print(openrate)
 
-	elif time.hour > 19 and openrate < 10: # 투표마감이후
-		card_seqs.extend([1, 2, 3, 22, 23]) # 6 특이사항
-		card_seqs.extend([4] * len(regions))
-		card_seqs.extend([5] * len(candidates))
-		card_seqs.sort()
+	# if time.hour < 19: # 투표중
+	# 	card_seqs.extend([1, 2, 3, 23]) # 6 특이사항
+	# 	card_seqs.extend([4] * len(regions))
+	# 	card_seqs.extend([5] * len(candidates))
+	# 	card_seqs.sort()
+
+	# elif time.hour > 19 and openrate < 10: # 투표마감이후
+	# 	card_seqs.extend([1, 2, 3, 22, 23]) # 6 특이사항
+	# 	card_seqs.extend([4] * len(regions))
+	# 	card_seqs.extend([5] * len(candidates))
+	# 	card_seqs.sort()
 	
-	elif time.hour > 19 and openrate >= 10 and openrate < 30: # 개표율 10% 이상
-		card_seqs.extend([1, 2, 3, 7, 8, 9, 23]) # 6, 13, 20 특이사항
-		card_seqs.extend([4] * len(regions))
-		card_seqs.extend([5] * len(candidates))
-		card_seqs.extend([10] * len(regions))
-		card_seqs.extend([11] * len(polls))
-		card_seqs.extend([12] * len(candidates))
-		card_seqs.extend([17] * len(regions))
-		card_seqs.extend([18] * len(candidates))
-		card_seqs.extend([19] * len(parties))
-		card_seqs.sort()
+	# elif time.hour > 19 and openrate >= 10 and openrate < 30: # 개표율 10% 이상
+	# 	card_seqs.extend([1, 2, 3, 7, 8, 9, 23]) # 6, 13, 20 특이사항
+	# 	card_seqs.extend([4] * len(regions))
+	# 	card_seqs.extend([5] * len(candidates))
+	# 	card_seqs.extend([10] * len(regions))
+	# 	card_seqs.extend([11] * len(polls))
+	# 	card_seqs.extend([12] * len(candidates))
+	# 	card_seqs.extend([17] * len(regions))
+	# 	card_seqs.extend([18] * len(candidates))
+	# 	card_seqs.extend([19] * len(parties))
+	# 	card_seqs.sort()
 
-	elif time.hour > 19 and openrate >= 30: # 개표율 30% 이상
-		card_seqs.extend([1, 2, 7, 8, 9, 14, 15, 16, 23]) # 13, 20 특이사항
-		card_seqs.extend([10] * len(regions))
-		card_seqs.extend([11] * len(polls))
-		card_seqs.extend([12] * len(candidates))
-		card_seqs.extend([17] * len(regions))
-		card_seqs.extend([18] * len(candidates))
-		card_seqs.extend([19] * len(parties))
-		card_seqs.sort()
+	# elif time.hour > 19 and openrate >= 30: # 개표율 30% 이상
+	# 	card_seqs.extend([1, 2, 7, 8, 9, 14, 15, 16, 23]) # 13, 20 특이사항
+	# 	card_seqs.extend([10] * len(regions))
+	# 	card_seqs.extend([11] * len(polls))
+	# 	card_seqs.extend([12] * len(candidates))
+	# 	card_seqs.extend([17] * len(regions))
+	# 	card_seqs.extend([18] * len(candidates))
+	# 	card_seqs.extend([19] * len(parties))
+	# 	card_seqs.sort()
 
 	# card_seqs = [1,2,3,4,5,6,7,8,9,10,11]
-	# card_seqs = [3, 7]
+	card_seqs = [4]
 	return card_seqs
 
 
 # each by card
 def generateTextsImgsViss(index, polls, regions, parties, candidates, time, card_seq):
+	index = 0
 	# db queries
 	# print(card_seq)
 	text, RANK1, title, rate, name, graph, map = query_card_data(index, polls, regions, parties, candidates, time, card_seq)
@@ -122,23 +124,28 @@ def regionPoll(r):
 	return r
 
 def idx2poll(idx):
-	dic = {0: "시도지사", 1: "시군구청장"}
+	dic = {0: "시도지사", 1: "시군구청장", 2:"교육감", 3:"국회의원"}
 	return [dic[i] for i in idx]
 
 def idx2party(idx):
 	dic = {0:'더불어민주당', 1:'자유한국당', 2:'바른미래당', 3:'정의당', 99:'무소속'}
 	return [dic[i] for i in idx]
 
+def idx2candidate(idx):
+	dic = {0:'박원순', 1:'배현진'}
+	return [dic[i] for i in idx]
+
+
 def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
-	# 같은 card_seq에서 순서를 가져야, parameter랑 매치가 됨
 	if card_seq is 1:
-		# 관심 지역이 2개 이상일때 cover에 어떻게 표기?
-		data = {
-			'custom1': ', '.join([a + ' ' + b for a,b in regions]),
-			'custom2': ', '.join(idx2party(parties)),
-			'custom3': '시도지사',
-		}
-		text = text_templates[card_seq].format(**data)
+		# TODO: 파라미터 선택하지 않았을 때
+		customs = []
+		customs.append(' #'.join([a + ' ' + b for a,b in regions]))
+		customs.append(' #'.join(idx2poll(polls)))
+		customs.append(' #'.join(idx2party(parties)))
+		customs.append(' #'.join(idx2candidate(candidates)))
+		
+		text = text_templates[card_seq].format('#' + ' #'.join(customs))
 		RANK1 = 'default'
 		title = None
 		rate = None
@@ -147,46 +154,43 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 		map = None
 
 	elif card_seq is 2:
-		each_toorate = sess.query(func.max(CurrentVote.toorate).label('max')).filter(CurrentVote.tootime<=time.hour).group_by(CurrentVote.sun_name1)
-		toorate_avg_nat = sess.query(func.avg(each_toorate.subquery().columns.max)).first()
+		each_toorate = sess.query(func.max(CurrentVote.toorate).label('max')).filter(CurrentVote.tootime<=time.hour).group_by(CurrentVote.sun_name1).subquery()
+		toorate_avg_nat = sess.query(func.avg(each_toorate.c.max)).scalar()
 
+		data = {
+			'toorate_avg_nat': round(toorate_avg_nat, 2),
+		}
 		if time.hour > 18:
-			data = {
-				'toorate_avg_nat': round(toorate_avg_nat[0], 2),
-			}
 			text = text_templates[card_seq].format(**data)
 			title = '최종 투표율'
 		else:
-			data = {
-				'hour': hourConverter(time.hour),
-				'toorate_avg_nat': round(toorate_avg_nat[0], 2),
-			}
+			data['hour'] = hourConverter(time.hour)
 			text = text_templates['2-1'].format(**data)
 			title = hourConverter(time.hour) + ', 현재 투표율'
 
 		RANK1 = 'default'
-		# title = '최종 투표율'
-		rate = round(toorate_avg_nat[0])
+		rate = round(toorate_avg_nat)
 		name = None
 		graph = None
 		map = None
 
 	elif card_seq is 3:
 		past = sess.query(func.max(PastVote.toorate).label('max')).filter(PastVote.tootime <= time.hour).group_by(PastVote.sun_name1).subquery()
-		past_toorate = sess.query(func.avg(past.c.max)).first()
+		past_toorate = sess.query(func.avg(past.c.max)).scalar()
 
 		current = sess.query(func.max(CurrentVote.toorate).label('max')).filter(CurrentVote.tootime <= time.hour).group_by(CurrentVote.sun_name1).subquery()
-		current_toorate = sess.query(func.avg(current.c.max)).first()
-		current_toorate_past_toorate = current_toorate[0] - past_toorate[0]
+		current_toorate = sess.query(func.avg(current.c.max)).scalar()
+		current_toorate_past_toorate = current_toorate - past_toorate
 
 		toorate_compare = '높은' if current_toorate_past_toorate > 0 else '낮은'
 
 		ranks = sess.query(func.max(CurrentVote.toorate).label('max'), CurrentVote.sun_name1).filter(CurrentVote.tootime <= time.hour).group_by(CurrentVote.sun_name1).order_by(func.max(CurrentVote.toorate).desc()).all()
+
 		toorate_rank1 = ranks[0][1]
 		toorate_rank = ', '.join(rank[1] for rank in ranks[1:5])
 
 		data = {
-			'past_toorate': round(past_toorate[0], 2),
+			'past_toorate': round(past_toorate, 2),
 			'current_toorate_past_toorate': round(current_toorate_past_toorate, 2),
 			'toorate_compare': toorate_compare,
 			'toorate_rank1': toorate_rank1,
@@ -207,34 +211,43 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 		map = generateMap('전국', ranks)
 
 	elif card_seq is 4:
+		print(index)
+		index = 0
 		region1 = regions[index][0]
+		region2 = regions[index][1]
+		print(regions[index])
 
-		toorate_region1 = sess.query(func.max(CurrentVote.toorate)).filter(CurrentVote.tootime<=time.hour, CurrentVote.sun_name1==region1).first()
+		# 서울, 서울
+		toorate_region1 = sess.query(func.max(CurrentVote.toorate)).filter(CurrentVote.tootime<=time.hour, CurrentVote.sun_name1==region1).scalar()
 
 		each_toorate = sess.query(func.max(CurrentVote.toorate).label('max'), CurrentVote.sun_name1).filter(CurrentVote.tootime<=time.hour).group_by(CurrentVote.sun_name1)
 
-		toorate_avg_nat = sess.query(func.avg(each_toorate.subquery().columns.max)).first()
-		toorate_region1_toorate_avg_nat = toorate_region1[0] - toorate_avg_nat[0]
+		toorate_avg_nat = sess.query(func.avg(each_toorate.subquery().c.max)).scalar()
+		toorate_region1_toorate_avg_nat = toorate_region1 - toorate_avg_nat
 
 		toorate_compare1 = '높은' if toorate_region1_toorate_avg_nat > 0 else '낮은'
 
-		region2 = regions[index][1]
+		
 
 		# TODO: _vote table에 sun_name2 없음
 		# toorate_region2 = sess.query(func.max(CurrentVote.toorate)).filter(CurrentVote.tootime<=time.hour, CurrentVote.sun_name2==region2).first()
-		toorate_region2 = sess.query(func.max(CurrentVote.toorate)).filter(CurrentVote.tootime<=time.hour, CurrentVote.sun_name1==region1).first()
-		toorate_region2_toorate_avg_nat = toorate_region2[0] - toorate_avg_nat[0]
+		toorate_region2 = sess.query(func.max(CurrentVote.toorate)).filter(CurrentVote.tootime<=time.hour, CurrentVote.sun_name1==region1).scalar()
+		toorate_region2_toorate_avg_nat = toorate_region2 - toorate_avg_nat
 
-		toorate_compare2 = '높은' if (toorate_region2[0] - toorate_avg_nat[0]) > 0 else '낮은'
+		toorate_compare2 = '높은' if (toorate_region2 - toorate_avg_nat) > 0 else '낮은'
+
+
+		# toorate_region1_sub =  sess.query(func.max(CurrentVote.toorate), CurrentVote.sun_name2).filter(CurrentVote.sendtime<=time, CurrentVote.sun_name1==region1).group_by(CurrentVote.sun_name2).order_by(func.max(CurrentVote.toorate).desc()).all()
+
 
 		data = {
 			'region1': region1,
-			'toorate_region1': round(toorate_region1[0], 2),
+			'toorate_region1': round(toorate_region1, 2),
 			'toorate_region1_toorate_avg_nat': round(abs(toorate_region1_toorate_avg_nat),2),
 			'toorate_compare1': toorate_compare1,
 			'region2': region2,
 			'josa': josaPick(region2, '이'),
-			'toorate_region2': round(toorate_region2[0],2),
+			'toorate_region2': round(toorate_region2, 2),
 			'toorate_region2_toorate_avg_nat': round(abs(toorate_region2_toorate_avg_nat),2),
 			'toorate_compare2': toorate_compare2,
 		}
@@ -249,9 +262,11 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 		rate = None
 		name = None
 		graph = None
-		map = generateMap(region2, each_toorate.all())
+		# map = generateMap(region1, toorate_region1_sub)
+		map = None
 
 	elif card_seq is 5:
+		# 5/25까지 후보자 등록기간
 		candidate = candidates[index]
 
 		text = None
@@ -291,18 +306,18 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 		pass
 
 	elif card_seq is 7:
-		each_openrate = sess.query(func.max(OpenSido.openrate).label('max')).filter(OpenSido.sendtime<=time).group_by(OpenSido.sun_name1)
-		openrate_avg_nat = sess.query(func.avg(each_openrate.subquery().columns.max)).first()
+		each_openrate = sess.query(func.max(OpenSido.openrate).label('max')).filter(OpenSido.sendtime<=time).group_by(OpenSido.sun_name1).subquery()
+		openrate_avg_nat = sess.query(func.avg(each_openrate.c.max)).scalar()
 
 		past = sess.query(func.max(OpenViewSido.openrate).label('max')).group_by(OpenViewSido.sun_name1).subquery()
-		past_openrate_avg_nat = sess.query(func.avg(past.c.max)).first()
+		past_openrate_avg_nat = sess.query(func.avg(past.c.max)).scalar()
 		
-		openrate_compare = '빠른' if (openrate_avg_nat[0] - past_openrate_avg_nat[0]) > 0 else '느린'
-		openrate_compare_plus = '이른' if (openrate_avg_nat[0] - past_openrate_avg_nat[0]) > 0 else '늦은'
+		openrate_compare = '빠른' if (openrate_avg_nat - past_openrate_avg_nat) > 0 else '느린'
+		openrate_compare_plus = '이른' if (openrate_avg_nat - past_openrate_avg_nat) > 0 else '늦은'
 
 		data = {
 			'hour': hourConverter(time.hour),
-			'openrate_avg_nat': round(openrate_avg_nat[0], 2),
+			'openrate_avg_nat': round(openrate_avg_nat, 2),
 			'openrate_compare': openrate_compare,
 			'openrate_compare_plus': openrate_compare_plus,
 		}
@@ -310,7 +325,7 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 		text = text_templates[card_seq].format(**data)
 		RANK1 = 'default'
 		title = hourConverter(time.hour) + ', 평균 개표율'
-		rate = round(openrate_avg_nat[0])
+		rate = round(openrate_avg_nat)
 		name = None
 		graph = None
 		map = None
@@ -331,8 +346,8 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 		title = None
 		rate = None
 		name = None
-		# graph = generateGraph(openrate_sunname1_ranks)
-		graph = None
+		graph = generateGraph(openrate_sunname1_ranks)
+		# graph = None
 		map = None
 
 	elif card_seq is 9:
@@ -351,16 +366,16 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 		title = None
 		rate = None
 		name = None
-		# graph = generateGraph(openrate_sunname2_ranks)
-		graph = None
+		graph = generateGraph(openrate_sunname2_ranks)
+		# graph = None
 		map = None
 
 	elif card_seq is 10:
 		region1 = regions[index][0]
 
-		openrate_region1 = sess.query(func.max(OpenSido.openrate)).filter(OpenSido.sendtime<=time, OpenSido.sun_name1==region1).first()
+		openrate_region1 = sess.query(func.max(OpenSido.openrate)).filter(OpenSido.sendtime<=time, OpenSido.sun_name1==region1).scalar()
 
-		if openrate_region1[0] == 0:
+		if openrate_region1 == 0:
 			data = {
 				'hour': hourConverter(time.hour),
 				'region1': region1,
@@ -369,9 +384,9 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 			map = None
 		else:
 			each_openrate = sess.query(func.max(OpenSido.openrate).label('max'), OpenSido.sun_name1.label('name')).filter(OpenSido.sendtime<=time).group_by(OpenSido.sun_name1).subquery()
-			openrate_avg_nat = sess.query(func.avg(each_openrate.c.max)).first()
+			openrate_avg_nat = sess.query(func.avg(each_openrate.c.max)).scalar()
 
-			openrate_region1_openrate_avg_nat = openrate_region1[0] - openrate_avg_nat[0]
+			openrate_region1_openrate_avg_nat = openrate_region1 - openrate_avg_nat
 			compare_region1 = '높은' if openrate_region1_openrate_avg_nat > 0 else '낮은'
 
 			# openrate_sido_rank1 = sess.query(each_openrate).order_by(each_openrate.c.max.desc()).first()
@@ -379,9 +394,9 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 
 			region2 = regions[index][1]
 
-			openrate_region2 = sess.query(func.max(OpenSido.openrate)).filter(OpenSido.sendtime<=time, OpenSido.sun_name2==region2).first()
+			openrate_region2 = sess.query(func.max(OpenSido.openrate)).filter(OpenSido.sendtime<=time, OpenSido.sun_name2==region2).scalar()
 
-			compare_region2 = '높은' if (openrate_region2[0] - openrate_avg_nat[0]) > 0 else '낮은'
+			compare_region2 = '높은' if (openrate_region2 - openrate_avg_nat) > 0 else '낮은'
 
 			# each_openrate_region1 = sess.query(func.max(OpenSido.openrate).label('max'), OpenSido.sun_name2.label('name')).filter(OpenSido.sendtime<=time, OpenSido.sun_name1==region1).group_by(OpenSido.sun_name2).subquery()
 			# openrate_region1_rank1 = sess.query(each_openrate_region1).order_by(each_openrate_region1.c.max.desc()).first()
@@ -390,8 +405,8 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 			data = {
 				'hour': hourConverter(time.hour),
 				'region1': region1,
-				'openrate_region1': round(openrate_region1[0], 2),
-				'openrate_region1_openrate_avg_nat': round(abs(openrate_region1_openrate_avg_nat),2),
+				'openrate_region1': round(openrate_region1, 2),
+				'openrate_region1_openrate_avg_nat': round(abs(openrate_region1_openrate_avg_nat), 2),
 				'compare_region1': compare_region1,
 				'region1': region1,
 				'openrate_region1_region2_rank1': openrate_region1_sub[0][1],
@@ -399,7 +414,7 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 				'openrate_region1_region2_rank1_rate': round(openrate_region1_sub[0][0], 2),
 				'region2': region2,
 				'josa2': josaPick(region2, '은'),
-				'openrate_region2': round(openrate_region2[0], 2),
+				'openrate_region2': round(openrate_region2, 2),
 				'compare_region2': compare_region2,
 			}
 			text = text_templates[card_seq].format(**data)
@@ -417,12 +432,13 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 		poll = polls[index]
 		poll_num_sunname = 100
 		# poll 종류에 대해 달라져야함
-		each_openrate = sess.query(func.max(OpenSido.openrate).label('max'), OpenSido.sun_name1).filter(OpenSido.sendtime<=time).group_by(OpenSido.sun_name1).order_by(func.max(OpenSido.openrate).desc())
-		poll_openrate_nat_avg = sess.query(func.avg(each_openrate.subquery().c.max)).first()
+		each_openrate = sess.query(func.max(OpenSido.openrate).label('max'), OpenSido.sun_name1).filter(OpenSido.sendtime<=time).group_by(OpenSido.sun_name1).order_by(func.max(OpenSido.openrate).desc()).subquery()
 
-		poll_openrate_ranks = sess.query(each_openrate.subquery()).all()
+		poll_openrate_nat_avg = sess.query(func.avg(each_openrate.c.max)).scalar()
 
-		if poll_openrate_nat_avg[0] == 0:
+		poll_openrate_ranks = sess.query(each_openrate).all()
+
+		if poll_openrate_nat_avg == 0:
 			data = {
 				'hour': hourConverter(time.hour),
 				'poll': poll,
@@ -438,7 +454,7 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 				'poll_openrate_rank2': poll_openrate_ranks[1][1],
 				'poll_openrate_rank2_rate': round(poll_openrate_ranks[1][0], 2),
 				'poll': poll, 
-				'poll_openrate_nat_avg': round(poll_openrate_nat_avg[0], 2),
+				'poll_openrate_nat_avg': round(poll_openrate_nat_avg, 2),
 			}
 			text = text_templates[card_seq].format(**data)
 
@@ -486,7 +502,7 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 	elif card_seq is 14:
 		sub_ranks = sess.query(OpenViewSido.rank01.label('rank01'), OpenViewSido.sun_name1).filter(OpenViewSido.sendtime<=time, OpenViewSido.rank01!=0).group_by(OpenViewSido.sun_name1).subquery()
 		ranks = sess.query(func.count(sub_ranks.c.rank01), sub_ranks.c.rank01).group_by(sub_ranks.c.rank01).order_by(func.count(sub_ranks.c.rank01).desc()).all()
-		rank1_party = sess.query(Candidate.affiliation).filter(Candidate.number==ranks[0][1]).first()[0]
+		rank1_party = sess.query(Candidate.affiliation).filter(Candidate.number==ranks[0][1]).scalar()
 
 		data = {
 			'hour': hourConverter(time.hour),
@@ -505,7 +521,7 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 	elif card_seq is 15:
 		sub_ranks = sess.query(OpenViewSido.rank01.label('rank01'), OpenViewSido.sun_name1).filter(OpenViewSido.sendtime<=time, OpenViewSido.rank01!=0).group_by(OpenViewSido.sun_name1).subquery()
 		ranks = sess.query(func.count(sub_ranks.c.rank01), sub_ranks.c.rank01).group_by(sub_ranks.c.rank01).order_by(func.count(sub_ranks.c.rank01).desc()).all()
-		rank1_party = sess.query(Candidate.affiliation).filter(Candidate.number==ranks[0][1]).first()[0]
+		rank1_party = sess.query(Candidate.affiliation).filter(Candidate.number==ranks[0][1]).scalar()
 
 		data = {
 			'hour': hourConverter(time.hour),
@@ -527,7 +543,7 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 	elif card_seq is 16:
 		sub_ranks = sess.query(OpenViewGusigun.rank01.label('rank01'), OpenViewGusigun.sun_name2).filter(OpenViewGusigun.sendtime<=time, OpenViewGusigun.rank01!=0).group_by(OpenViewGusigun.sun_name2).subquery()
 		ranks = sess.query(func.count(sub_ranks.c.rank01), sub_ranks.c.rank01).group_by(sub_ranks.c.rank01).order_by(func.count(sub_ranks.c.rank01).desc()).all()
-		rank1_party = sess.query(Candidate.affiliation).filter(Candidate.number==ranks[0][1]).first()[0]
+		rank1_party = sess.query(Candidate.affiliation).filter(Candidate.number==ranks[0][1]).scalar()
 
 		data = {
 			'hour': hourConverter(time.hour),
@@ -550,9 +566,9 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 		region1 = regions[index][0]
 		region1_poll = regionPoll(region1)
 
-		region1_openrate = sess.query(func.max(OpenSido.openrate)).filter(OpenSido.sendtime<=time, OpenSido.sun_name1==region1).first()
+		region1_openrate = sess.query(func.max(OpenSido.openrate)).filter(OpenSido.sendtime<=time, OpenSido.sun_name1==region1, OpenSido.sun_name2==region1).scalar()
 
-		region1_ranks = sess.query(OpenViewSido.rank01.label('rank01'), OpenViewSido.rate01.label('rate01'), OpenViewSido.rank02.label('rank02'), OpenViewSido.rate02.label('rate02')).filter(OpenViewSido.sendtime<=time, OpenViewSido.sun_name1==region1).order_by(OpenViewSido.sendtime.desc()).first()
+		region1_ranks = sess.query(OpenViewSido.rank01.label('rank01'), OpenViewSido.rate01.label('rate01'), OpenViewSido.rank02.label('rank02'), OpenViewSido.rate02.label('rate02')).filter(OpenViewSido.sendtime<=time, OpenViewSido.sun_name1==region1, OpenViewSido.sun_name2==region1).order_by(OpenViewSido.sendtime.desc()).first()
 
 		region1_rank1 = sess.query(Candidate.affiliation, Candidate.name).filter(Candidate.number==region1_ranks.rank01).first()
 		region1_rank1_party = region1_rank1[0]
@@ -581,7 +597,7 @@ def query_card_data(index, polls, regions, parties, candidates, time, card_seq):
 			text = text_templates['17-1'].format(**data)
 		else:
 			data['hour'] = hourConverter(time.hour)
-			data['region1_openrate'] = round(region1_openrate[0], 2)
+			data['region1_openrate'] = round(region1_openrate, 2)
 			text = text_templates[card_seq].format(**data)
 		
 		RANK1 = region1_rank1_party

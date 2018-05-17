@@ -24,3 +24,11 @@
 	from PyQt5 import QtCore, QtGui, QtWidgets ImportError: libGL.so.1: cannot open shared object file: No such file or directory
 	```
 	sudo apt install libgl1-mesa-glx
+
+	```
+	raise RuntimeError('Invalid DISPLAY variable')
+	RuntimeError: Invalid DISPLAY variable
+	```
+	import matplotlib
+	matplotlib.use('agg')
+	import matplotlib.pyplot as plt
