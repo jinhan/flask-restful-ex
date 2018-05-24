@@ -118,7 +118,7 @@ def generateMap(region, data):
         im = Image.open(img_data)
         cropImage = im.crop(crop_area)
         cropImage.save(crop_data, format='png', transparent=True)
-
+        crop_data.seek(0)
         image_name = str(uuid.uuid4().hex) + ".png"
         s3.Bucket(bucket).put_object(Key=image_name, Body=crop_data, ContentType="image/png")
 
