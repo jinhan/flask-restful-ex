@@ -39,8 +39,15 @@ Base.prepare(engine, reflect=True)
 District = Base.classes.sbs_2017_district
 Candidate = Base.classes.sbs_2017_candidates
 OpenSido = Base.classes.snu_2018_open_sido_mayor
+OpenGusigun = Base.classes.snu_2018_open_gusigun_mayor
 PastVote = Base.classes.sbs_2012_vote
 CurrentVote = Base.classes.snu_2018_vote
+
+PartyCode = Base.classes.PartyCode
+# SgCode = Base.classes.SgCode
+# SggCode = Base.classes.SggCode
+SunCode = Base.classes.SunCode_180613
+
 
 # sess = Session(engine)
 sess = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
