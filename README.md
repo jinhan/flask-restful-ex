@@ -12,6 +12,9 @@
 	pip install git+git://github.com/geopandas/geopandas.git
 	pip install -r requirements.txt
 
+	<!-- sudo cp ./res/H2GTRE.TTF /usr/share/fonts/
+	sudo fc-cache -fv -->
+
 ### Run Server
 	python api.py
 

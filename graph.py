@@ -12,8 +12,11 @@ import uuid
 from PIL import Image
 import numpy as np
 
+from timeit import default_timer as timer
+
 plt.xkcd()
 
+# TODO: font not found
 font_path = "./res/H2GTRE.TTF"
 font_name = matplotlib.font_manager.FontProperties(fname=font_path).get_name()
 matplotlib.rc('font', family=font_name)
@@ -50,7 +53,7 @@ def convertRegionName(r):
 #     '전국': gpd.read_file("./geo/skorea_provinces_geo.json"),
 # }
 seoul = gpd.read_file("./geo/seoul_municipalities_geo.json")
-korea = gpd.read_file("./geo/skorea_provinces_geo.json")
+korea = gpd.read_file("./geo/skorea_provinces_geo_simple.json")
 
 # json from https://github.com/southkorea/southkorea-maps
 def generateMap(region, data):
@@ -92,6 +95,7 @@ def generateMap(region, data):
 
         final_pic = data_result.plot(figsize=figsize, linewidth=0.25, edgecolor='black',column='percent', cmap='Blues')
         # print(data_result.head())
+        start = timer()
         for index, row in data_result.iterrows():
             # print(row['name'])
             xy = row['geometry'].centroid.coords[:][0]
@@ -106,7 +110,10 @@ def generateMap(region, data):
             plt.annotate(row['sum'], xy=xy, xytext=xytext,  horizontalalignment='center',verticalalignment='center')
             plt.axis('off')
         plt.figure(frameon=False)
+        end = timer()
+        print(end-start)
 
+        start = timer()
         # upload to s3
         img_data = io.BytesIO()
         crop_data = io.BytesIO()
@@ -115,17 +122,19 @@ def generateMap(region, data):
         fig.savefig(img_data, format='png', transparent=True, bbox_inches='tight') # bbox_inches='tight'
         img_data.seek(0)
 
-        im = Image.open(img_data)
-        cropImage = im.crop(crop_area)
-        cropImage.save(crop_data, format='png', transparent=True)
-        crop_data.seek(0)
+        # im = Image.open(img_data)
+        # cropImage = im.crop(crop_area)
+        # cropImage.save(crop_data, format='png', transparent=True)
+        # crop_data.seek(0)
         image_name = str(uuid.uuid4().hex) + ".png"
-        s3.Bucket(bucket).put_object(Key=image_name, Body=crop_data, ContentType="image/png")
+        # s3.Bucket(bucket).put_object(Key=image_name, Body=crop_data, ContentType="image/png")
 
         # cropImage.save(image_name)
 
         img_data.close()
         crop_data.close()
+        end = timer()
+        print(end-start)
       
         return "http://electiongraphs.s3.amazonaws.com/" + image_name
 
@@ -187,13 +196,16 @@ def generateGraph(data):
     plt.xlabel('현재 득표율', fontsize=15)
 
     # upload to s3
+    start = timer()
     img_data = io.BytesIO()
     fig.savefig(img_data, format='png', transparent=True, bbox_inches='tight') # bbox_inches='tight'
     img_data.seek(0)
     image_name = str(uuid.uuid4().hex) + ".png"
-    s3.Bucket(bucket).put_object(Key=image_name, Body=img_data, ContentType="image/png")
-    # im = Image.open(img_data) #
-    # im.save(image_name) #
+    # s3.Bucket(bucket).put_object(Key=image_name, Body=img_data, ContentType="image/png")
+    im = Image.open(img_data) #
+    im.save(image_name) #
     img_data.close()
+    end = timer()
+    print("graph fileio:  ", end-start)
 
     return "http://electiongraphs.s3.amazonaws.com/" + image_name
