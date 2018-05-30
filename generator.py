@@ -94,9 +94,9 @@ def generateMeta(args):
 	# 고유아이디, 시간
 	# 시간: 어떤 시간?
 
-	# card_seqs = getCardSeqs(polls, regions, parties, candidates, time)
+	card_seqs = getCardSeqs(polls, regions, parties, candidates, time)
 	# card_seqs = [2,3,4,5,6,7,10,12,13]
-	card_seqs = [2,3,4,5,6]
+	# card_seqs = [2,3,4,5,6]
 	print(card_seqs)
 
 	start = timer()
