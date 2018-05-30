@@ -13,6 +13,7 @@ class RequestAPI(Resource):
         parser.add_argument('region', type=int, default=[], action='append')
         parser.add_argument('party', type=int, default=[], action='append')
         parser.add_argument('candidate', type=int, default=[], action='append')
+        parser.add_argument('time')
         args = parser.parse_args()
         print(args)
 
