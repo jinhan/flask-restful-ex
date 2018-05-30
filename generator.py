@@ -7,7 +7,7 @@ from random import randint
 # from graph import generateMap, generateGraph
 # import pandas as pd
 from timeit import default_timer as timer
-from queries import query_card_data
+from queries import query_card_data, NoTextError
 
 # from multiprocessing import Pool
 # import os
@@ -24,10 +24,14 @@ from queries import query_card_data
 def getCardSeqs(polls, regions, parties, candidates, time):
 	card_seqs = []
 
-	each_openrate = sess.query(func.max(OpenProgress.openPercent).label('max')).filter(OpenProgress.datatime<=time).group_by(OpenProgress.sido).subquery()
-	openrate = sess.query(func.avg(each_openrate.c.max)).scalar()
-	# print(openrate)
+	region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==regions[0]).first()
 
+	openrate = sess.query(func.max(OpenProgress3.openPercent)).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==region1).scalar()
+	
+	if openrate is None:
+		openrate = 0
+	print(openrate)
+	
 	if time.hour < 18: # 투표중
 		card_seqs.extend([1, 2, 3, 6, 23]) # 6 특이사항
 		card_seqs.extend([4] * len(regions))
@@ -99,7 +103,7 @@ def generateMeta(args):
 	# card_seqs = [2,3,4,5,6]
 	print(card_seqs)
 
-	start = timer()
+	# start = timer()
 	meta = {}
 	meta['card_count'] = len(card_seqs)
 	meta['design_variation'] = randint(0,3)
@@ -131,13 +135,14 @@ def generateMeta(args):
 		# meta_card['debug'] = card_seq
 		try:
 			meta_card = query_card_data(order, index, polls, regions, parties, candidates, time, card_seq)
-		except TypeError:
+		except NoTextError:
+			print("pass:    ", card_seq)
 			continue
 
 		meta_cards.append(meta_card)
 	meta['cards'] = meta_cards
-	end = timer()
-	print(end - start)
+	# end = timer()
+	# print(end - start)
 
 	# multiprocessing
 	# start = timer()

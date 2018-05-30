@@ -8,6 +8,11 @@ import tossi
 from collections import Counter
 import numpy as np
 from decimal import *
+import datetime
+from random import randint
+
+class NoTextError(Exception):
+	pass
 
 def hourConverter(h):
 	if h < 12:
@@ -66,15 +71,19 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 	elif card_seq is 2:
 		# each_toorate = sess.query(func.max(VoteProgress.tooRate).label('max')).filter(VoteProgress.timeslot<=time.hour).group_by(VoteProgress.sido).subquery()
 		# toorate_avg_nat = sess.query(func.avg(each_toorate.c.max)).scalar()
+		if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
+			t = 23
+		else:
+			t = time.hour
 
-		each_toorate = sess.query(func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=time.hour).group_by(VoteProgress.sido).subquery()
+		each_toorate = sess.query(func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=t).group_by(VoteProgress.sido).subquery()
 		yooToday, yooEarly, tooToday, tooEarly = sess.query(func.sum(each_toorate.c.yooToday), func.sum(each_toorate.c.yooEarly), func.sum(each_toorate.c.tooToday), func.sum(each_toorate.c.tooEarly)).first()
 		toorate_avg_nat = (tooToday+tooEarly) / (yooToday+yooEarly) * 100
 
 		data = {
 			'toorate_avg_nat': round(toorate_avg_nat, 2),
 		}
-		if time.hour > 18:
+		if t > 18:
 			text = text_templates[2].format(**data)
 			title = '최종 투표율'
 		else:
@@ -94,15 +103,19 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		}
 
 	elif card_seq is 3:
+		if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
+			t = 23
+		else:
+			t = time.hour
 		# past = sess.query(func.max(PastVoteProgress.tooRate).label('max')).filter(PastVoteProgress.timeslot <= time.hour).group_by(PastVoteProgress.sido).subquery()
 		# past_toorate = sess.query(func.avg(past.c.max)).scalar()
-		each_toorate_p = sess.query(func.max(PastVoteProgress.yooToday).label('yooToday'), func.max(PastVoteProgress.yooEarly).label('yooEarly'), func.max(PastVoteProgress.tooToday).label('tooToday'), func.max(PastVoteProgress.tooEarly).label('tooEarly')).filter(PastVoteProgress.timeslot<=time.hour).group_by(PastVoteProgress.sido).subquery()
+		each_toorate_p = sess.query(func.max(PastVoteProgress.yooToday).label('yooToday'), func.max(PastVoteProgress.yooEarly).label('yooEarly'), func.max(PastVoteProgress.tooToday).label('tooToday'), func.max(PastVoteProgress.tooEarly).label('tooEarly')).filter(PastVoteProgress.timeslot<=t).group_by(PastVoteProgress.sido).subquery()
 		yooToday_p, yooEarly_p, tooToday_p, tooEarly_p = sess.query(func.sum(each_toorate_p.c.yooToday), func.sum(each_toorate_p.c.yooEarly), func.sum(each_toorate_p.c.tooToday), func.sum(each_toorate_p.c.tooEarly)).first()
 		past_toorate = (tooToday_p+tooEarly_p) / (yooToday_p+yooEarly_p) * 100
 
 		# current = sess.query(func.max(VoteProgress.tooRate).label('max')).filter(VoteProgress.timeslot <= time.hour).group_by(VoteProgress.sido).subquery()
 		# current_toorate = sess.query(func.avg(current.c.max)).scalar()
-		each_toorate = sess.query(func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=time.hour).group_by(VoteProgress.sido).subquery()
+		each_toorate = sess.query(func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=t).group_by(VoteProgress.sido).subquery()
 		yooToday, yooEarly, tooToday, tooEarly = sess.query(func.sum(each_toorate.c.yooToday), func.sum(each_toorate.c.yooEarly), func.sum(each_toorate.c.tooToday), func.sum(each_toorate.c.tooEarly)).first()
 		current_toorate = (tooToday+tooEarly) / (yooToday+yooEarly) * 100
 
@@ -110,7 +123,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 
 		toorate_compare = '높은' if current_toorate_past_toorate > 0 else '낮은'
 
-		ranks = sess.query(func.max(VoteProgress.tooRate).label('max'), VoteProgress.sido).filter(VoteProgress.timeslot <= time.hour).group_by(VoteProgress.sido).order_by(func.max(VoteProgress.tooRate).desc()).all()
+		ranks = sess.query(func.max(VoteProgress.tooRate).label('max'), VoteProgress.sido).filter(VoteProgress.timeslot<=t).group_by(VoteProgress.sido).order_by(func.max(VoteProgress.tooRate).desc()).all()
 		# print(ranks)
 
 		toorate_rank1 = ranks[0][1]
@@ -125,7 +138,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			'josa': josaPick(toorate_rank[-1], '이')
 		}
 
-		if time.hour > 18:
+		if t > 18:
 			text = text_templates[card_seq].format(**data)
 		else:
 			text = text_templates['3-1'].format(**data)
@@ -155,10 +168,15 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 	elif card_seq is 4:
 		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==regions[index]).first()
 
-		# 서울, 서울
-		toorate_region1 = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=time.hour, VoteProgress.sido==region1).scalar()
+		if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
+			t = 23
+		else:
+			t = time.hour
 
-		each_toorate = sess.query(func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=time.hour).group_by(VoteProgress.sido).subquery()
+		# 서울, 서울
+		toorate_region1 = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1).scalar()
+
+		each_toorate = sess.query(func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=t).group_by(VoteProgress.sido).subquery()
 		yooToday, yooEarly, tooToday, tooEarly = sess.query(func.sum(each_toorate.c.yooToday), func.sum(each_toorate.c.yooEarly), func.sum(each_toorate.c.tooToday), func.sum(each_toorate.c.tooEarly)).first()
 		toorate_avg_nat = (tooToday+tooEarly) / (yooToday+yooEarly) * 100
 
@@ -173,12 +191,12 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			'toorate_compare1': toorate_compare1,
 		}
 
-		if time.hour > 18:
+		if t > 18:
 			text = text_templates[card_seq].format(**data)
 		else:
 			text = text_templates['4-1'].format(**data)
 
-		toorate_region1_sub = sess.query(VoteProgressLatest.tooRate, VoteProgressLatest.gusigun).filter(VoteProgressLatest.timeslot<=time.hour, VoteProgressLatest.sido==region1).all()
+		toorate_region1_sub = sess.query(VoteProgressLatest.tooRate, VoteProgressLatest.gusigun).filter(VoteProgressLatest.timeslot<=t, VoteProgressLatest.sido==region1).all()
 		# print(region1)
 		# print(toorate_region1_sub)
 		map_data = []
@@ -205,7 +223,12 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 	elif card_seq is 5:
 		candidate, candidate_region, candidate_sdName = sess.query(CandidateInfo.name, CandidateInfo.sggName, CandidateInfo.sdName).filter(CandidateInfo.huboid==candidates[index]).first()
 
-		candidate_region_toorate = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=time.hour, VoteProgress.sido==candidate_sdName).scalar()
+		if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
+			t = 23
+		else:
+			t = time.hour
+
+		candidate_region_toorate = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==candidate_sdName).scalar()
 		# VoteProgress에 sggName 필요함
 
 		data = {
@@ -213,13 +236,13 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			'candidate_region': candidate_region,
 			'candidate_region_toorate': candidate_region_toorate,
 		}
-		if time.hour > 18:
+		if t > 18:
 			text = text_templates[card_seq].format(**data)
 		else:
 			data['hour'] = hourConverter(time.hour)
 			text = text_templates['5-1'].format(**data)
 
-		candidate_region_sub = sess.query(VoteProgressLatest.tooRate, VoteProgressLatest.gusigun).filter(VoteProgressLatest.timeslot<=time.hour, VoteProgressLatest.sido==candidate_sdName).all()
+		candidate_region_sub = sess.query(VoteProgressLatest.tooRate, VoteProgressLatest.gusigun).filter(VoteProgressLatest.timeslot<=t, VoteProgressLatest.sido==candidate_sdName).all()
 		# print(candidate_sdName)
 		# print(candidate_region_sub)
 		map_data = []
@@ -245,25 +268,30 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		
 
 	elif card_seq is 6:
-		each_toorate_p = sess.query(PastVoteProgress.sido, func.max(PastVoteProgress.yooToday).label('yooToday'), func.max(PastVoteProgress.yooEarly).label('yooEarly'), func.max(PastVoteProgress.tooToday).label('tooToday'), func.max(PastVoteProgress.tooEarly).label('tooEarly')).filter(PastVoteProgress.timeslot<=time.hour).group_by(PastVoteProgress.sido)
+		if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
+			t = 23
+		else:
+			t = time.hour
+
+		each_toorate_p = sess.query(PastVoteProgress.sido, func.max(PastVoteProgress.yooToday).label('yooToday'), func.max(PastVoteProgress.yooEarly).label('yooEarly'), func.max(PastVoteProgress.tooToday).label('tooToday'), func.max(PastVoteProgress.tooEarly).label('tooEarly')).filter(PastVoteProgress.timeslot<=t).group_by(PastVoteProgress.sido)
 
 		yooToday_p, yooEarly_p, tooToday_p, tooEarly_p = sess.query(func.sum(each_toorate_p.subquery().c.yooToday), func.sum(each_toorate_p.subquery().c.yooEarly), func.sum(each_toorate_p.subquery().c.tooToday), func.sum(each_toorate_p.subquery().c.tooEarly)).first()
 		past_toorate = (tooToday_p+tooEarly_p) / (yooToday_p+yooEarly_p) * 100
 
-		each_toorate = sess.query(VoteProgress.sido, func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=time.hour).group_by(VoteProgress.sido)
+		each_toorate = sess.query(VoteProgress.sido, func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=t).group_by(VoteProgress.sido)
 		
 		yooToday, yooEarly, tooToday, tooEarly = sess.query(func.sum(each_toorate.subquery().c.yooToday), func.sum(each_toorate.subquery().c.yooEarly), func.sum(each_toorate.subquery().c.tooToday), func.sum(each_toorate.subquery().c.tooEarly)).first()
 		current_toorate = (tooToday+tooEarly) / (yooToday+yooEarly) * 100
 
 		current_toorate_past_toorate = current_toorate - past_toorate
 
-		past = sess.query(PastVoteProgress.sido, func.max(PastVoteProgress.tooRate).label('max')).filter(PastVoteProgress.timeslot <= time.hour, PastVoteProgress.gusigun=='합계').group_by(PastVoteProgress.sido)
-		current = sess.query(VoteProgress.sido, func.max(VoteProgress.tooRate).label('max')).filter(VoteProgress.timeslot <= time.hour).group_by(VoteProgress.sido)
+		past = sess.query(PastVoteProgress.sido, func.max(PastVoteProgress.tooRate).label('max')).filter(PastVoteProgress.timeslot <= t, PastVoteProgress.gusigun=='합계').group_by(PastVoteProgress.sido)
+		current = sess.query(VoteProgress.sido, func.max(VoteProgress.tooRate).label('max')).filter(VoteProgress.timeslot <= t).group_by(VoteProgress.sido)
 		currentDf = pd.DataFrame(current.all())
 		pastDf = pd.DataFrame(past.all())
 		currentPastDf = pd.merge(currentDf, pastDf, on='sido')
 		# print(currentPastDf['max_x'] - currentPastDf['max_y'])
-		if time.hour > 18:
+		if t > 18:
 			text = text_templates[card_seq] if current_toorate_past_toorate > 0 else text_templates['6-0']
 		else:
 			# print(current.all())
@@ -277,7 +305,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				text = text_templates['6-2']
 			else:
 				# text = None
-				raise TypeError
+				raise NoTextError
 				
 		meta_card = {
 			'order': order,
@@ -1069,14 +1097,41 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		graph = None
 		map = None
 
-	elif card_seq in [22, 23]:
-		text = text_templates[card_seq]
-		RANK1 = 'default'
-		title = None
-		rate = None
-		name = None
-		graph = None
-		map = None
+	elif card_seq is 22:
+		if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
+			t = 23
+		else:
+			t = time.hour
 
+		each_toorate = sess.query(func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=t).group_by(VoteProgress.sido).subquery()
+		yooToday, yooEarly, tooToday, tooEarly = sess.query(func.sum(each_toorate.c.yooToday), func.sum(each_toorate.c.yooEarly), func.sum(each_toorate.c.tooToday), func.sum(each_toorate.c.tooEarly)).first()
+		toorate_avg_nat = (tooToday+tooEarly) / (yooToday+yooEarly) * 100
+
+		if toorate_avg_nat < 68.4:
+			text = text_templates[22].format(toorate_avg_nat=round(toorate_avg_nat, 2))
+		else:
+			num = '22-' + str(randint(0,7))
+			text = text_templates[num]
+
+		meta_card = {
+			'order': order,
+			'type': 'default',
+			'party': 'default',
+			'data': {
+				'text': text,
+			}
+		}
+
+	elif card_seq is 23:
+		num = '23-' + str(randint(0,4))
+		text = text_templates[num].format(hour=hourConverter(time.hour))
+		meta_card = {
+			'order': order,
+			'type': 'default',
+			'party': 'default',
+			'data': {
+				'text': text,
+			}
+		}
 	# return text, RANK1, title, rate, name, graph, map
 	return meta_card
