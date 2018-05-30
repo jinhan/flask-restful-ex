@@ -1123,7 +1123,15 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		}
 
 	elif card_seq is 23:
-		num = '23-' + str(randint(0,4))
+		if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
+			t = 23
+		else:
+			t = time.hour
+
+		if t > 18:
+			num = '23-' + str(randint(0,4))
+		else: 
+			num = '23-' + str(randint(0,3))
 		text = text_templates[num].format(hour=hourConverter(time.hour))
 		meta_card = {
 			'order': order,
