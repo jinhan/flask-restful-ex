@@ -21,7 +21,7 @@ text_templates = {
 	'5-1': '{candidate} 후보가 속해 있는 {candidate_region}의 투표율은 {hour} 현재 {candidate_region_toorate}%를 기록하고 있다.', # 투표중
 
 	6: '문재인 정부 2년차에 치뤄진 이번 선거는, 지난 선거보다 높은 최종투표율을 보이며 국민들의 뜨거운 관심 속에 투표가 마무리 되었다.', # 최종투표율이 지난 선거보다 높을 경우
-	'6-0': '', # 추후 투표율이 낮을 경우도 추가
+	'6-0': '문재인 정부 2년차에 치뤄진 이번 선거는, 지난 선거보다 낮은 최종투표율을 보이며 국민들의 저조한 참여 속에 투표가 마무리 되었다.', # 추후 투표율이 낮을 경우도 추가
 
 	'6-1': '전국적으로 지난 선거보다 높은 투표율을 보여 문재인 정부 2년차에 치뤄진 이번 선거에 대한 뜨거운 관심을 확인할 수 있다.', #지난 선거보다 동일시간대 전국투표율이 5% 포인트 이상 높을 경우
 	'6-2': '문재인 정부 2년차에 치뤄진 이번 선거에 대한 국민들의 열띤 투표 의지를 확인할 수 있다.',  # 지난 선거보다 동일시간대 투표율이 높은 선거구 수가 전체의 80% 이상일 경우
@@ -70,23 +70,23 @@ text_templates = {
 	14: '{hour} 현재 제 7회 지방선거 개표가 진행중인 가운데, 전국 17개의 시·도지사 선거에서 {rank1_party}{josa2} {rank1_party_num}개의 선거구에서 1위를 달리고 있다',
 	# 동률일때
 
-	15: '{hour} 현재 전국 17개의 시·도지사 선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리고 있다. 그 뒤를 {ranks_party}{josa2} 잇고 있다.', # 선택한 개인화 요소가 시도지사만 있을때(ex. 지역 선택이 없고, 후보나 선거 종류(시도지사)만 골랐을 때
+	'15-3': '{hour} 현재 전국 17개의 시·도지사 선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리고 있다. 그 뒤를 {ranks_party}{josa2} 잇고 있다.', # 선택한 개인화 요소가 시도지사만 있을때(ex. 지역 선택이 없고, 후보나 선거 종류(시도지사)만 골랐을 때
 
-	'15-1': '{hour} 현재 총 226개의 시군구청장을 선출하는 이번 지방선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리고 있다. 그 뒤를 {ranks_party}{josa2} 잇고 있다.', # 선택한 개인화 요소가 시군구청장만 있을때(ex. 지역 선택이 없고, 후보나 선거 종류(시군구청장)만 골랐을 때
+	'15-4': '{hour} 현재 총 226개의 시군구청장을 선출하는 이번 지방선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리고 있다. 그 뒤를 {ranks_party}{josa2} 잇고 있다.', # 선택한 개인화 요소가 시군구청장만 있을때(ex. 지역 선택이 없고, 후보나 선거 종류(시군구청장)만 골랐을 때
 
 	'15-2': '{hour} 현재 6.13 지방선거와 함께 치러지는 국회의원 재보궐 선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리고 있다. 그 뒤를 {ranks_party}{josa2} 잇고 있다.', # 선택한 개인화 요소가 국회의원만 있을때(ex. 지역 선택이 없고, 후보나 선거 종류(국회의원)만 골랐을 때
 
 	# 무슨 지역?: 득표율 가장 높은 지역
-	'15-3': '{hour} 현재 6.13 지방선거와 함께 치러지는 교육감 선거에서 {openrate_rank1_region} 지역의 {openrate_rank1_region_candidate} 후보가 현재 1위를 달리고 있다. 그 뒤를 {openrate_rank2_region_candidate} 후보가 잇고 있다.', # 선택한 개인화 요소가 교육감만 있을때(ex. 지역 선택이 없고, 후보나 선거 종류(교육감)만 골랐을 때
+	'15-11': '{hour} 현재 6.13 지방선거와 함께 치러지는 교육감 선거에서 {openrate_rank1_region} 지역의 {openrate_rank1_region_candidate} 후보가 현재 1위를 달리고 있다. 그 뒤를 {openrate_rank2_region_candidate} 후보가 잇고 있다.', # 선택한 개인화 요소가 교육감만 있을때(ex. 지역 선택이 없고, 후보나 선거 종류(교육감)만 골랐을 때
 	
 	# 득표율 개인화 지역별, 시도지사
-	16: '{hour} 현재 {region1}{region1_poll} 선거에서는 {region1_openrate}%의 개표율을 보이는 가운데 {region1_rank1_party} {region1_rank1_name} 후보가 {region1_rank1_rate}%의 득표율로 1위, {region1_rank2_party} {region1_rank2_name} 후보가 {region1_rank2_rate}%의 득표율로 2위를 달리고 있다.', # 경합, 우세 이외의 상황
+	16: '{hour} 현재 {region1} {region1_poll} 선거에서는 {region1_openrate}%의 개표율을 보이는 가운데 {region1_rank1_party} {region1_rank1_name} 후보가 {region1_rank1_rate}%의 득표율로 1위, {region1_rank2_party} {region1_rank2_name} 후보가 {region1_rank2_rate}%의 득표율로 2위를 달리고 있다.', # 경합, 우세 이외의 상황
 
-	'16-1': '{hour} 현재 {region1}{region1_poll} 선거에서는 {region1_openrate}%의 개표율을 보이는 가운데 {region1_rank1_party} {region1_rank1_name} 후보가 {region1_rank1_rate}%의 득표율로 1위, {region1_rank2_party} {region1_rank2_name} 후보가 {region1_rank2_rate}%의 득표율로 2위를 차지해 경합을 벌이고 있다.',  # 1위와 2위가  5% 이내
+	'16-1': '{hour} 현재 {region1} {region1_poll} 선거에서는 {region1_openrate}%의 개표율을 보이는 가운데 {region1_rank1_party} {region1_rank1_name} 후보가 {region1_rank1_rate}%의 득표율로 1위, {region1_rank2_party} {region1_rank2_name} 후보가 {region1_rank2_rate}%의 득표율로 2위를 차지해 경합을 벌이고 있다.',  # 1위와 2위가  5% 이내
 	
-	'16-2': '{hour} 현재 {region1}{region1_poll} 선거에서는 {region1_openrate}%의 개표율을 보이는 가운데 {region1_rank1_party} {region1_rank1_name} 후보가 {region1_rank1_rate}%의 득표율로 1위, {region1_rank2_party} {region1_rank2_name} 후보가 {region1_rank2_rate}%의 득표율로 2위를 차지해 격차가 벌어지고 있다.', # 1위와 2위가 15% 이상의 격차	
+	'16-2': '{hour} 현재 {region1} {region1_poll} 선거에서는 {region1_openrate}%의 개표율을 보이는 가운데 {region1_rank1_party} {region1_rank1_name} 후보가 {region1_rank1_rate}%의 득표율로 1위, {region1_rank2_party} {region1_rank2_name} 후보가 {region1_rank2_rate}%의 득표율로 2위를 차지해 격차가 벌어지고 있다.', # 1위와 2위가 15% 이상의 격차	
 	# 확정이후
-	'16-3': '{region1}{region1_poll} 선거에서 {region1_rank1_party} {region1_rank1_name} 후보가 현재 {region1_rank1_rate}%의 득표율을 보이고 있는 가운데 당선이 확정되었으며, {region1_rank2_party} {region1_rank2_name} 후보가 2위를 기록했다.', # 1위와 2위의 격차 > 남은 표수
+	'16-3': '{region1} {region1_poll} 선거에서 {region1_rank1_party} {region1_rank1_name} 후보가 현재 {region1_rank1_rate}%의 득표율을 보이고 있는 가운데 당선이 확정되었으며, {region1_rank2_party} {region1_rank2_name} 후보가 2위를 기록했다.', # 1위와 2위의 격차 > 남은 표수
 
 
 	17: '{hour} 현재 {candidate} 후보가 속해 있는 {candidate_region} 지역의 {candidate_poll} 선거에서는 {candidate_poll_rank1_name} 후보가 {candidate_poll_rank1_rate}%의 득표율로 1위, {candidate_poll_rank2_name} 후보가 {candidate_poll_rank2_rate}%의 득표율로 2위를 달리고 있다.', # 경합, 우세, 열세 이외의 상황, 기본
@@ -99,7 +99,7 @@ text_templates = {
 
 	'17-4': '{hour} 현재 {candidate} 후보가 속해 있는 {candidate_region} 지역의 {candidate_poll} 선거에서는 {candidate_poll_rank2_name} 후보가 {candidate_poll_rank2_rate}%의 득표율로 2위를 기록하고 있으며, {candidate_poll_rank1_name} 후보가 {candidate_poll_rank1_rate}%의 득표율로 앞서 있다.', # 내가 선택한 후보가 2위일때, 1위와 2위의 격차가 15% 이상
 	
-	'17-5': '{현재 시간.시각} 현재 {관심후보1} 후보가 속해 있는 {지역명.관심후보1} 지역의 {선거명.관심후보1} 선거에서는 {후보명.관심후보1.순위1} 후보가 {득표율.관심후보1.순위1}%의 득표율로 1위, {후보명.관심후보1.순위2} 후보가 {득표율.관심후보1.순위2}%의 득표율로 2위를 기록하며 경합을 벌이고 있으며, {관심후보1} 후보의 경우 약간 뒤쳐진 {득표율.관심후보1}%의 득표율을 보이고 있다.', # 내가 선택한 후보가 3위 이하일때, 1위와 2위가 5% 이내
+	'17-5': '{hour} 현재 {관심후보1} 후보가 속해 있는 {지역명.관심후보1} 지역의 {선거명.관심후보1} 선거에서는 {후보명.관심후보1.순위1} 후보가 {득표율.관심후보1.순위1}%의 득표율로 1위, {후보명.관심후보1.순위2} 후보가 {득표율.관심후보1.순위2}%의 득표율로 2위를 기록하며 경합을 벌이고 있으며, {관심후보1} 후보의 경우 약간 뒤쳐진 {득표율.관심후보1}%의 득표율을 보이고 있다.', # 내가 선택한 후보가 3위 이하일때, 1위와 2위가 5% 이내
 
 	'17-6': '{hour} 현재 {candidate} 후보가 속해 있는 {candidate_region} 지역의 {candidate_poll} 선거에서는 {candidate_poll_rank1_name} 후보가 {candidate_poll_rank1_rate}%의 득표율로 당선이 확정되었다.', # 내가 선택한 후보가 1위일때, 1위와 2위의 격차 > 남은 표수
 
@@ -108,7 +108,7 @@ text_templates = {
 	## 선거구수.관심정당1.시도지사.1위, 관심정당1.시도지사.순위 
 	18: '{party}은 시도지사 선거에서 총 17개 선거구 중 {my_party_rank1_sido_num}개의 선거구에서 득표율 1위를 달리고 있다. 시군구청장 선거에서는 총 226개 선거구 중 {my_party_rank1_gusigun_num}개의 선거구에서 득표율 1위를 달리고 있다.', # 경합, 우세, 열세 이외의 상황
 
-	'18-1': '현재 시도지사 선거에서 {party_rank1_sido_name}은 {party_rank2_sido_name}과 경합 중이다.  {party_rank1_sido_name}은 {party_rank1_sido_num}개 선거구에서 우세를 보이고 있으며, {party_rank2_sido_name}은 {party_rank2_sido_num}개 선거구에서 우세를 보이고 있다. 동시에 {party_rank3_sido_name}이  {party_rank3_sido_num}개의 선거구에서 득표율 우세를 보이며 시도지사 선거 정당 점유율 3위로 이들을 뒤쫓고 있다. 시군구청장 선거에서는 {party_rank123_gusigun_name} 순서로 정당 점유율 우세를 보이고 있다.',   #1,2위 경합
+	'18-1': '현재 시도지사 선거에서 {party_rank1_sido_name}은 {party_rank2_sido_name}과 경합 중이다. {party_rank1_sido_name}은 {party_rank1_sido_num}개 선거구에서 우세를 보이고 있으며, {party_rank2_sido_name}은 {party_rank2_sido_num}개 선거구에서 우세를 보이고 있다. 동시에 {party_rank3_sido_name}{josa} {party_rank3_sido_num}개의 선거구에서 득표율 우세를 보이며 시도지사 선거 정당 점유율 3위로 이들을 뒤쫓고 있다. 시군구청장 선거에서는 {party_rank123_gusigun_name} 순서로 정당 점유율 우세를 보이고 있다.',   #1,2위 경합
 
 	'18-2': '현재 시도지사 선거에서 {party_rank1_sido_name}이 한 발 앞서 1위를 달리고 있는 가운데 {party_rank2_sido_name}은 {party_rank3_sido_name}과 비슷한 득표율을 보이며 {party_rank1_sido_name}을 뒤쫓고 있다. 이들은 각각 {party_rank1_sido_num}, {party_rank2_sido_num}, {party_rank3_sido_num}개 선거구에서 우세를 보이고 있다. 시군구청장 선거에서는 {party_rank123_gusigun_name} 순서로 정당 점유율 우세를 보이고 있다.', # 2,3위 경합
 
@@ -118,17 +118,38 @@ text_templates = {
 
 	'18-5': '현재 시도지사 선거에서 {party_rank2_sido_name}이 {party_rank1_sido_name}과 상당한 격차를 보이며 정당 점유율 열세를 보이고 있다. {party_rank1_sido_name}은 현재 {party_rank1_sido_num}개의 선거구에서 우세를 보이며 {party_rank2_sido_num}개의 선거구에서 우세를 보이는 {party_rank2_sido_name}과 {party_rank3_sido_num}개의 선거구에서 우세를 보이는 {party_rank3_sido_name}과의 격차를 벌리고 있다. 시군구청장 선거에서는 {party_rank123_gusigun_name} 순서로 정당 점유율 우세를 보이고 있다.', # 내가 선택한 정당이 2위일때, 1위와 2위의 격차가 15% 이상
 
-	'18-6': '{party}은 시도지사 선거에서 총 17개 선거구 중 {party_rank1_sido_num_confirm}명의 후보의 당선이 확정되었으며, 시군구청장 선거에서는 총 226개의 선거구 중 {party_rank1_gusigun_num_confirm}명의 후보의 당선이 결정지어 이번 지방 선거에서 우세를 점했다.', # 내가 선택한 정당이 1위일때, 1위와 2위의 격차 > 남은 표수
+	'18-6': '{party}은 시도지사 선거에서 총 17개 선거구 중 {party_rank1_sido_num_confirm}명의 후보의 당선이 확정되었으며, 시군구청장 선거에서는 총 226개의 선거구 중 {party_rank1_gusigun_num_confirm}명의 후보의 당선이 결정지어 이번 지방 선거에서 우세를 점했다.', 
 
-	'18-7': '{party}은 시도지사선거에서 총 17개 선거구 중 {party_rank1_sido_num_confirm}명의 후보의 당선이 확정되었으며, 시군구청장 선거에서는 총 226개의 선거구 중 {party_rank1_gusigun_num_confirm}명의 후보의 당선을 결정지어 이번 지방 선거에서 다소 밀리는 모습을 보였다.', # 내가 선택한 정당이 2위 이하일때, 1위와 2위의 격차 > 남은 표수
+	'18-7': '{party}은 시도지사선거에서 총 17개 선거구 중 {party_rank1_sido_num_confirm}명의 후보의 당선이 확정되었으며, 시군구청장 선거에서는 총 226개의 선거구 중 {party_rank1_gusigun_num_confirm}명의 후보의 당선을 결정지어 이번 지방 선거에서 다소 밀리는 모습을 보였다.',
 
-	19: '{현재 시간.시각} 현재 6.13 지방선거와 함께 치러지는 국회의원 재보궐 선거에서 {정당명.전국.국회의원.순위1}{은|는} {선거구 수.정당.전국.국회의원.순위1}개의 선거구에서 1위를 달리고 있다. 그 뒤를 {정당명.전국.국회의원.순위2}, {정당명.전국.국회의원.순위2}{이|가} 잇고 있다.', # 경합, 우세 이외의 상황
+	# 선거 선택
+	19: '{hour} 현재 6.13 지방선거와 함께 치러지는 국회의원 재보궐 선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리고 있다. 그 뒤를 {rank2_party}{josa2} 잇고 있다.', # 경합, 우세 이외의 상황, 국회의원 보궐선거 선택
 
-	'19-1': '{현재 시간.시각} 현재 6.13 지방선거와 함께 치러지는 국회의원 재보궐 선거에서 {정당명.전국.국회의원.순위1}{은|는} {선거구 수.정당.전국.국회의원.순위1}개의 선거구에서 1위를 달리고 있다. 그 뒤를 {정당명.전국.국회의원.순위2}, {정당명.전국.국회의원.순위2}{이|가} 바짝 쫓으며 경합을 벌이고 있다. ', # 1위와 2위가 5% 이내
+	'19-1': '{hour} 현재 전국 시도지사 선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리고 있으며, 그 뒤를 {rank2_party}{josa2} 쫓고 있다.', # 경합, 우세 이외의 상황, 시도지사 선거 선택
 
-	'19-2': '{현재 시간.시각} 현재 6.13 지방선거와 함께 치러지는 국회의원 재보궐 선거에서 {정당명.전국.국회의원.순위1}{은|는} {선거구 수.정당.전국.국회의원.순위1}개의 선거구에서 1위를 달리며 우위를 점하고 있다. 그 뒤를 {정당명.전국.국회의원.순위2}, {정당명.전국.국회의원.순위2}{이|가} 잇고 있다.',  # 1위와 2위가 15% 이상의 격차
+	'19-2': '{hour} 현재 전국 시군구청장 선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리고 있으며, 그 뒤를 {rank2_party}{josa2} 쫓고 있다.',  # 경합, 우세 이외의 상황, 시군구청장 선거 선택
 
-	'19-3': '{현재 시간.시각} 현재 6.13 지방선거와 함께 치러지는 국회의원 재보궐 선거에서 {정당명.전국.국회의원.순위1}{은|는} {선거구 수.정당.전국.국회의원.순위1}개의 선거구에서 1위를 차지했다. 그 뒤를 {정당명.전국.국회의원.순위2}, {정당명.전국.국회의원.순위2}{이|가} 이었다.', # 1위와 2위의 격차 > 남은 표수
+	'19-4': '{hour} 현재 6.13 지방선거와 함께 치러지는 국회의원 재보궐 선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리고 있다. 그 뒤를 {rank2_party}{josa2} 바짝 쫓으며 경합을 벌이고 있다.', # 현재 1위인 선거구의 수가 가장 많은 정당과 그 다음인 정당의 차이가 전체 선거구의 5% 이내, 국회의원 보궐선거 선택
+
+	'19-5': '{hour} 현재 전국 시도지사 선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리고 있으며, 그 뒤를 {rank2_party}{josa2} {rank2_party_num}개의 선거구에서 1위로 바짝 쫓고 있다.', #현재 1위인 선거구의 수가 가장 많은 정당과 그 다음인 정당의 차이가 전체 선거구의 5% 이내, 시도지사 선거 선택
+
+	'19-6': '{hour} 현재 전국 시군구청장 선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리고 있으며, 그 뒤를 {rank2_party}{josa2} 바짝 쫓고 있다.', # 현재 1위인 선거구의 수가 가장 많은 정당과 그 다음인 정당의 차이가 전체 선거구의 5% 이내, 시군구청장 선택
+
+	'19-7': '{hour} 현재 6.13 지방선거와 함께 치러지는 국회의원 재보궐 선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리며 우위를 점하고 있다. 그 뒤를 {rank2_party}{josa2} 잇고 있다.', # 현재 1위인 선거구의 수가 가장 많은 정당과 그 다음인 정당의 차이가 전체 선거구의 15% 이상, 국회의원 보궐선거 선택
+
+	'19-8': '{hour} 현재 전국 시도지사 선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리고 있으며, {rank2_party}{josa2} {rank2_party_num}개의 선거구에서 1위로 한발 뒤쳐져 있는 상태이다.', # 현재 1위인 선거구의 수가 가장 많은 정당과 그 다음인 정당의 차이가 전체 선거구의 15% 이상, 시도지사 선거 선택
+
+	'19-9': '{hour} 현재 전국 시군구청장 선거에서 {rank1_party}{josa1} {rank1_party_num}개의 선거구에서 1위를 달리고 있으며, 그 뒤를 {rank2_party}{josa2} {rank2_party_num}개의 선거구에서 1위를 기록하며 추격하고 있다.', # 현재 1위인 선거구의 수가 가장 많은 정당과 그 다음인 정당의 차이가 전체 선거구의 15% 이상, 시군구청장 선택
+
+	'19-14': '{hour} 현재 6.13 지방선거와 함께 치러지는 국회의원 재보궐 선거에서 {confirms_rank1_party}{josa3} {confirms_rank1_party_num}개의 국회의석을 차지했다. {confirms_rank2}', # 당선 확정 선거구의 수가 가장 많은 정당과 그 다음인 정당의 격차 > 남은 선거구 수, 국회의원 보궐선거 선택
+
+	'19-15': '{hour} 현재 전국 시도지사 선거에서 {confirms_rank1_party}{josa3} {confirms_rank1_party_num}개의 시장과 도지사의 자리를 차지했다. {confirms_rank2}', # 당선 확정 선거구의 수가 가장 많은 정당과 그 다음인 정당의 격차 > 남은 선거구 수, 시도자시 선거 선택
+
+	'19-16': '{hour} 현재 전국 시군구청장 선거에서 {confirms_rank1_party}{josa3} {confirms_rank1_party_num}개의 시장과 도지사의 자리를 차지했다. {confirms_rank2}', # 당선 확정 선거구의 수가 가장 많은 정당과 그 다음인 정당의 격차 > 남은 선거구 수, 시군구청장선거 선택
+
+	'19-3': '{hour} 현재 전국 교육감 선거에서 개표가 가장 빠른 {open_rank1_region} 지역의 {open_rank1_region_candidate} 후보가 현재 1위를 달리고 있다. {open_rank2}', # 경합, 우세 이외의 상황, 교육감 선거 선택
+
+	'19-17': '{hour} 현재 전국 교육감 선거에서 {confirms_open_rank1_region}에서 {confirms_open_rank1_region_candidate} 후보가 당선이 확정되었다. {confirms_open_ranks}', # 교육감 선거 선택, 당선 확정 지역이 나왔을 경우(가장 먼저 당선 확정된 지역 먼저)
 
 	20: '득표율 특이사항',
 
@@ -158,23 +179,23 @@ text_templates = {
 # 	2:'rate', # 투표율 전체: 투표중, 마감이후
 # 	3:'map', # 투표율 비교 / 전국 : 투표중, 마감이후
 # 	4:'map', # 투표율 개인화 / 지역 : 투표중, 마감이후 region1
-# 	5:'map', # 투표율 개인화 / 후보 : 투표중, 마감이후 candidate_region
+# 	5:'map', # 투표율 개인화 / 후보 : 투표중, 마감이후 candidate_region, 후보가 속해있는 지역의
 # 	6:'default', # 투표율 특이사항
 
 # 	7:'rate', # 개표율 전체
 # 	8:'map', # 개표율 비교 / 시도지사
-# 	9:'default', # 개표율 비교 / 시군구청장
-# 	10:'default', # 개표율 개인화 / 지역: 개표율 > 0, 개표율 = 0
-# 	11:'default', # 개표율 개인화 / 선거: 개표율 > 0, 개표율 = 0
-# 	12:'default', # 개표율 개인화 / 후보: 개표율 > 0, 개표율 = 0
+# 	9:'graph', # 개표율 비교 / 시군구청장
+# 	10:'map', # 개표율 개인화 / 지역: 개표율 > 0, 개표율 = 0
+# 	11:'graph', # 개표율 개인화 / 선거: 개표율 > 0, 개표율 = 0
+# 	12:'default', # 개표율 개인화 / 후보: 개표율 > 0, 개표율 = 0, 5번  처럼 map으로
 # 	13:'default', # 개표율 특이사항
 
 # 	14:'winner', # 득표율 전체
 # 	15:'winner', # 득표율 시도지사, 시군구청장, 국회의원, 교육감
 # 	16:'graph', # 득표율 개인화 / 지역 : 확정이전, 확정이후
 # 	17:'graph', # 득표율 개인화 / 후보 : 확정이전, 확정이후
-# 	18:'graph', # 득표율 개인화 / 정당 : 확정이전, 확정이후
-# 	19:'graph', # 득표율 개인화 / 선거 : 확정이전, 확정이후 
+# 	18:'default', # 득표율 개인화 / 정당 : 확정이전, 확정이후 graph
+# 	19:'default', # 득표율 개인화 / 선거 : 확정이전, 확정이후 graph
 # 	20:'default', # 득표율 특이사항
 
 # 	21:'default', # 당선확정

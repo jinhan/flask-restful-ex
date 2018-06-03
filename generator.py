@@ -24,12 +24,55 @@ from queries import query_card_data, NoTextError
 def getCardSeqs(polls, regions, parties, candidates, time):
 	card_seqs = []
 
-	region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==regions[0]).first()
+	if (len(candidates) > 0) and (len(regions) > 0) and (len(parties) > 0) and (len(polls) > 0):
+		candidate, candidate_region, candidate_poll_code = sess.query(CandidateInfo.name, CandidateInfo.sggName, CandidateInfo.sgTypecode).filter(CandidateInfo.huboid==candidates[0]).first()
 
-	openrate = sess.query(func.max(OpenProgress3.openPercent)).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==region1).scalar()
+		if candidate_poll_code == 2: # 국회의원
+			openrate = sess.query(func.max(OpenProgress2.openPercent)).filter(OpenProgress2.sgg==candidate_region).scalar() # OpenProgress2.datatime<=time, 
+		elif candidate_poll_code == 3:
+			openrate = sess.query(func.max(OpenProgress3.openPercent)).filter(OpenProgress3.sido==candidate_region, OpenProgress3.gusigun=='합계').scalar() # OpenProgress3.datatime<=time,  
+		elif candidate_poll_code == 4:
+			openrate = sess.query(func.max(OpenProgress4.openPercent)).filter(OpenProgress4.gusigun==candidate_region).scalar() # OpenProgress4.datatime<=time, 
+		elif candidate_poll_code == 11:
+			openrate = sess.query(func.max(OpenProgress11.openPercent)).filter(OpenProgress11.sido==candidate_region, OpenProgress11.gusigun=='합계').scalar() # OpenProgress11.datatime<=time, 
+		else:
+			openrate = sess.query(func.max(OpenProgress.openPercent)).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==candidate_poll_code, OpenProgress.sido==candidate_region).scalar()
+
+	elif (len(candidates) == 0) and (len(regions) > 0) and (len(parties) > 0) and (len(polls) > 0):
+		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==regions[0]).first()
+
+		openrate = sess.query(func.max(OpenProgress3.openPercent)).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==region1).scalar()
+
+	# elif (len(candidates) == 0) and (len(regions) == 0) and (len(parties) > 0) and (len(polls) > 0):
+	# 	parites
+	elif (len(candidates) == 0) and (len(regions) == 0) and (len(parties) == 0) and (len(polls) > 0):
+		if polls[0] == 2:
+			sub = sess.query(func.max(OpenProgress2.tooTotal).label('tooTotal'), func.max(OpenProgress2.n_total).label('n_total'), func.max(OpenProgress2.invalid).label('invalid')).subquery() # .filter(OpenProgress2.datatime<=time)
+			tooTotal, n_total, invalid = sess.query(func.sum(sub.c.tooTotal), func.sum(sub.c.n_total), func.sum(sub.c.invalid)).first()
+		
+			openrate = (n_total + invalid) / tooTotal * 100
+
+		elif polls[0] is 3:
+			sub = sess.query(func.max(OpenProgress3.tooTotal).label('tooTotal'), func.max(OpenProgress3.n_total).label('n_total'), func.max(OpenProgress3.invalid).label('invalid')).filter(OpenProgress3.gusigun=='합계').subquery() # .filter(OpenProgress2.datatime<=time)
+			tooTotal, n_total, invalid = sess.query(func.sum(sub.c.tooTotal), func.sum(sub.c.n_total), func.sum(sub.c.invalid)).first()
+		
+			openrate = (n_total + invalid) / tooTotal * 100
+		
+		elif polls[0] is 4:
+			sub = sess.query(func.max(OpenProgress4.tooTotal).label('tooTotal'), func.max(OpenProgress4.n_total).label('n_total'), func.max(OpenProgress4.invalid).label('invalid')).subquery() # .filter(OpenProgress2.datatime<=time)
+			tooTotal, n_total, invalid = sess.query(func.sum(sub.c.tooTotal), func.sum(sub.c.n_total), func.sum(sub.c.invalid)).first()
+		
+			openrate = (n_total + invalid) / tooTotal * 100
+		
+		elif polls[0] is 11:
+			sub = sess.query(func.max(OpenProgress11.tooTotal).label('tooTotal'), func.max(OpenProgress11.n_total).label('n_total'), func.max(OpenProgress11.invalid).label('invalid')).filter(OpenProgress11.gusigun=='합계').subquery() # .filter(OpenProgress2.datatime<=time)
+			tooTotal, n_total, invalid = sess.query(func.sum(sub.c.tooTotal), func.sum(sub.c.n_total), func.sum(sub.c.invalid)).first()
+		
+			openrate = (n_total + invalid) / tooTotal * 100
 	
-	if openrate is None:
+	else:
 		openrate = 0
+	
 	print(openrate)
 	
 	if time.hour < 18: # 투표중
@@ -45,29 +88,27 @@ def getCardSeqs(polls, regions, parties, candidates, time):
 		card_seqs.sort()
 	
 	elif time.hour > 18 and openrate >= 10 and openrate < 30: # 개표율 10% 이상
-		card_seqs.extend([1, 2, 3, 6, 7, 8, 9, 13, 23]) # 6, 13, 20 특이사항
+		card_seqs.extend([1, 2, 3, 7, 8, 9, 20, 23]) # 6, 13, 20 특이사항
 		card_seqs.extend([4] * len(regions))
 		card_seqs.extend([5] * len(candidates))
 		card_seqs.extend([10] * len(regions))
 		card_seqs.extend([11] * len(polls))
 		card_seqs.extend([12] * len(candidates))
-		card_seqs.extend([17] * len(regions))
-		card_seqs.extend([18] * len(candidates))
-		card_seqs.extend([19] * len(parties))
-		card_seqs.sort()
-
-	elif time.hour > 18 and openrate >= 30: # 개표율 30% 이상
-		card_seqs.extend([1, 2, 7, 8, 9, 13, 14, 16, 20, 23]) # 13, 20 특이사항
-		card_seqs.extend([10] * len(regions))
-		card_seqs.extend([11] * len(polls))
-		card_seqs.extend([12] * len(candidates))
-		# TODO: 15번 
 		card_seqs.extend([16] * len(regions))
 		card_seqs.extend([17] * len(candidates))
 		card_seqs.extend([18] * len(parties))
-		card_seqs.extend([19] * len(polls))
 		card_seqs.sort()
 
+	elif time.hour > 18 and openrate >= 30: # 개표율 30% 이상
+		card_seqs.extend([1, 2, 7, 13, 14, 15, 20, 23]) # 13, 20 특이사항
+		card_seqs.extend([10] * len(regions))
+		card_seqs.extend([11] * len(polls))
+		card_seqs.extend([12] * len(candidates))
+		card_seqs.extend([16] * len(regions))
+		card_seqs.extend([17] * len(candidates))
+		card_seqs.extend([18] * len(parties))
+		card_seqs.sort()
+	# 내가 선택한 선거에서 한명이라도 당선 확정이 나오는 경우 21번을 index 1에 insert
 	return card_seqs
 
 # each by card
@@ -99,8 +140,9 @@ def generateMeta(args):
 	# 시간: 어떤 시간?
 
 	card_seqs = getCardSeqs(polls, regions, parties, candidates, time)
-	# card_seqs = [2,3,4,5,6,7,10,12,13]
+	# card_seqs = [2,3,4,5,6,7,8,9,10,11,12,13]
 	# card_seqs = [2,3,4,5,6]
+	# card_seqs = [19]
 	print(card_seqs)
 
 	# start = timer()
@@ -108,31 +150,19 @@ def generateMeta(args):
 	meta['card_count'] = len(card_seqs)
 	meta['design_variation'] = randint(0,3)
 	meta_cards = []
-	# index = 0
 	# TODO: 멀티로 생성할 수 있도록 
 	# TODO: 한번에 여러 쿼리가 들어오는 경우, 같은 데이터 쿼리가 불러오지 않도록 
-	
+	# TODO: parallel, 중복 쿼리 가지 않도록 새로운 데이터 있는지 체크
+
+	index = 0
 	for i, card_seq in enumerate(card_seqs):
 		if card_seqs[i-1] is card_seq:
 			index += 1
 		else:
 			index = 0
 
-		# meta_card = {}
-		# meta_card['order'] = i+1
 		order = i+1
 		
-		# try:
-		# 	img_type, img_party, data = generateTextsImgsViss(order, index, polls, regions, parties, candidates, time, card_seq)
-		# except TypeError:
-		# 	print("pass:    ", card_seq)
-		# 	continue # go to next loop
-
-
-		# meta_card['type'] = img_type
-		# meta_card['party'] = img_party
-		# meta_card['data'] = data
-		# meta_card['debug'] = card_seq
 		try:
 			meta_card = query_card_data(order, index, polls, regions, parties, candidates, time, card_seq)
 		except NoTextError:
@@ -140,10 +170,12 @@ def generateMeta(args):
 			continue
 
 		meta_cards.append(meta_card)
+
 	meta['cards'] = meta_cards
 	# end = timer()
 	# print(end - start)
 
+	#################
 	# multiprocessing
 	# start = timer()
 	# meta = {}
@@ -166,7 +198,7 @@ def generateMeta(args):
 	# end = timer()
 	# print(end-start)
 	
-	sess.close()
+	# sess.close()
 	return meta
 
 
