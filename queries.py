@@ -1163,12 +1163,12 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		print(rank1_count)
 		my_party_rank1_sido_num = [v for r, v in rank1_count if r is party]
 		my_party_rank1_gusigun_num = [v for r, v in rank1_count_g if r is party]
-		party_rank1_sido_num = rank1_count_g[0][1]
-		party_rank1_sido_name = rank1_count_g[0][0]
-		party_rank2_sido_num = rank1_count_g[1][1]
-		party_rank2_sido_name = rank1_count_g[1][0]
-		party_rank3_sido_num = rank1_count_g[2][1]
-		party_rank3_sido_name = rank1_count_g[2][0]
+		party_rank1_sido_num = rank1_count[0][1]
+		party_rank1_sido_name = rank1_count[0][0]
+		party_rank2_sido_num = rank1_count[1][1]
+		party_rank2_sido_name = rank1_count[1][0]
+		party_rank3_sido_num = rank1_count[2][1]
+		party_rank3_sido_name = rank1_count[2][0]
 		party_rank1_gusigun_num = rank1_count_g[0][1]
 		party_rank123_gusigun_name = ', '.join([r[0] for r in rank1_count_g])
 
@@ -1209,43 +1209,73 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			'party_rank123_gusigun_name': party_rank123_gusigun_name,
 		}
 				
+		graph_data = []
+		for r in rank1_count:
+			graph_data.append({
+				'party': r[0],
+				'value': float(r[1] / len(ranking[0])),
+			})
 		
+		# print(graph_data)
 		if abs(party_rank1_sido_num - party_rank2_sido_num) / len(rank1_count_g) < 0.05: # 1,2위 경합
 			text = text_templates['18-1'].format(**data)
+			graph = True
 
 		elif abs(party_rank2_sido_num - party_rank3_sido_num) / len(rank1_count_g) < 0.05: # 2,3위 경합
 			text = text_templates['18-2'].format(**data)
+			graph = True
 		
 		elif (abs(party_rank1_sido_num - party_rank2_sido_num) / len(rank1_count_g) < 0.05) and (abs(party_rank2_sido_num - party_rank3_sido_num) / len(rank1_count_g) < 0.05): # 1,2,3위 경합
 			text = text_templates['18-3'].format(**data)
+			graph = True
 
 		elif (party is party_rank1_sido_name) and (abs(ranking[0][0]['percent'] - ranking[0][1]['percent']) > 15): # 내가 선택한 정당이 1위일때, 1위와 2위의 격차가 15% 이상
 			text = text_templates['18-4'].format(**data)
+			graph = True
 		
 		elif (party is party_rank2_sido_name) and (abs(ranking[0][0]['percent'] - ranking[0][1]['percent']) > 15): # 내가 선택한 정당이 2위일때, 1위와 2위의 격차가 15% 이상
 			text = text_templates['18-5'].format(**data)
+			graph = True
 
 		elif confirms_count[0][0] is party:
 			data['party_rank1_sido_num_confirm'] = confirms_count[0][1],
 			data['party_rank1_gusigun_num_confirm'] = [v for r, v in confirms_count_g if r is party][0],
 			text = text_templates['18-6'].format(**data)
+			graph = False
 
 		elif confirms_count[1][0] is party:
 			data['party_rank1_sido_num_confirm'] = confirms_count[1][1],
 			data['party_rank1_gusigun_num_confirm'] = [v for r, v in confirms_count_g if r is party][0],
 			text = text_templates['18-7'].format(**data)
+			graph = False
 		
 		else:
 			text = text_templates[card_seq].format(**data)
-
-		meta_card = {
-			'order': order,
-			'type': 'default',
-			'party': 'default',
-			'data': {
-				'text': text,
+			graph = False
+		
+		if graph:
+			meta_card = {
+				'order': order,
+				'type': 'graph',
+				'party': 'default',
+				'data': {
+					'graph_data': {
+						'type': 'party',
+						'data': graph_data,
+					},
+					'text': text,
+				}
 			}
-		}
+		else:
+			meta_card = {
+				'order': order,
+				'type': 'default',
+				'party': 'default',
+				'data': {
+					'text': text,
+				}
+			}
+
 
 	elif card_seq is 19:
 		if polls[index] == 2:
