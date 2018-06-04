@@ -209,8 +209,9 @@ def generateMeta(args):
 	# p.close()
 	# end = timer()
 	# print(end-start)
-	
-	sess.close()
+	print(sess)
+	# sess.commit()
+	# sess.close()
 	return meta
 
 

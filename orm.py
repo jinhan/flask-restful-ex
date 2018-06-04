@@ -27,5 +27,5 @@ OpenProgress4 = Base.classes.OpenProgressLatest4
 OpenProgress11 = Base.classes.OpenProgressLatest11
 PartyCode = Base.classes.PartyCode
 
-sess = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
+sess = scoped_session(sessionmaker(autocommit=True, autoflush=True, bind=engine, expire_on_commit=True))
 
