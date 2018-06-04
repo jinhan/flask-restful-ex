@@ -141,6 +141,18 @@ def generateMeta(args):
 	# args가 같고, 데이터 기록 시간이 업데이트 되지 않으면 아래를 실행하지 않고, 고유 아이디 전송
 	# 고유아이디, 시간
 	# 시간: 어떤 시간?
+	# TODO: 멀티로 생성할 수 있도록 
+	# TODO: 한번에 여러 쿼리가 들어오는 경우, 같은 데이터 쿼리가 불러오지 않도록 
+	# TODO: parallel, 중복 쿼리 가지 않도록 새로운 데이터 있는지 체크
+	# args, table 최근 time 기
+	time_update = []
+	time_update.append(sess.query(VoteProgressLatest.timeslot).order_by(VoteProgressLatest.timeslot.desc()).first()[0])
+	time_update.append(sess.query(OpenProgress2.datatime).order_by(OpenProgress2.datatime.desc()).first()[0])
+	time_update.append(sess.query(OpenProgress3.datatime).order_by(OpenProgress3.datatime.desc()).first()[0])
+	time_update.append(sess.query(OpenProgress4.datatime).order_by(OpenProgress4.datatime.desc()).first()[0])
+	time_update.append(sess.query(OpenProgress11.datatime).order_by(OpenProgress11.datatime.desc()).first()[0])
+
+
 
 	card_seqs, seqs_type = getCardSeqs(polls, regions, parties, candidates, time)
 	# card_seqs = [2,3,4,5,6,7,8,9,10,11,12,13]
@@ -153,9 +165,6 @@ def generateMeta(args):
 	meta['card_count'] = len(card_seqs)
 	meta['design_variation'] = randint(0,3)
 	meta_cards = []
-	# TODO: 멀티로 생성할 수 있도록 
-	# TODO: 한번에 여러 쿼리가 들어오는 경우, 같은 데이터 쿼리가 불러오지 않도록 
-	# TODO: parallel, 중복 쿼리 가지 않도록 새로운 데이터 있는지 체크
 
 	index = 0
 	for i, card_seq in enumerate(card_seqs):
@@ -201,7 +210,7 @@ def generateMeta(args):
 	# end = timer()
 	# print(end-start)
 	
-	# sess.close()
+	sess.close()
 	return meta
 
 
