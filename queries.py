@@ -1578,27 +1578,30 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 
 				if region2 == '합계':
 					region2 = None
-				region2Poll = regionPoll(region2, 4) # 시도지사
-				sub_ranks_g = sess.query(OpenProgress4).filter(OpenProgress4.sido==region1, OpenProgress4.gusigun==region2)
-				ranksDf_g = pd.read_sql(sub_ranks_g.statement, sub_ranks_g.session.bind)
-				# if len(ranksDf_g) == 0:
-				# 	raise NoTextError
-				ranks_vote_g = ranksDf_g.filter(regex="n*_percent").dropna(axis=1)	
-				ranks_ttl_g = [] # one line
-				for i, ranks in ranks_vote_g.iterrows():
-					ranks_ttl_g.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
-				ranking_g = []
-				region2_confirm_name = ''
-				for idx, ranks in enumerate(ranks_ttl_g):
-					rank1_cnt = ranksDf_g.loc[idx, rank[0]+'_vote']
-					rank2_cnt = ranksDf_g.loc[idx, rank[1]+'_vote']
-					yet_cnt = ranksDf_g.loc[idx, 'tooTotal'] - ranksDf_g.loc[idx, 'n_total'] - ranksDf_g.loc[idx, 'invalid']
-					confirm = 1 if (rank1_cnt-rank2_cnt) > yet_cnt else 0
-					if confirm:
-						region2_confirm_name = ranksDf_g.loc[idx, ranks[0]+'_name']
-				if region2_confirm_name:
-					regions_text.append('{region2} {region2Poll} 선거에서 {region2_confirm_name} 후보가'.format(region2=region2, region2Poll=region2Poll, region2_confirm_name=region2_confirm_name))
-				else:
+				try:
+					region2Poll = regionPoll(region2, 4) # 시도지사
+					sub_ranks_g = sess.query(OpenProgress4).filter(OpenProgress4.sido==region1, OpenProgress4.gusigun==region2)
+					ranksDf_g = pd.read_sql(sub_ranks_g.statement, sub_ranks_g.session.bind)
+					# if len(ranksDf_g) == 0:
+					# 	raise NoTextError
+					ranks_vote_g = ranksDf_g.filter(regex="n*_percent").dropna(axis=1)	
+					ranks_ttl_g = [] # one line
+					for i, ranks in ranks_vote_g.iterrows():
+						ranks_ttl_g.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
+					ranking_g = []
+					region2_confirm_name = ''
+					for idx, ranks in enumerate(ranks_ttl_g):
+						rank1_cnt = ranksDf_g.loc[idx, rank[0]+'_vote']
+						rank2_cnt = ranksDf_g.loc[idx, rank[1]+'_vote']
+						yet_cnt = ranksDf_g.loc[idx, 'tooTotal'] - ranksDf_g.loc[idx, 'n_total'] - ranksDf_g.loc[idx, 'invalid']
+						confirm = 1 if (rank1_cnt-rank2_cnt) > yet_cnt else 0
+						if confirm:
+							region2_confirm_name = ranksDf_g.loc[idx, ranks[0]+'_name']
+					if region2_confirm_name:
+						regions_text.append('{region2} {region2Poll} 선거에서 {region2_confirm_name} 후보가'.format(region2=region2, region2Poll=region2Poll, region2_confirm_name=region2_confirm_name))
+					else:
+						pass
+				except AttributeError:
 					pass
 
 			regions_text = ', '.join(regions_text)
