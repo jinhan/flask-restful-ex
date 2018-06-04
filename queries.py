@@ -492,7 +492,10 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		sub_r = sess.query(OpenProgress.gusigun,func.max(OpenProgress.tooTotal).label('tooTotal'), func.max(OpenProgress.n_total).label('n_total'), func.max(OpenProgress.invalid).label('invalid')).filter(OpenProgress.datatime<=time, OpenProgress.sido==region1).group_by(OpenProgress.townCode)
 		tooTotal_r, n_total_r, invalid_r = sess.query(func.sum(sub_r.subquery().c.tooTotal), func.sum(sub_r.subquery().c.n_total), func.sum(sub_r.subquery().c.invalid)).first()
 		
-		openrate_region1 = (n_total_r + invalid_r) / tooTotal_r * 100
+		try:
+			openrate_region1 = (n_total_r + invalid_r) / tooTotal_r * 100
+		except TypeError:
+			openrate_region1 = 0
 
 		data = {
 			'hour': hourConverter(time.hour),
