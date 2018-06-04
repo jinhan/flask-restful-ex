@@ -211,7 +211,7 @@ def generateMeta(args):
 	# print(end-start)
 	print(sess)
 	# sess.commit()
-	# sess.close()
+	sess.close()
 	return meta
 
 
