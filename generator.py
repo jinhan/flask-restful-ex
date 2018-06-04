@@ -171,7 +171,7 @@ def generateMeta(args):
 		except NoTextError:
 			print("pass:    ", card_seq)
 			continue
-
+		meta_card['debugging'] = card_seq
 		meta_cards.append(meta_card)
 
 	meta['cards'] = meta_cards
