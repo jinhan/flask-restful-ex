@@ -907,7 +907,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			}
 
 	elif card_seq is 16:
-		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==regions[index]).first()
+		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
 		if region2 == '합계':
 			region2 = None
 		
@@ -1549,7 +1549,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				candidates_text += ', '
 
 		if len(regions) > 0:
-			regions_all = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode.in_(regions)).all()
+			regions_all = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode.in_(regions)).all()
 			regions_text = []
 			for region1, region2 in regions_all:
 				region1Poll = regionPoll(region1, 3) # 시도지사
