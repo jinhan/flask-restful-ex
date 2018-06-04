@@ -80,13 +80,14 @@ def getCardSeqs(polls, regions, parties, candidates, time):
 		card_seqs.extend([4] * len(regions))
 		card_seqs.extend([5] * len(candidates))
 		card_seqs.sort()
+		seqs_type = 0
 	# 어떤 선거의 개표율 10 기준?
 	elif time.hour > 18 and openrate < 10: # 투표마감이후
 		card_seqs.extend([1, 2, 3, 6, 22, 23]) # 6 특이사항
 		card_seqs.extend([4] * len(regions))
 		card_seqs.extend([5] * len(candidates))
 		card_seqs.sort()
-	
+		seqs_type = 0
 	elif time.hour > 18 and openrate >= 10 and openrate < 30: # 개표율 10% 이상
 		card_seqs.extend([1, 2, 3, 7, 8, 9, 20, 23]) # 6, 13, 20 특이사항
 		card_seqs.extend([4] * len(regions))
@@ -98,7 +99,7 @@ def getCardSeqs(polls, regions, parties, candidates, time):
 		card_seqs.extend([17] * len(candidates))
 		card_seqs.extend([18] * len(parties))
 		card_seqs.sort()
-
+		seqs_type = 1
 	elif time.hour > 18 and openrate >= 30: # 개표율 30% 이상
 		card_seqs.extend([1, 2, 7, 13, 14, 15, 20, 23]) # 13, 20 특이사항
 		card_seqs.extend([10] * len(regions))
@@ -108,8 +109,10 @@ def getCardSeqs(polls, regions, parties, candidates, time):
 		card_seqs.extend([17] * len(candidates))
 		card_seqs.extend([18] * len(parties))
 		card_seqs.sort()
+		card_seqs.insert(1, 21)
+		seqs_type = 1
 	# 내가 선택한 선거에서 한명이라도 당선 확정이 나오는 경우 21번을 index 1에 insert
-	return card_seqs
+	return card_seqs, seqs_type
 
 # each by card
 # def generateTextsImgsViss(index, polls, regions, parties, candidates, time, card_seq):
@@ -139,7 +142,7 @@ def generateMeta(args):
 	# 고유아이디, 시간
 	# 시간: 어떤 시간?
 
-	card_seqs = getCardSeqs(polls, regions, parties, candidates, time)
+	card_seqs, seqs_type = getCardSeqs(polls, regions, parties, candidates, time)
 	# card_seqs = [2,3,4,5,6,7,8,9,10,11,12,13]
 	# card_seqs = [2,3,4,5,6]
 	# card_seqs = [19]
@@ -164,7 +167,7 @@ def generateMeta(args):
 		order = i+1
 		
 		try:
-			meta_card = query_card_data(order, index, polls, regions, parties, candidates, time, card_seq)
+			meta_card = query_card_data(order, index, polls, regions, parties, candidates, time, card_seq, seqs_type)
 		except NoTextError:
 			print("pass:    ", card_seq)
 			continue
