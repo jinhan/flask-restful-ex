@@ -198,6 +198,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 
 	elif card_seq is 4:
 		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
+		print(region1, region2)
 		if region2 == '합계':
 			region2 = None
 
@@ -209,6 +210,11 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		# 서울, 서울
 		toorate_region1 = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1).scalar()
 
+		try:
+			l = len(toorate_region1)
+		except TypeError:
+			raise NoTextError
+			
 		each_toorate = sess.query(func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=t).group_by(VoteProgress.sido).subquery()
 		yooToday, yooEarly, tooToday, tooEarly = sess.query(func.sum(each_toorate.c.yooToday), func.sum(each_toorate.c.yooEarly), func.sum(each_toorate.c.tooToday), func.sum(each_toorate.c.tooEarly)).first()
 		toorate_avg_nat = (tooToday+tooEarly) / (yooToday+yooEarly) * 100
@@ -229,7 +235,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		else:
 			text = text_templates['4-1'].format(**data)
 
-		toorate_region1_sub = sess.query(VoteProgressLatest.tooRate, VoteProgressLatest.gusigun).filter(VoteProgressLatest.timeslot<=t, VoteProgressLatest.sido==region1).all()
+		toorate_region1_sub = sess.query(func.max(VoteProgress.tooRate), VoteProgress.gusigun).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).order_by(func.max(VoteProgress.tooRate).desc()).all()
 		# print(region1)
 		# print(toorate_region1_sub)
 		map_data = []
@@ -275,7 +281,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			data['hour'] = hourConverter(time.hour)
 			text = text_templates['5-1'].format(**data)
 
-		candidate_region_sub = sess.query(VoteProgressLatest.tooRate, VoteProgressLatest.gusigun).filter(VoteProgressLatest.timeslot<=t, VoteProgressLatest.sido==candidate_sdName).all()
+		candidate_region_sub = sess.query(VoteProgress.tooRate, VoteProgress.gusigun).filter(VoteProgress.timeslot<=t, VoteProgress.sido==candidate_sdName, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).all()
 		# print(candidate_sdName)
 		# print(candidate_region_sub)
 		map_data = []

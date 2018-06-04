@@ -8,7 +8,7 @@ from random import randint
 # import pandas as pd
 from timeit import default_timer as timer
 from queries import query_card_data, NoTextError
-
+import uuid
 # from multiprocessing import Pool
 # import os
 
@@ -74,6 +74,8 @@ def getCardSeqs(polls, regions, parties, candidates, time):
 		openrate = 0
 	
 	print(openrate)
+	if openrate is None:
+		openrate = 0
 	
 	if time.hour < 18: # 투표중
 		card_seqs.extend([1, 2, 3, 6, 23]) # 6 특이사항
@@ -112,22 +114,9 @@ def getCardSeqs(polls, regions, parties, candidates, time):
 		card_seqs.insert(1, 21)
 		seqs_type = 1
 	# 내가 선택한 선거에서 한명이라도 당선 확정이 나오는 경우 21번을 index 1에 insert
+	else:
+		seqs_type = 0
 	return card_seqs, seqs_type
-
-# each by card
-# def generateTextsImgsViss(index, polls, regions, parties, candidates, time, card_seq):
-# 	index = 0
-
-# 	text, RANK1, title, rate, name, graph, map = query_card_data(index, polls, regions, parties, candidates, time, card_seq)
-# 	if text is None:
-# 		raise TypeError
-	
-# 	img_type = seq2type[card_seq]
-# 	img_party = RANK1
-
-# 	data = {'title': title, 'rate': rate, 'name': name, 'text': text, 'graph': graph, 'map': map} #'raw': raw_data
-	
-# 	return img_type, img_party, data
 
 def generateMeta(args):
 	polls = args['type']
@@ -145,6 +134,12 @@ def generateMeta(args):
 	# TODO: 한번에 여러 쿼리가 들어오는 경우, 같은 데이터 쿼리가 불러오지 않도록 
 	# TODO: parallel, 중복 쿼리 가지 않도록 새로운 데이터 있는지 체크
 	# args, table 최근 time 기
+	serial_current = str(uuid.uuid4().hex)
+	arguments = args
+	if 'time' in arguments:
+		del arguments['time']
+	print(arguments)
+	# arguments = args.pop('time', None)
 	time_update = []
 	time_update.append(sess.query(VoteProgressLatest.timeslot).order_by(VoteProgressLatest.timeslot.desc()).first()[0])
 	time_update.append(sess.query(OpenProgress2.datatime).order_by(OpenProgress2.datatime.desc()).first()[0])
@@ -152,40 +147,53 @@ def generateMeta(args):
 	time_update.append(sess.query(OpenProgress4.datatime).order_by(OpenProgress4.datatime.desc()).first()[0])
 	time_update.append(sess.query(OpenProgress11.datatime).order_by(OpenProgress11.datatime.desc()).first()[0])
 
+	serial_ontable = sess.query(QueryTime.serial).filter(QueryTime.args==str(arguments), QueryTime.times==str(time_update)).scalar() # 값이 나오면 같은게 있다는 것
 
+	if serial_ontable is not None: # 전에 있으면
+		serial_current = serial_ontable
+		meta = {'serial':serial_current}
 
-	card_seqs, seqs_type = getCardSeqs(polls, regions, parties, candidates, time)
-	# card_seqs = [2,3,4,5,6,7,8,9,10,11,12,13]
-	# card_seqs = [2,3,4,5,6]
-	# card_seqs = [19]
-	print(card_seqs)
+	else: # 전에 없으면
+		row = QueryTime(serial=serial_current, args=str(arguments), times=str(time_update))
+		sess.add(row)
+		# sess.commit()
 
-	# start = timer()
-	meta = {}
-	meta['card_count'] = len(card_seqs)
-	meta['design_variation'] = randint(0,3)
-	meta_cards = []
+		card_seqs, seqs_type = getCardSeqs(polls, regions, parties, candidates, time)
+		# card_seqs = [2,3,4,5,6,7,8,9,10,11,12,13]
+		# card_seqs = [2,3,4,5,6]
+		# card_seqs = [19]
+		print(card_seqs)
 
-	index = 0
-	for i, card_seq in enumerate(card_seqs):
-		if card_seqs[i-1] is card_seq:
-			index += 1
-		else:
-			index = 0
+		# start = timer()
+		meta = {}
+		meta['serial'] = serial_current
+		meta['card_count'] = len(card_seqs)
+		meta['design_variation'] = randint(0,3)
+		meta_cards = []
 
-		order = i+1
-		
-		try:
-			meta_card = query_card_data(order, index, polls, regions, parties, candidates, time, card_seq, seqs_type)
-		except NoTextError:
-			print("pass:    ", card_seq)
-			continue
-		meta_card['debugging'] = card_seq
-		meta_cards.append(meta_card)
+		index = 0
+		for i, card_seq in enumerate(card_seqs):
+			if card_seqs[i-1] is card_seq:
+				index += 1
+			else:
+				index = 0
 
-	meta['cards'] = meta_cards
-	# end = timer()
-	# print(end - start)
+			order = i+1
+			
+			try:
+				meta_card = query_card_data(order, index, polls, regions, parties, candidates, time, card_seq, seqs_type)
+			except NoTextError:
+				print("pass:    ", card_seq)
+				continue
+			meta_card['debugging'] = card_seq
+			meta_cards.append(meta_card)
+
+		meta['cards'] = meta_cards
+		# end = timer()
+		# print(end - start)
+
+	print(sess)
+	sess.close()
 
 	#################
 	# multiprocessing
@@ -209,9 +217,7 @@ def generateMeta(args):
 	# p.close()
 	# end = timer()
 	# print(end-start)
-	print(sess)
-	# sess.commit()
-	sess.close()
+
 	return meta
 
 
