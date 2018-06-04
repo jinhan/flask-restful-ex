@@ -50,7 +50,6 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			# **해당 변수가 2개 선택됐을 경우 먼저 선택한 변수를 출력, {투표율|득표율}에서는 해당 후보가 참여한 선거의 개표율이 10% 이하일 경우 투표율, 이상일 경우 득표율 출력
 			candidate_names = sess.query(CandidateInfo.name).filter(CandidateInfo.huboid.in_(candidates)).all()
 			candidate_names = ', '.join([r[0] for r in candidate_names])
-			print(candidate_names)
 			data = {
 				'candidate_names': candidate_names,
 				'tooOrget': '득표율' if seqs_type else '투표율',
@@ -198,7 +197,9 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		}
 
 	elif card_seq is 4:
-		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==regions[index]).first()
+		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
+		if region2 == '합계':
+			region2 = None
 
 		if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
 			t = 23
@@ -480,7 +481,9 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		}
 
 	elif card_seq is 10:
-		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==regions[index]).first()
+		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
+		if region2 == '합계':
+			region2 = None
 
 		# each_openrate = sess.query(func.max(OpenProgress.openPercent).label('max'), OpenProgress.sido.label('name')).filter(OpenProgress.datatime<=time).group_by(OpenProgress.cityCode).subquery()
 
@@ -905,6 +908,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 
 	elif card_seq is 16:
 		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==regions[index]).first()
+		if region2 == '합계':
+			region2 = None
 		
 		region1_poll = regionPoll(region1, 3)
 
@@ -1571,6 +1576,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				else:
 					pass
 
+				if region2 == '합계':
+					region2 = None
 				region2Poll = regionPoll(region2, 4) # 시도지사
 				sub_ranks_g = sess.query(OpenProgress4).filter(OpenProgress4.sido==region1, OpenProgress4.gusigun==region2)
 				ranksDf_g = pd.read_sql(sub_ranks_g.statement, sub_ranks_g.session.bind)
