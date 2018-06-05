@@ -140,12 +140,20 @@ def generateMeta(args):
 		del arguments['time']
 	print(arguments)
 	# arguments = args.pop('time', None)
+
+	# 데이터가 업데이트 되는 시간
+	# 쿼리로 임의로 시간을 시뮬레이셔할때는
 	time_update = []
-	time_update.append(sess.query(VoteProgressLatest.timeslot).order_by(VoteProgressLatest.timeslot.desc()).first()[0])
-	time_update.append(sess.query(OpenProgress2.datatime).order_by(OpenProgress2.datatime.desc()).first()[0])
-	time_update.append(sess.query(OpenProgress3.datatime).order_by(OpenProgress3.datatime.desc()).first()[0])
-	time_update.append(sess.query(OpenProgress4.datatime).order_by(OpenProgress4.datatime.desc()).first()[0])
-	time_update.append(sess.query(OpenProgress11.datatime).order_by(OpenProgress11.datatime.desc()).first()[0])
+	# time_update.append(sess.query(VoteProgressLatest.timeslot).order_by(VoteProgressLatest.timeslot.desc()).first()[0])
+	# time_update.append(sess.query(OpenProgress2.datatime).order_by(OpenProgress2.datatime.desc()).first()[0])
+	# time_update.append(sess.query(OpenProgress3.datatime).order_by(OpenProgress3.datatime.desc()).first()[0])
+	# time_update.append(sess.query(OpenProgress4.datatime).order_by(OpenProgress4.datatime.desc()).first()[0])
+	# time_update.append(sess.query(OpenProgress11.datatime).order_by(OpenProgress11.datatime.desc()).first()[0])
+	time_update.append(sess.query(VoteProgress.timeslot).filter(VoteProgress.timeslot <= time.hour).order_by(VoteProgress.timeslot.desc()).first()[0])
+	time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==2).order_by(OpenProgress.datatime.desc()).first()[0])
+	time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==3).order_by(OpenProgress.datatime.desc()).first()[0])
+	time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==4).order_by(OpenProgress.datatime.desc()).first()[0])
+	time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==11).order_by(OpenProgress.datatime.desc()).first()[0])
 
 	serial_ontable = sess.query(QueryTime.serial).filter(QueryTime.args==str(arguments), QueryTime.times==str(time_update)).scalar() # 값이 나오면 같은게 있다는 것
 
