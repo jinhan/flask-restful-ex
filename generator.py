@@ -138,8 +138,8 @@ def generateMeta(args):
 
 	serial_current = str(uuid.uuid4().hex)
 	arguments = args
-	# if 'time' in arguments:
-	# 	del arguments['time']
+	if 'time' in arguments:
+		del arguments['time']
 
 	# 데이터가 업데이트 되는 시간
 	# 쿼리로 임의로 시간을 시뮬레이셔할때는
