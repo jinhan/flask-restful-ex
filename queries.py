@@ -522,8 +522,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 
 		tooTotal_r, n_total_r, invalid_r = sess.query(func.sum(OpenProgress.tooTotal), func.sum(OpenProgress.n_total), func.sum(OpenProgress.invalid)).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxtime)).first()
 		
-		if invalid == None:
-			invalid = 0
+		if invalid_r == None:
+			invalid_r = 0
 
 		try:
 			openrate_region1 = (n_total_r + invalid_r) / tooTotal_r * 100
@@ -542,6 +542,9 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			sub = sess.query(func.max(OpenProgress.tooTotal).label('tooTotal'), func.max(OpenProgress.n_total).label('n_total'), func.max(OpenProgress.invalid).label('invalid')).filter(OpenProgress.datatime<=time).group_by(OpenProgress.townCode).subquery()
 
 			tooTotal, n_total, invalid = sess.query(func.sum(sub.c.tooTotal), func.sum(sub.c.n_total), func.sum(sub.c.invalid)).first()
+
+			if invalid == None:
+				invalid = 0
 
 			openrate_avg_nat = (n_total + invalid) / tooTotal * 100
 
