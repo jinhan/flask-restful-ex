@@ -27,5 +27,7 @@ OpenProgress4 = Base.classes.OpenProgressLatest4
 OpenProgress11 = Base.classes.OpenProgressLatest11
 PartyCode = Base.classes.PartyCode
 QueryTime = Base.classes.QueryTime
-sess = scoped_session(sessionmaker(autocommit=True, autoflush=True, bind=engine, expire_on_commit=True))
+MetaCards = Base.classes.MetaCards
+
+sess = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine, expire_on_commit=True))
 

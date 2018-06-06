@@ -9,6 +9,7 @@ from random import randint
 from timeit import default_timer as timer
 from queries import query_card_data, NoTextError
 import uuid
+import ast
 # from multiprocessing import Pool
 # import os
 
@@ -22,6 +23,12 @@ import uuid
 # 	# return {'order': x[0]+1, 'type': img_type, 'party': img_party, 'data': data, 'debug': x[1][6]}
 
 def getCardSeqs(polls, regions, parties, candidates, time):
+	# vote에서 중요
+	if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
+		t = 23
+	else:
+		t = time.hour
+
 	card_seqs = []
 
 	if (len(candidates) > 0) and (len(regions) > 0) and (len(parties) > 0) and (len(polls) > 0):
@@ -77,20 +84,20 @@ def getCardSeqs(polls, regions, parties, candidates, time):
 	if openrate is None:
 		openrate = 0
 	
-	if time.hour < 18: # 투표중
+	if t <= 18: # 투표중
 		card_seqs.extend([1, 2, 3, 6, 23]) # 6 특이사항
 		card_seqs.extend([4] * len(regions))
 		card_seqs.extend([5] * len(candidates))
 		card_seqs.sort()
 		seqs_type = 0
 	# 어떤 선거의 개표율 10 기준?
-	elif time.hour > 18 and openrate < 10: # 투표마감이후
+	elif t > 18 and openrate < 10: # 투표마감이후
 		card_seqs.extend([1, 2, 3, 6, 22, 23]) # 6 특이사항
 		card_seqs.extend([4] * len(regions))
 		card_seqs.extend([5] * len(candidates))
 		card_seqs.sort()
 		seqs_type = 0
-	elif time.hour > 18 and openrate >= 10 and openrate < 30: # 개표율 10% 이상
+	elif t > 18 and openrate >= 10 and openrate < 30: # 개표율 10% 이상
 		card_seqs.extend([1, 2, 3, 7, 8, 9, 20, 23]) # 6, 13, 20 특이사항
 		card_seqs.extend([4] * len(regions))
 		card_seqs.extend([5] * len(candidates))
@@ -102,7 +109,7 @@ def getCardSeqs(polls, regions, parties, candidates, time):
 		card_seqs.extend([18] * len(parties))
 		card_seqs.sort()
 		seqs_type = 1
-	elif time.hour > 18 and openrate >= 30: # 개표율 30% 이상
+	elif t > 18 and openrate >= 30: # 개표율 30% 이상
 		card_seqs.extend([1, 2, 7, 13, 14, 15, 20, 23]) # 13, 20 특이사항
 		card_seqs.extend([10] * len(regions))
 		card_seqs.extend([11] * len(polls))
@@ -113,9 +120,9 @@ def getCardSeqs(polls, regions, parties, candidates, time):
 		card_seqs.sort()
 		card_seqs.insert(1, 21)
 		seqs_type = 1
-	# 내가 선택한 선거에서 한명이라도 당선 확정이 나오는 경우 21번을 index 1에 insert
-	else:
-		seqs_type = 0
+		# 내가 선택한 선거에서 한명이라도 당선 확정이 나오는 경우 21번을 index 1에 insert
+	# else:
+	# 	seqs_type = 0
 	return card_seqs, seqs_type
 
 def generateMeta(args):
@@ -127,53 +134,47 @@ def generateMeta(args):
 	time = datetime.datetime.strptime(args['time'], '%Y%m%d%H%M%S')
 	# time = datetime.datetime.now()
 
-	# args가 같고, 데이터 기록 시간이 업데이트 되지 않으면 아래를 실행하지 않고, 고유 아이디 전송
-	# 고유아이디, 시간
-	# 시간: 어떤 시간?
-	# TODO: 멀티로 생성할 수 있도록 
-	# TODO: 한번에 여러 쿼리가 들어오는 경우, 같은 데이터 쿼리가 불러오지 않도록 
-	# TODO: parallel, 중복 쿼리 가지 않도록 새로운 데이터 있는지 체크
-	# args, table 최근 time 기
 	serial_current = str(uuid.uuid4().hex)
 	arguments = args
-	if 'time' in arguments:
-		del arguments['time']
-	print(arguments)
-	# arguments = args.pop('time', None)
+	# if 'time' in arguments:
+	# 	del arguments['time']
 
 	# 데이터가 업데이트 되는 시간
 	# 쿼리로 임의로 시간을 시뮬레이셔할때는
+	if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
+		t = 23
+	else:
+		t = time.hour
 	time_update = []
 	# time_update.append(sess.query(VoteProgressLatest.timeslot).order_by(VoteProgressLatest.timeslot.desc()).first()[0])
 	# time_update.append(sess.query(OpenProgress2.datatime).order_by(OpenProgress2.datatime.desc()).first()[0])
 	# time_update.append(sess.query(OpenProgress3.datatime).order_by(OpenProgress3.datatime.desc()).first()[0])
 	# time_update.append(sess.query(OpenProgress4.datatime).order_by(OpenProgress4.datatime.desc()).first()[0])
 	# time_update.append(sess.query(OpenProgress11.datatime).order_by(OpenProgress11.datatime.desc()).first()[0])
-	time_update.append(sess.query(VoteProgress.timeslot).filter(VoteProgress.timeslot <= time.hour).order_by(VoteProgress.timeslot.desc()).first()[0])
+	time_update.append(sess.query(VoteProgress.timeslot).filter(VoteProgress.timeslot <= t).order_by(VoteProgress.timeslot.desc()).first()[0])
 	time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==2).order_by(OpenProgress.datatime.desc()).first()[0])
 	time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==3).order_by(OpenProgress.datatime.desc()).first()[0])
 	time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==4).order_by(OpenProgress.datatime.desc()).first()[0])
 	time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==11).order_by(OpenProgress.datatime.desc()).first()[0])
 
 	serial_ontable = sess.query(QueryTime.serial).filter(QueryTime.args==str(arguments), QueryTime.times==str(time_update)).scalar() # 값이 나오면 같은게 있다는 것
+	print(serial_ontable)
+	meta_previous = sess.query(MetaCards.meta).filter(MetaCards.serial==serial_ontable).scalar()
 
-	if serial_ontable is not None: # 전에 있으면
-		serial_current = serial_ontable
-		meta = {'serial':serial_current}
+	if (serial_ontable is not None) and (meta_previous is not None): # 전에 있으면
+		meta = ast.literal_eval(meta_previous)
+		meta['updated'] = False
 
 	else: # 전에 없으면
 		row = QueryTime(serial=serial_current, args=str(arguments), times=str(time_update))
 		sess.add(row)
-		# sess.commit()
+		sess.commit()
 
 		card_seqs, seqs_type = getCardSeqs(polls, regions, parties, candidates, time)
-		# card_seqs = [2,3,4,5,6,7,8,9,10,11,12,13]
-		# card_seqs = [2,3,4,5,6]
-		# card_seqs = [19]
 		print(card_seqs)
 
-		# start = timer()
 		meta = {}
+		meta['updated'] = True
 		meta['serial'] = serial_current
 		meta['card_count'] = len(card_seqs)
 		meta['design_variation'] = randint(0,3)
@@ -195,13 +196,16 @@ def generateMeta(args):
 				continue
 			meta_card['debugging'] = card_seq
 			meta_cards.append(meta_card)
+		# end for
 
 		meta['cards'] = meta_cards
-		# end = timer()
-		# print(end - start)
+		
+		meta_row = MetaCards(serial=serial_current, meta=str(meta))
+		sess.add(meta_row)
+		sess.commit()
 
 	print(sess)
-	sess.close()
+	# sess.close()
 
 	#################
 	# multiprocessing
