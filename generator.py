@@ -59,29 +59,31 @@ def getCardSeqs(polls, regions, parties, candidates, time):
 		
 			openrate = (n_total + invalid) / tooTotal * 100
 
-		elif polls[0] is 3:
+		elif polls[0] == 3:
 			sub = sess.query(func.max(OpenProgress3.tooTotal).label('tooTotal'), func.max(OpenProgress3.n_total).label('n_total'), func.max(OpenProgress3.invalid).label('invalid')).filter(OpenProgress3.gusigun=='합계').subquery() # .filter(OpenProgress2.datatime<=time)
 			tooTotal, n_total, invalid = sess.query(func.sum(sub.c.tooTotal), func.sum(sub.c.n_total), func.sum(sub.c.invalid)).first()
 		
 			openrate = (n_total + invalid) / tooTotal * 100
 		
-		elif polls[0] is 4:
+		elif polls[0] == 4:
 			sub = sess.query(func.max(OpenProgress4.tooTotal).label('tooTotal'), func.max(OpenProgress4.n_total).label('n_total'), func.max(OpenProgress4.invalid).label('invalid')).subquery() # .filter(OpenProgress2.datatime<=time)
 			tooTotal, n_total, invalid = sess.query(func.sum(sub.c.tooTotal), func.sum(sub.c.n_total), func.sum(sub.c.invalid)).first()
 		
 			openrate = (n_total + invalid) / tooTotal * 100
 		
-		elif polls[0] is 11:
+		elif polls[0] == 11:
 			sub = sess.query(func.max(OpenProgress11.tooTotal).label('tooTotal'), func.max(OpenProgress11.n_total).label('n_total'), func.max(OpenProgress11.invalid).label('invalid')).filter(OpenProgress11.gusigun=='합계').subquery() # .filter(OpenProgress2.datatime<=time)
 			tooTotal, n_total, invalid = sess.query(func.sum(sub.c.tooTotal), func.sum(sub.c.n_total), func.sum(sub.c.invalid)).first()
 		
 			openrate = (n_total + invalid) / tooTotal * 100
 	
 	else:
-		openrate = 0
+		sub = sess.query(func.max(OpenProgress.tooTotal).label('tooTotal'), func.max(OpenProgress.n_total).label('n_total'), func.max(OpenProgress.invalid).label('invalid')).filter(OpenProgress.datatime<=time).group_by(OpenProgress.townCode).subquery()
+		tooTotal, n_total, invalid = sess.query(func.sum(sub.c.tooTotal), func.sum(sub.c.n_total), func.sum(sub.c.invalid)).first()
+		openrate = (n_total + invalid) / tooTotal * 100
 	
 	print(openrate)
-	if openrate is None:
+	if openrate == None:
 		openrate = 0
 	
 	if t <= 18: # 투표중
@@ -161,7 +163,7 @@ def generateMeta(args):
 	print(serial_ontable)
 	meta_previous = sess.query(MetaCards.meta).filter(MetaCards.serial==serial_ontable).scalar()
 
-	if (serial_ontable is not None) and (meta_previous is not None): # 전에 있으면
+	if (serial_ontable != None) and (meta_previous != None): # 전에 있으면
 		meta = ast.literal_eval(meta_previous)
 		meta['updated'] = False
 
