@@ -26,14 +26,18 @@ def josaPick(word, josa):
 	return tossi.pick(word, josa)
 
 def regionPoll(r, code):
-	if r.endswith('시'):
-		poll = '시장'
-	elif r.endswith('도'):
-		poll = '도지사'
-	elif r.endswith('구'):
-		poll = '구청장'
-	elif r.endswith('군'):
-		poll = '군수'
+	if code == 3:
+		if r.endswith('시'):
+			poll = '시장'
+		elif r.endswith('도'):
+			poll = '도지사'
+	elif code == 4:
+		if r.endswith('구'):
+			poll = '구청장'
+		elif r.endswith('군'):
+			poll = '군수'
+		elif r.endswith('시'):
+			poll = '시장'
 	elif code == 2:
 		poll = '국회의원'
 	elif code == 11:
@@ -59,14 +63,14 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		else:
 			if len(regions) > 0:
 				# **해당 변수가 2개 선택됐을 경우 먼저 선택한 변수를 출력 {투표율|득표율}에서는 해당 지역 시도지사 선거의 개표율이 10% 이하일 경우 투표율, 이상일 경우 득표율 출력
-				region_names = sess.query(PrecinctCode.sido).filter(PrecinctCode.sggCityCode.in_(regions)).all()
+				region_names = sess.query(PrecinctCode.sido).filter(PrecinctCode.townCode.in_(regions)).all()
 				region_names = ', '.join([r[0] for r in region_names])
 				data = {
 					'region_names': region_names,
 					'tooOrget': '득표율' if seqs_type else '투표율',
 				}
 				text = '{region_names} 지역 선거 {tooOrget} 현황'.format(**data)
-				# TODO: region_name 출략 안됨
+				# TODO: region_name 출략 안됨 : 테스트 
 			else:
 				if len(parties) > 0:
 					# **해당 변수가 2개 선택됐을 경우 먼저 선택한 변수를 출력 {투표율|득표율}에서는 전체 시도지사 선거(17개), 시군구청장 선거(226개)에서 개표율이 10%가 넘는 지역의 수가 전체 선거구의 10%보다 적을 경우(2개, 23개) 투표율, 이상일 경우 득표율 출력
@@ -205,7 +209,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 
 	elif card_seq == 4:
 		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
-		print(region1, region2)
+		# print(region1, region2)
 		if region2 == '합계':
 			region2 = None
 
@@ -215,12 +219,12 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			t = time.hour
 
 		# 서울, 서울
-		# TODO: NoTextError되는 이유 찾기
-		toorate_region1 = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1).scalar()
-
+		# TODO: NoTextError되는 이유 찾기: 해결
+		toorate_region1 = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1, VoteProgress.gusigun=='합계').scalar()
+	
 		try:
-			l = len(toorate_region1)
-		except TypeError:
+			toorate_region1 = toorate_region1
+		except TypeError: # toorate_region1 없으면
 			raise NoTextError
 			
 		each_toorate = sess.query(func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=t).group_by(VoteProgress.sido).subquery()
@@ -275,7 +279,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		else:
 			t = time.hour
 
-		candidate_region_toorate = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==candidate_sdName).scalar()
+		candidate_region_toorate = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==candidate_sdName, VoteProgress.gusigun=='합계').scalar()
 		# VoteProgress에 sggName 필요함
 
 		data = {
@@ -368,12 +372,6 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		}
 
 	elif card_seq == 7:
-		# each_openrate = sess.query(func.max(OpenProgress.openPercent).label('max')).filter(OpenProgress.datatime<=time).group_by(OpenProgress.cityCode).subquery()
-		# openrate_avg_nat = sess.query(func.avg(each_openrate.c.max)).scalar()
-
-		# sub = sess.query(func.max(OpenProgress.tooTotal).label('tooTotal'), func.max(OpenProgress.n_total).label('n_total'), func.max(OpenProgress.invalid).label('invalid')).filter(OpenProgress.datatime<=time).group_by(OpenProgress.townCode).subquery()
-		# tooTotal, n_total, invalid = sess.query(func.sum(sub.c.tooTotal), func.sum(sub.c.n_total), func.sum(sub.c.invalid)).first()
-
 		subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.townCode).filter(OpenProgress.datatime<=time, OpenProgress.gusigun!='합계', OpenProgress.electionCode==3).subquery()
 
 		tooTotal, n_total, invalid = sess.query(func.sum(OpenProgress.tooTotal), func.sum(OpenProgress.n_total), func.sum(OpenProgress.invalid)).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxtime)).first()
@@ -677,6 +675,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 
 	elif card_seq == 12:
 		candidate, candidate_region, candidate_sdName, candidate_poll_code = sess.query(CandidateInfo.name, CandidateInfo.sggName, CandidateInfo.sdName, CandidateInfo.sgTypecode).filter(CandidateInfo.huboid==candidates[index]).first()
+		print(candidate_poll_code)
 		# sggName에서 regionPoll 
 
 		candidate_poll = regionPoll(candidate_region, candidate_poll_code)
@@ -695,11 +694,11 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 
 		elif candidate_poll_code == 11:
 			candidate_poll_openrate = sess.query(func.max(OpenProgress11.openPercent)).filter(OpenProgress11.datatime<=time, OpenProgress11.sido==candidate_region).scalar()
-
+			print(candidate_poll_openrate)
 			candidate_poll_openrate_sub = sess.query(OpenProgress11.openPercent, OpenProgress11.gusigun).filter(OpenProgress11.datatime<=time, OpenProgress11.sido==candidate_sdName, OpenProgress11.gusigun!='합계').all()
 
-		else:
-			raise NoTextError
+		# else:
+		# 	raise NoTextError
 
 		data = {
 			'candidate': candidate,
@@ -758,7 +757,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		openrate_avg_nat = (n_total + invalid) / tooTotal * 100
 
 		if openrate_avg_nat < 100:
-			openrate_sido = sess.query(OpenProgress3.sido).filter(OpenProgress3.openPercent==100).group_by(OpenProgress3.sido).all()
+			openrate_sido = sess.query(OpenProgress3.sido).filter(OpenProgress3.openPercent==100, OpenProgress3.gusigun=='합계').group_by(OpenProgress3.sido).all()
 			if len(openrate_sido) > 0:
 				data = {
 					'hour': hourConverter(time.hour),
@@ -794,54 +793,54 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			}
 		}
 
-	elif card_seq == 14:
-		subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
+	# elif card_seq == 14:
+	# 	subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
 
-		sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
-		# 실제에서 time 살리기
-		ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
-		if len(ranksDf) == 0:
-			raise NoTextError
+	# 	sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
+	# 	# 실제에서 time 살리기
+	# 	ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
+	# 	if len(ranksDf) == 0:
+	# 		raise NoTextError
 
-		ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)	
-		ranks_ttl = []
-		for i, ranks in ranks_vote.iterrows():
-			ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
-		# 각 group 마다 랭킹 만들기
-		ranking = []
-		for idx, ranks in enumerate(ranks_ttl):
-			for i, r in enumerate(ranks):
-				ranking.append({
-					'idx': idx,
-					'rank': i,
-					'jdName':ranksDf.loc[idx, r+'_jdName'],
-					'name': ranksDf.loc[idx, r+'_name'],
-					'percent': ranksDf.loc[idx, r+'_percent'],
-				})
-		rank1_count = Counter([r['jdName'] for r in ranking if r['rank']==1]).most_common()
-		# TODO: count 개수가 같아서 동률일때 
-		rank1_party = rank1_count[0][0]
-		rank1_party_num = rank1_count[0][1]
+	# 	ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)	
+	# 	ranks_ttl = []
+	# 	for i, ranks in ranks_vote.iterrows():
+	# 		ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
+	# 	# 각 group 마다 랭킹 만들기
+	# 	ranking = []
+	# 	for idx, ranks in enumerate(ranks_ttl):
+	# 		for i, r in enumerate(ranks):
+	# 			ranking.append({
+	# 				'idx': idx,
+	# 				'rank': i,
+	# 				'jdName':ranksDf.loc[idx, r+'_jdName'],현
+	# 				'name': ranksDf.loc[idx, r+'_name'],
+	# 				'percent': ranksDf.loc[idx, r+'_percent'],
+	# 			})
+	# 	rank1_count = Counter([r['jdName'] for r in ranking if r['rank']==1]).most_common()
+	# 	# TODO: count 개수가 같아서 동률일때 
+	# 	rank1_party = rank1_count[0][0]
+	# 	rank1_party_num = rank1_count[0][1]
 
-		data = {
-			'hour': hourConverter(time.hour),
-			'rank1_party': rank1_party,
-			'josa1': josaPick(rank1_party, '이'),
-			'josa2': josaPick(rank1_party, '은'),
-			'rank1_party_num': rank1_party_num,
-		}
-		text = text_templates[card_seq].format(**data)
+	# 	data = {
+	# 		'hour': hourConverter(time.hour),
+	# 		'rank1_party': rank1_party,
+	# 		'josa1': josaPick(rank1_party, '이'),
+	# 		'josa2': josaPick(rank1_party, '은'),
+	# 		'rank1_party_num': rank1_party_num,
+	# 	}
+	# 	text = text_templates[card_seq].format(**data)
 
-		meta_card = {
-			'order': order,
-			'type': 'winner',
-			'party': rank1_party,
-			'data': {
-				'title': hourConverter(time.hour) + ', ' + str(rank1_party_num) + '개 선거구 1위',
-				'name': rank1_party,
-				'text': text,
-			}
-		}
+	# 	meta_card = {
+	# 		'order': order,
+	# 		'type': 'winner',
+	# 		'party': rank1_party,
+	# 		'data': {
+	# 			'title': hourConverter(time.hour) + ', ' + str(rank1_party_num) + '개 선거구 1위',
+	# 			'name': rank1_party,
+	# 			'text': text,
+	# 		}
+	# 	}
 
 	elif card_seq == 15:
 		try:
@@ -872,71 +871,116 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				subq = sess.query(func.max(OpenProgress11.serial).label('maxserial'), func.max(OpenProgress11.datatime).label('maxtime')).group_by(OpenProgress11.sido).filter(OpenProgress11.datatime<=time, OpenProgress11.gusigun=='합계').subquery()
 
 				sub_ranks = sess.query(OpenProgress11).join(subq, and_(OpenProgress11.serial==subq.c.maxserial, OpenProgress11.datatime==subq.c.maxtime))
-			else:
+			
+			ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
+			ranksDf = ranksDf.sort_values(by='openPercent', ascending=False)
+			if len(ranksDf) == 0:
 				raise NoTextError
-		else: # 지역선택이 있으면
-			raise NoTextError	
-		
-		ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
-		ranksDf = ranksDf.sort_values(by='openPercent', ascending=False)
-		if len(ranksDf) == 0:
-			raise NoTextError
 
-		ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)
-		ranks_ttl = []
-		for i, ranks in ranks_vote.iterrows():
-			ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
+			ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)
+			ranks_ttl = []
+			for i, ranks in ranks_vote.iterrows():
+				ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
 
-		ranking = []
-		for idx, ranks in enumerate(ranks_ttl):
-			for i, r in enumerate(ranks):
-				ranking.append({
-					'idx': idx,
-					'rank': i,
-					'jdName':ranksDf.loc[idx, r+'_jdName'],
-					'name': ranksDf.loc[idx, r+'_name'],
-					'percent': ranksDf.loc[idx, r+'_percent'],
-					})
-		# print(ranking)
-		rank1_count = Counter([r['jdName'] for r in ranking if r['rank']==0]).most_common()
-		rank1_party = rank1_count[0][0]
-		rank1_party_num = rank1_count[0][1]
-		# print(rank1_count)
-		ranks_party = ', '.join(r[0] for r in rank1_count[1:] if r[0] != None)
+			ranking = []
+			for idx, ranks in enumerate(ranks_ttl):
+				for i, r in enumerate(ranks):
+					ranking.append({
+						'idx': idx,
+						'rank': i,
+						'jdName':ranksDf.loc[idx, r+'_jdName'],
+						'name': ranksDf.loc[idx, r+'_name'],
+						'percent': ranksDf.loc[idx, r+'_percent'],
+						})
+			# print(ranking)
+			rank1_count = Counter([r['jdName'] for r in ranking if r['rank']==0]).most_common()
+			rank1_party = rank1_count[0][0]
+			rank1_party_num = rank1_count[0][1]
+			# print(rank1_count)
+			ranks_party = ', '.join(r[0] for r in rank1_count[1:] if r[0] != None)
 
-		openrate_rank1_region_candidate = [r['name'] for r in ranking if (r['idx']==0) and (r['rank']==0)][0]
-		openrate_rank2_region_candidate = [r['name'] for r in ranking if (r['idx']==0) and (r['rank']==1)][0]
+			openrate_rank1_region_candidate = [r['name'] for r in ranking if (r['idx']==0) and (r['rank']==0)][0]
+			openrate_rank2_region_candidate = [r['name'] for r in ranking if (r['idx']==0) and (r['rank']==1)][0]
 
-		data = {
-			'hour': hourConverter(time.hour),
-			'rank1_party': rank1_party, 
-			'josa1': josaPick(rank1_party, '이'),
-			'rank1_party_num': rank1_party_num,
-			'ranks_party': ranks_party,
-			'josa2': josaPick(ranks_party, '이'),
-			'openrate_rank1_region': openrate_rank1_region,
-			'openrate_rank1_region_candidate': openrate_rank1_region_candidate, 
-			'openrate_rank2_region_candidate': openrate_rank2_region_candidate,
-		}
-
-		if (candidate_poll_code == 11) or (polls[index] == 11):
-			text = text_templates['15-11'].format(**data)
-
-			meta_card = {
-				'order': order,
-				'type': 'winner',
-				'party': 'default',
-				'data': {
-					'title': hourConverter(time.hour) + ', ' + openrate_rank1_region + ' 교육감선거 1위',
-					'name': openrate_rank1_region_candidate,
-					'text': text,
-				}
+			data = {
+				'hour': hourConverter(time.hour),
+				'rank1_party': rank1_party, 
+				'josa1': josaPick(rank1_party, '이'),
+				'rank1_party_num': rank1_party_num,
+				'ranks_party': ranks_party,
+				'josa2': josaPick(ranks_party, '이'),
+				'openrate_rank1_region': openrate_rank1_region,
+				'openrate_rank1_region_candidate': openrate_rank1_region_candidate, 
+				'openrate_rank2_region_candidate': openrate_rank2_region_candidate,
 			}
-		else:
-			num = candidate_poll_code or polls[index]
-			num = '15-' + str(num)
-			print(num)
-			text = text_templates[num].format(**data)
+
+			if (candidate_poll_code == 11) or (polls[index] == 11):
+				text = text_templates['15-11'].format(**data)
+				meta_card = {
+					'order': order,
+					'type': 'winner',
+					'party': 'default',
+					'data': {
+						'title': hourConverter(time.hour) + ', ' + openrate_rank1_region + ' 교육감선거 1위',
+						'name': openrate_rank1_region_candidate,
+						'text': text,
+					}
+				}
+			else:
+				num = candidate_poll_code or polls[index]
+				num = '15-' + str(num)
+				print(num)
+				text = text_templates[num].format(**data)
+
+				meta_card = {
+					'order': order,
+					'type': 'winner',
+					'party': rank1_party,
+					'data': {
+						'title': hourConverter(time.hour) + ', ' + str(rank1_party_num) + '개 선거구 1위',
+						'name': rank1_party,
+						'text': text,
+					}
+				}
+			# else:
+				# raise NoTextError
+		else: # 지역선택이 있으면
+			subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
+
+			sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
+			# 실제에서 time 살리기
+			ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
+			if len(ranksDf) == 0:
+				raise NoTextError
+
+			ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)	
+			ranks_ttl = []
+			for i, ranks in ranks_vote.iterrows():
+				ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
+			# 각 group 마다 랭킹 만들기
+			ranking = []
+			for idx, ranks in enumerate(ranks_ttl):
+				for i, r in enumerate(ranks):
+					ranking.append({
+						'idx': idx,
+						'rank': i,
+						'jdName':ranksDf.loc[idx, r+'_jdName'],
+						'name': ranksDf.loc[idx, r+'_name'],
+						'percent': ranksDf.loc[idx, r+'_percent'],
+					})
+			rank1_count = Counter([r['jdName'] for r in ranking if r['rank']==1]).most_common()
+			# TODO: count 개수가 같아서 동률일때 
+			rank1_party = rank1_count[0][0]
+			rank1_party_num = rank1_count[0][1]
+
+			data = {
+				'hour': hourConverter(time.hour),
+				'rank1_party': rank1_party,
+				'josa1': josaPick(rank1_party, '이'),
+				'josa2': josaPick(rank1_party, '은'),
+				'rank1_party_num': rank1_party_num,
+			}
+			text = text_templates[14].format(**data)
 
 			meta_card = {
 				'order': order,
@@ -1723,8 +1767,11 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 							bs_jayu += 1
 						elif bsDf.loc[idx, r+'_jdName'] == '바른미래당':
 							bs_bamin += 1
+			try:
+				bs_ratio = round((bs_jayu + bs_bamin) / gj_num * 100, 2)
+			except ZeroDivisionError:
+				bs_ratio = 0
 
-			bs_ratio = round((bs_jayu + bs_bamin) / gj_num * 100, 2)
 			bsjbtexts.append(text_templates['20-3'].format(bs_jayu=bs_jayu, bs_bamin=bs_bamin, bs_ratio=bs_ratio))
 			# 대국경북 민주당
 			# 대구 경국 정의당
@@ -1747,8 +1794,11 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 							jb_minju += 1
 						elif jbDf.loc[idx, r+'_jdName'] == '정의당':
 							jb_jung += 1
+			try:
+				jb_ratio = round((jb_minju + jb_jung) / tk_num * 100, 2)
+			except ZeroDivisionError:
+				jb_ratio = 0
 
-			jb_ratio = round((jb_minju + jb_jung) / tk_num * 100, 2)
 			bsjbtexts.append(text_templates['20-4'].format(jb_minju=jb_minju, jb_jung=jb_jung, jb_ratio=jb_ratio))
 
 			text = choice(bsjbtexts)
@@ -1767,128 +1817,141 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		# 당선확정, 이용자가 선택한 선거구에서 당선 확정자가 나왔을 경우
 		if len(candidates) > 0:
 			candidates_all = sess.query(CandidateInfo.name, CandidateInfo.sggName, CandidateInfo.sgTypecode).filter(CandidateInfo.huboid.in_(candidates)).all()
-			print(candidates_all)
+			# print(candidates_all)
 			candidates_text = []
 			for candidate, candidate_region, sgtype in candidates_all:
 				candidate_poll = regionPoll(candidate_region, sgtype)
 
 				# candidate_poll table 선택
 				if sgtype == 2: 
-					# candidate_poll_openrate = sess.query(func.max(OpenProgress2.openPercent)).filter(OpenProgress2.datatime<=time, OpenProgress2.sgg==candidate_region).scalar()
-					# sub_ranks = sess.query(OpenProgress2).filter(OpenProgress2.datatime<=time, OpenProgress2.sgg==candidate_region).group_by(OpenProgress2.sgg)
-					candidate_poll_openrate = sess.query(func.max(OpenProgress2.openPercent)).filter(OpenProgress2.sgg==candidate_region).scalar()
-					sub_ranks = sess.query(OpenProgress2).filter( OpenProgress2.sgg==candidate_region)
+					candidate_poll_openrate = sess.query(func.max(OpenProgress2.openPercent)).filter(OpenProgress2.datatime<=time, OpenProgress2.sgg==candidate_region).scalar()
+					sub_ranks = sess.query(OpenProgress2).filter(OpenProgress2.datatime<=time, OpenProgress2.sgg==candidate_region).group_by(OpenProgress2.sgg)
+					# candidate_poll_openrate = sess.query(func.max(OpenProgress2.openPercent)).filter(OpenProgress2.sgg==candidate_region).scalar()
+					# sub_ranks = sess.query(OpenProgress2).filter( OpenProgress2.sgg==candidate_region)
 				elif sgtype == 3:
-					# candidate_poll_openrate = sess.query(func.max(OpenProgress3.openPercent)).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==candidate_region).scalar()
-					# sub_ranks = sess.query(OpenProgress3).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==candidate_region).group_by(OpenProgress3.sido)
-					candidate_poll_openrate = sess.query(func.max(OpenProgress3.openPercent)).filter( OpenProgress3.sido==candidate_region, OpenProgress3.gusigun=='합계').scalar()
-					sub_ranks = sess.query(OpenProgress3).filter(OpenProgress3.sido==candidate_region, OpenProgress3.gusigun=='합계')
+					candidate_poll_openrate = sess.query(func.max(OpenProgress3.openPercent)).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==candidate_region, OpenProgress3.gusigun=='합계').scalar()
+					sub_ranks = sess.query(OpenProgress3).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==candidate_region, OpenProgress3.gusigun=='합계').group_by(OpenProgress3.sido)
+					# candidate_poll_openrate = sess.query(func.max(OpenProgress3.openPercent)).filter( OpenProgress3.sido==candidate_region, OpenProgress3.gusigun=='합계').scalar()
+					# sub_ranks = sess.query(OpenProgress3).filter(OpenProgress3.sido==candidate_region, OpenProgress3.gusigun=='합계')
 				elif sgtype == 4:
-					# candidate_poll_openrate = sess.query(func.max(OpenProgress4.openPercent)).filter(OpenProgress4.datatime<=time, OpenProgress4.gusigun==candidate_region).scalar()
-					# sub_ranks = sess.query(OpenProgress4).filter(OpenProgress4.datatime<=time, OpenProgress4.gusigun==candidate_region).group_by(OpenProgress4.gusigun)
-					candidate_poll_openrate = sess.query(func.max(OpenProgress4.openPercent)).filter( OpenProgress4.gusigun==candidate_region).scalar()
-					sub_ranks = sess.query(OpenProgress4).filter(OpenProgress4.gusigun==candidate_region)
+					candidate_poll_openrate = sess.query(func.max(OpenProgress4.openPercent)).filter(OpenProgress4.datatime<=time, OpenProgress4.gusigun==candidate_region).scalar()
+					sub_ranks = sess.query(OpenProgress4).filter(OpenProgress4.datatime<=time, OpenProgress4.gusigun==candidate_region).group_by(OpenProgress4.gusigun)
+					# candidate_poll_openrate = sess.query(func.max(OpenProgress4.openPercent)).filter( OpenProgress4.gusigun==candidate_region).scalar()
+					# sub_ranks = sess.query(OpenProgress4).filter(OpenProgress4.gusigun==candidate_region)
 				elif sgtype == 11:
-					# candidate_poll_openrate = sess.query(func.max(OpenProgress11.openPercent)).filter(OpenProgress11.datatime<=time,OpenProgress11.sido==candidate_region).scalar()
-					# sub_ranks = sess.query(OpenProgress11).filter(OpenProgress11.datatime<=time, OpenProgress11.sido==candidate_region).group_by(OpenProgress11.sido)
-					candidate_poll_openrate = sess.query(func.max(OpenProgress11.openPercent)).filter(OpenProgress11.sido==candidate_region, OpenProgress11.gusigun=='합계').scalar()
-					sub_ranks = sess.query(OpenProgress11).filter(OpenProgress11.sido==candidate_region, OpenProgress11.gusigun=='합계')
+					candidate_poll_openrate = sess.query(func.max(OpenProgress11.openPercent)).filter(OpenProgress11.datatime<=time,OpenProgress11.sido==candidate_region,OpenProgress11.gusigun=='합계').scalar()
+					sub_ranks = sess.query(OpenProgress11).filter(OpenProgress11.datatime<=time, OpenProgress11.sido==candidate_region,OpenProgress11.gusigun=='합계').group_by(OpenProgress11.sido)
+					# candidate_poll_openrate = sess.query(func.max(OpenProgress11.openPercent)).filter(OpenProgress11.sido==candidate_region, OpenProgress11.gusigun=='합계').scalar()
+					# sub_ranks = sess.query(OpenProgress11).filter(OpenProgress11.sido==candidate_region, OpenProgress11.gusigun=='합계')
 
 				ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
-				ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)
+				if len(ranksDf) > 0:
+					ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)
 
-				ranks_ttl = []
-				for i, ranks in ranks_vote.iterrows():
-					ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
+					ranks_ttl = []
+					for i, ranks in ranks_vote.iterrows():
+						ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
 
-				ranking = []
-				candidate_confirm_name = ''
-				for idx, ranks in enumerate(ranks_ttl):
-					rank1_cnt = ranksDf.loc[idx, ranks[0]+'_vote']
-					rank2_cnt = ranksDf.loc[idx, ranks[1]+'_vote']
-					yet_cnt = ranksDf.loc[idx, 'tooTotal'] - ranksDf.loc[idx, 'n_total'] - ranksDf.loc[idx, 'invalid']
-					confirm = 1 if (rank1_cnt-rank2_cnt) > yet_cnt else 0
-					if confirm:
-						candidate_confirm_name = ranksDf.loc[idx, ranks[0]+'_name']
+					ranking = []
+					candidate_confirm_name = ''
+					for idx, ranks in enumerate(ranks_ttl):
+						rank1_cnt = ranksDf.loc[idx, ranks[0]+'_vote']
+						rank2_cnt = ranksDf.loc[idx, ranks[1]+'_vote']
+						yet_cnt = ranksDf.loc[idx, 'tooTotal'] - ranksDf.loc[idx, 'n_total'] - ranksDf.loc[idx, 'invalid']
+						confirm = 1 if (rank1_cnt-rank2_cnt) > yet_cnt else 0
+						if confirm:
+							candidate_confirm_name = ranksDf.loc[idx, ranks[0]+'_name']
 
-				if candidate_confirm_name:
-					candidates_text.append('{candidate_region} {candidate_poll} 선거에서 {candidate_confirm_name} 후보가'.format(candidate_region=candidate_region, candidate_poll=candidate_poll, candidate_confirm_name=candidate_confirm_name))
-				else:
+					if candidate_confirm_name:
+						candidates_text.append('{candidate_region} {candidate_poll} 선거에서 {candidate_confirm_name} 후보가'.format(candidate_region=candidate_region, candidate_poll=candidate_poll, candidate_confirm_name=candidate_confirm_name))
+					else:
+						pass
+				else: # len(ranksDf) == 0
 					pass
 			
 			candidates_text = ', '.join(candidates_text)
 
 			if candidates_text:
 				candidates_text += ', '
-		else:
+		else: # len(candidates) == 0:
 			candidate_text = ''
 
 		if len(regions) > 0:
 			regions_all = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode.in_(regions)).all()
+			regions_all = list(set(regions_all))
+			# print(regions_all)
 			regions_text = []
 			for region1, region2 in regions_all:
 				region1Poll = regionPoll(region1, 3) # 시도지사
 				sub_ranks = sess.query(OpenProgress3).filter(OpenProgress3.sido==region1, OpenProgress3.gusigun=='합계')
+
 				ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
-				# if len(ranksDf) == 0:
-				# 	raise NoTextError
-				ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)	
-				ranks_ttl = [] # one line
-				for i, ranks in ranks_vote.iterrows():
-					ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
-				ranking = []
-				region1_confirm_name = ''
-				for idx, ranks in enumerate(ranks_ttl):
-					rank1_cnt = ranksDf.loc[idx, ranks[0]+'_vote']
-					rank2_cnt = ranksDf.loc[idx, ranks[1]+'_vote']
-					yet_cnt = ranksDf.loc[idx, 'tooTotal'] - ranksDf.loc[idx, 'n_total'] - ranksDf.loc[idx, 'invalid']
-					confirm = 1 if (rank1_cnt-rank2_cnt) > yet_cnt else 0
-					if confirm:
-						region1_confirm_name = ranksDf.loc[idx, ranks[0]+'_name']
-				
-				if region1_confirm_name:
-					regions_text.append('{region1} {region1Poll} 선거에서 {region1_confirm_name} 후보가'.format(region1=region1, region1Poll=region1Poll, region1_confirm_name=region1_confirm_name))
+				if len(ranksDf) > 0:
+					ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)	
+					ranks_ttl = [] # one line
+					for i, ranks in ranks_vote.iterrows():
+						ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
+					ranking = []
+					region1_confirm_name = ''
+					for idx, ranks in enumerate(ranks_ttl):
+						rank1_cnt = ranksDf.loc[idx, ranks[0]+'_vote']
+						rank2_cnt = ranksDf.loc[idx, ranks[1]+'_vote']
+						yet_cnt = ranksDf.loc[idx, 'tooTotal'] - ranksDf.loc[idx, 'n_total'] - ranksDf.loc[idx, 'invalid']
+						confirm = 1 if (rank1_cnt-rank2_cnt) > yet_cnt else 0
+						if confirm:
+							region1_confirm_name = ranksDf.loc[idx, ranks[0]+'_name']
+							print(region1_confirm_name)
+					
+					if region1_confirm_name:
+						regions_text.append('{region1} {region1Poll} 선거에서 {region1_confirm_name} 후보가'.format(region1=region1, region1Poll=region1Poll, region1_confirm_name=region1_confirm_name))
+						# print("ggggg:", regions_text)
+					else:
+						pass
 				else:
 					pass
-
+				# print(regions_text)
 				if region2 == '합계':
 					region2 = None
 				try:
 					region2Poll = regionPoll(region2, 4) # 시도지사
 					sub_ranks_g = sess.query(OpenProgress4).filter(OpenProgress4.sido==region1, OpenProgress4.gusigun==region2)
 					ranksDf_g = pd.read_sql(sub_ranks_g.statement, sub_ranks_g.session.bind)
-					# if len(ranksDf_g) == 0:
-					# 	raise NoTextError
-					ranks_vote_g = ranksDf_g.filter(regex="n*_percent").dropna(axis=1)	
-					ranks_ttl_g = [] # one line
-					for i, ranks in ranks_vote_g.iterrows():
-						ranks_ttl_g.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
-					ranking_g = []
-					region2_confirm_name = ''
-					for idx, ranks in enumerate(ranks_ttl_g):
-						rank1_cnt = ranksDf_g.loc[idx, rank[0]+'_vote']
-						rank2_cnt = ranksDf_g.loc[idx, rank[1]+'_vote']
-						yet_cnt = ranksDf_g.loc[idx, 'tooTotal'] - ranksDf_g.loc[idx, 'n_total'] - ranksDf_g.loc[idx, 'invalid']
-						confirm = 1 if (rank1_cnt-rank2_cnt) > yet_cnt else 0
-						if confirm:
-							region2_confirm_name = ranksDf_g.loc[idx, ranks[0]+'_name']
-					if region2_confirm_name:
-						regions_text.append('{region2} {region2Poll} 선거에서 {region2_confirm_name} 후보가'.format(region2=region2, region2Poll=region2Poll, region2_confirm_name=region2_confirm_name))
+					if len(ranksDf_g) > 0:
+						ranks_vote_g = ranksDf_g.filter(regex="n*_percent").dropna(axis=1)	
+						ranks_ttl_g = [] # one line
+						for i, ranks in ranks_vote_g.iterrows():
+							ranks_ttl_g.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
+						ranking_g = []
+						region2_confirm_name = ''
+						for idx, ranks in enumerate(ranks_ttl_g):
+							rank1_cnt = ranksDf_g.loc[idx, rank[0]+'_vote']
+							rank2_cnt = ranksDf_g.loc[idx, rank[1]+'_vote']
+							yet_cnt = ranksDf_g.loc[idx, 'tooTotal'] - ranksDf_g.loc[idx, 'n_total'] - ranksDf_g.loc[idx, 'invalid']
+							confirm = 1 if (rank1_cnt-rank2_cnt) > yet_cnt else 0
+							if confirm:
+								region2_confirm_name = ranksDf_g.loc[idx, ranks[0]+'_name']
+						if region2_confirm_name:
+							regions_text.append('{region2} {region2Poll} 선거에서 {region2_confirm_name} 후보가'.format(region2=region2, region2Poll=region2Poll, region2_confirm_name=region2_confirm_name))
+						else:
+							pass
 					else:
 						pass
+
 				except AttributeError:
 					pass
-
 			regions_text = ', '.join(regions_text)
+			# print(regions_text)
 		else:
 			regions_text = ''
+		
 		# print(candidates_text)
 		# print(regions_text)
-		if (len(candidates) > 0) or (len(regions) > 0):
+		
+		if (len(candidates_text) > 0) or (len(regions_text) > 0):
 			text = hourConverter(time.hour) + ' 현재 ' + candidates_text + regions_text + ' 당선이 확정되었습니다.'
 			meta_card = {
 				'order': order,
-				'type': 'default',
+				'type': 'winner',
 				'party': 'default',
 				'data': {
 					'text': text,
