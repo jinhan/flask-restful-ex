@@ -166,11 +166,26 @@ def generateMeta(args):
 	# time_update.append(sess.query(OpenProgress3.datatime).order_by(OpenProgress3.datatime.desc()).first()[0])
 	# time_update.append(sess.query(OpenProgress4.datatime).order_by(OpenProgress4.datatime.desc()).first()[0])
 	# time_update.append(sess.query(OpenProgress11.datatime).order_by(OpenProgress11.datatime.desc()).first()[0])
-	time_update.append(sess.query(VoteProgress.timeslot).filter(VoteProgress.timeslot <= t).order_by(VoteProgress.timeslot.desc()).first()[0])
-	time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==2).order_by(OpenProgress.datatime.desc()).first()[0])
-	time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==3).order_by(OpenProgress.datatime.desc()).first()[0])
-	time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==4).order_by(OpenProgress.datatime.desc()).first()[0])
-	time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==11).order_by(OpenProgress.datatime.desc()).first()[0])
+	try:
+		time_update.append(sess.query(VoteProgress.timeslot).filter(VoteProgress.timeslot <= t).order_by(VoteProgress.timeslot.desc()).first()[0])
+	except TypeError:
+		pass
+	try:
+		time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==2).order_by(OpenProgress.datatime.desc()).first()[0])
+	except TypeError:
+		pass
+	try:
+		time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==3).order_by(OpenProgress.datatime.desc()).first()[0])
+	except TypeError:
+		pass
+	try:
+		time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==4).order_by(OpenProgress.datatime.desc()).first()[0])
+	except TypeError:
+		pass
+	try:
+		time_update.append(sess.query(OpenProgress.datatime).filter(OpenProgress.datatime <= time, OpenProgress.electionCode==11).order_by(OpenProgress.datatime.desc()).first()[0])
+	except TypeError:
+		pass
 
 	serial_ontable = sess.query(QueryTime.serial).filter(QueryTime.args==str(arguments), QueryTime.times==str(time_update)).scalar() # 값이 나오면 같은게 있다는 것
 	# print(serial_ontable)

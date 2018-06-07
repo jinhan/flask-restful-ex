@@ -66,7 +66,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'tooOrget': '득표율' if seqs_type else '투표율',
 				}
 				text = '{region_names} 지역 선거 {tooOrget} 현황'.format(**data)
-			
+				# TODO: region_name 출략 안됨
 			else:
 				if len(parties) > 0:
 					# **해당 변수가 2개 선택됐을 경우 먼저 선택한 변수를 출력 {투표율|득표율}에서는 전체 시도지사 선거(17개), 시군구청장 선거(226개)에서 개표율이 10%가 넘는 지역의 수가 전체 선거구의 10%보다 적을 경우(2개, 23개) 투표율, 이상일 경우 득표율 출력
@@ -215,6 +215,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			t = time.hour
 
 		# 서울, 서울
+		# TODO: NoTextError되는 이유 찾기
 		toorate_region1 = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1).scalar()
 
 		try:
@@ -844,7 +845,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 
 	elif card_seq == 15:
 		try:
-			candidate_poll_code = sess.query(CandidateInfo.sgTypecode).filter(CandidateInfo.huboid==candidates[index]).first()
+			candidate_poll_code = sess.query(CandidateInfo.sgTypecode).filter(CandidateInfo.huboid==candidates[index]).first()[0]
 		except IndexError:
 			candidate_poll_code = None
 
@@ -1819,6 +1820,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 
 			if candidates_text:
 				candidates_text += ', '
+		else:
+			candidate_text = ''
 
 		if len(regions) > 0:
 			regions_all = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode.in_(regions)).all()
@@ -1877,7 +1880,10 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					pass
 
 			regions_text = ', '.join(regions_text)
-		
+		else:
+			regions_text = ''
+		# print(candidates_text)
+		# print(regions_text)
 		if (len(candidates) > 0) or (len(regions) > 0):
 			text = hourConverter(time.hour) + ' 현재 ' + candidates_text + regions_text + ' 당선이 확정되었습니다.'
 			meta_card = {
