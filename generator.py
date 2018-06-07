@@ -99,13 +99,13 @@ def getCardSeqs(polls, regions, parties, candidates, time):
 		card_seqs.sort()
 		seqs_type = 0
 	# 어떤 선거의 개표율 10 기준?
-	elif t > 18 and openrate < 10: # 투표마감이후
+	elif (t > 18) and (openrate < 10): # 투표마감이후
 		card_seqs.extend([1, 2, 3, 6, 22, 23]) # 6 특이사항
 		card_seqs.extend([4] * len(regions))
 		card_seqs.extend([5] * len(candidates))
 		card_seqs.sort()
 		seqs_type = 0
-	elif t > 18 and openrate >= 10 and openrate < 30: # 개표율 10% 이상
+	elif (t > 18) and (openrate >= 10) and (openrate < 30): # 개표율 10% 이상
 		card_seqs.extend([1, 2, 3, 7, 8, 9, 20, 23]) # 6, 13, 20 특이사항
 		card_seqs.extend([4] * len(regions))
 		card_seqs.extend([5] * len(candidates))
@@ -117,7 +117,7 @@ def getCardSeqs(polls, regions, parties, candidates, time):
 		card_seqs.extend([18] * len(parties))
 		card_seqs.sort()
 		seqs_type = 1
-	elif t > 18 and openrate >= 30: # 개표율 30% 이상
+	elif (t > 18) and (openrate >= 30): # 개표율 30% 이상
 		card_seqs.extend([1, 2, 7, 13, 14, 15, 20, 23]) # 13, 20 특이사항
 		card_seqs.extend([10] * len(regions))
 		card_seqs.extend([11] * len(polls))
@@ -169,15 +169,15 @@ def generateMeta(args):
 	print(serial_ontable)
 	meta_previous = sess.query(MetaCards.meta).filter(MetaCards.serial==serial_ontable).scalar()
 
-	# if (serial_ontable != None) and (meta_previous != None): # 전에 있으면
-	# 	meta = ast.literal_eval(meta_previous)
-	# 	meta['updated'] = False
+	if (serial_ontable != None) and (meta_previous != None): # 전에 있으면
+		meta = ast.literal_eval(meta_previous)
+		meta['updated'] = False
 
-	# else: # 전에 없으면
-	if True:
-		# row = QueryTime(serial=serial_current, args=str(arguments), times=str(time_update))
-		# sess.add(row)
-		# sess.commit()
+	else: # 전에 없으면
+	# if True:
+		row = QueryTime(serial=serial_current, args=str(arguments), times=str(time_update))
+		sess.add(row)
+		sess.commit()
 
 		card_seqs, seqs_type = getCardSeqs(polls, regions, parties, candidates, time)
 		print(card_seqs)
@@ -209,9 +209,9 @@ def generateMeta(args):
 
 		meta['cards'] = meta_cards
 		
-		# meta_row = MetaCards(serial=serial_current, meta=str(meta))
-		# sess.add(meta_row)
-		# sess.commit()
+		meta_row = MetaCards(serial=serial_current, meta=str(meta))
+		sess.add(meta_row)
+		sess.commit()
 
 	print(sess)
 	# sess.close()
