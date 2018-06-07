@@ -32,7 +32,10 @@ def getCardSeqs(polls, regions, parties, candidates, time):
 	card_seqs = []
 
 	if (len(candidates) > 0) and (len(regions) > 0) and (len(parties) > 0) and (len(polls) > 0):
-		candidate, candidate_region, candidate_poll_code = sess.query(CandidateInfo.name, CandidateInfo.sggName, CandidateInfo.sgTypecode).filter(CandidateInfo.huboid==candidates[0]).first()
+		try:
+			candidate, candidate_region, candidate_poll_code = sess.query(CandidateInfo.name, CandidateInfo.sggName, CandidateInfo.sgTypecode).filter(CandidateInfo.huboid==candidates[0]).first()
+		except TypeError:
+			raise NoTextError
 
 		if candidate_poll_code == 2: # 국회의원
 			openrate = sess.query(func.max(OpenProgress2.openPercent)).filter(OpenProgress2.sgg==candidate_region).scalar() # OpenProgress2.datatime<=time, 
@@ -46,7 +49,10 @@ def getCardSeqs(polls, regions, parties, candidates, time):
 			openrate = sess.query(func.max(OpenProgress.openPercent)).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==candidate_poll_code, OpenProgress.sido==candidate_region).scalar()
 
 	elif (len(candidates) == 0) and (len(regions) > 0) and (len(parties) > 0) and (len(polls) > 0):
-		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==regions[0]).first()
+		try:
+			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==regions[0]).first()
+		except TypeError:
+			raise NoTextError
 
 		openrate = sess.query(func.max(OpenProgress3.openPercent)).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==region1).scalar()
 
@@ -163,14 +169,15 @@ def generateMeta(args):
 	print(serial_ontable)
 	meta_previous = sess.query(MetaCards.meta).filter(MetaCards.serial==serial_ontable).scalar()
 
-	if (serial_ontable != None) and (meta_previous != None): # 전에 있으면
-		meta = ast.literal_eval(meta_previous)
-		meta['updated'] = False
+	# if (serial_ontable != None) and (meta_previous != None): # 전에 있으면
+	# 	meta = ast.literal_eval(meta_previous)
+	# 	meta['updated'] = False
 
-	else: # 전에 없으면
-		row = QueryTime(serial=serial_current, args=str(arguments), times=str(time_update))
-		sess.add(row)
-		sess.commit()
+	# else: # 전에 없으면
+	if True:
+		# row = QueryTime(serial=serial_current, args=str(arguments), times=str(time_update))
+		# sess.add(row)
+		# sess.commit()
 
 		card_seqs, seqs_type = getCardSeqs(polls, regions, parties, candidates, time)
 		print(card_seqs)
@@ -202,9 +209,9 @@ def generateMeta(args):
 
 		meta['cards'] = meta_cards
 		
-		meta_row = MetaCards(serial=serial_current, meta=str(meta))
-		sess.add(meta_row)
-		sess.commit()
+		# meta_row = MetaCards(serial=serial_current, meta=str(meta))
+		# sess.add(meta_row)
+		# sess.commit()
 
 	print(sess)
 	# sess.close()
