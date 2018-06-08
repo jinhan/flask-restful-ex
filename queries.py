@@ -223,7 +223,10 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		}
 
 	elif card_seq == 4:
-		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
+		try:
+			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
+		except TypeError:
+			raise NoTextError
 		# print(region1, region2)
 		if region2 == '합계':
 			# region2 = None
@@ -538,7 +541,10 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		}
 
 	elif card_seq == 10:
-		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
+		try:
+			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
+		except TypeError:
+			raise NoTextError
 		if region2 == '합계':
 			region2 = None
 
@@ -1046,7 +1052,10 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			}
 
 	elif card_seq == 16:
-		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
+		try:
+			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
+		except TypeError:
+			raise NoTextError
 		if region2 == '합계':
 			region2 = None
 		
