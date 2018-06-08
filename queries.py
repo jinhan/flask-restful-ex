@@ -49,7 +49,6 @@ def regionPoll(r, code):
 
 def query_card_data(order, index, polls, regions, parties, candidates, time, card_seq, seqs_type):
 	if card_seq == 1:
-		
 		if (len(candidates) > 0):
 			card_num = '1'
 			# **해당 변수가 2개 선택됐을 경우 먼저 선택한 변수를 출력, {투표율|득표율}에서는 해당 후보가 참여한 선거의 개표율이 10% 이하일 경우 투표율, 이상일 경우 득표율 출력
@@ -99,7 +98,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 						text = '현재 {poll_names} {tooOrget} 현황'.format(**data)
 					
 					else:
-						text = ''
+						raise NoTextError
 
 		meta_card = {
 			'order': order,
