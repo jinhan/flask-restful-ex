@@ -244,6 +244,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			
 		each_toorate = sess.query(func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=t).group_by(VoteProgress.sido).subquery()
 		yooToday, yooEarly, tooToday, tooEarly = sess.query(func.sum(each_toorate.c.yooToday), func.sum(each_toorate.c.yooEarly), func.sum(each_toorate.c.tooToday), func.sum(each_toorate.c.tooEarly)).first()
+		if tooEarly == None:
+			tooEarly = 0
 		toorate_avg_nat = (tooToday+tooEarly) / (yooToday+yooEarly) * 100
 
 		toorate_region1_toorate_avg_nat = toorate_region1 - toorate_avg_nat
@@ -388,7 +390,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				
 		meta_card = {
 			'order': order,
-			'type': 'default',
+			'type': 'text',
 			'party': 'default',
 			'data': {
 				'text': text,
@@ -834,7 +836,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 
 		meta_card = {
 			'order': order,
-			'type': 'default',
+			'type': 'text',
 			'party': 'default',
 			'data': {
 				'text': text,
