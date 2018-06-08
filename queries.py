@@ -405,7 +405,6 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		
 		if invalid == None:
 			invalid = 0
-
 		openrate_avg_nat = (n_total + invalid) / tooTotal * 100
 
 		data = {
@@ -558,7 +557,6 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		
 		if invalid_r == None:
 			invalid_r = 0
-
 		try:
 			openrate_region1 = (n_total_r + invalid_r) / tooTotal_r * 100
 		except TypeError:
@@ -581,7 +579,6 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 
 			if invalid == None:
 				invalid = 0
-
 			openrate_avg_nat = (n_total + invalid) / tooTotal * 100
 
 			openrate_region1_openrate_avg_nat = openrate_region1 - openrate_avg_nat
@@ -2053,6 +2050,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 
 		each_toorate = sess.query(func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=t).group_by(VoteProgress.sido).subquery()
 		yooToday, yooEarly, tooToday, tooEarly = sess.query(func.sum(each_toorate.c.yooToday), func.sum(each_toorate.c.yooEarly), func.sum(each_toorate.c.tooToday), func.sum(each_toorate.c.tooEarly)).first()
+		if tooEarly == None:
+			tooEarly = 0
 		toorate_avg_nat = (tooToday+tooEarly) / (yooToday+yooEarly) * 100
 
 		if toorate_avg_nat < 68.4:
