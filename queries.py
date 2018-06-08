@@ -51,6 +51,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 	if card_seq == 1:
 		
 		if (len(candidates) > 0):
+			card_num = '1'
 			# **해당 변수가 2개 선택됐을 경우 먼저 선택한 변수를 출력, {투표율|득표율}에서는 해당 후보가 참여한 선거의 개표율이 10% 이하일 경우 투표율, 이상일 경우 득표율 출력
 			candidate_names = sess.query(CandidateInfo.name).filter(CandidateInfo.huboid.in_(candidates)).all()
 			candidate_names = ', '.join([r[0] for r in candidate_names])
@@ -62,8 +63,10 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		
 		else:
 			if len(regions) > 0:
+				card_num = '1-1'
 				# **해당 변수가 2개 선택됐을 경우 먼저 선택한 변수를 출력 {투표율|득표율}에서는 해당 지역 시도지사 선거의 개표율이 10% 이하일 경우 투표율, 이상일 경우 득표율 출력
 				region_names = sess.query(PrecinctCode.sido).filter(PrecinctCode.townCode.in_(regions)).all()
+				region_names = list(set(region_names))
 				region_names = ', '.join([r[0] for r in region_names])
 				data = {
 					'region_names': region_names,
@@ -73,6 +76,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				# TODO: region_name 출략 안됨 : 테스트 
 			else:
 				if len(parties) > 0:
+					card_num = '1-2'
 					# **해당 변수가 2개 선택됐을 경우 먼저 선택한 변수를 출력 {투표율|득표율}에서는 전체 시도지사 선거(17개), 시군구청장 선거(226개)에서 개표율이 10%가 넘는 지역의 수가 전체 선거구의 10%보다 적을 경우(2개, 23개) 투표율, 이상일 경우 득표율 출력
 					party_names = sess.query(PartyCode.jdName).filter(PartyCode.pOrder.in_(parties)).all()
 					party_names = ', '.join([r[0] for r in party_names])
@@ -84,6 +88,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				
 				else:
 					if len(polls) > 0:
+						card_num = '1-3'
 						# **해당 변수가 2개 선택됐을 경우 먼저 선택한 변수를 출력 {투표율|득표율}에서는 선택한 선거 종류(시도지사/시군구청장/교육감/국회의원)별 전체 선거구 수의 10% 이상이 개표율 10%를 넘겼을 경우 득표율, 이하일 경우 투표율 출력
 						poll_names = sess.query(SgTypecode.sgName).filter(SgTypecode.sgTypecode.in_(polls)).all()
 						poll_names = ', '.join([r[0] for r in poll_names])
@@ -100,7 +105,11 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			'order': order,
 			'type': 'cover',
 			'party': 'default',
-			'data': {'tags': text}
+			'data': {
+				'title': text, 
+				'text': ''
+			},
+			'debugging': card_num,
 		}
 
 	elif card_seq == 2:
@@ -122,11 +131,13 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			'toorate_avg_nat': round(toorate_avg_nat, 2),
 		}
 		if t > 18:
-			text = text_templates[2].format(**data)
+			card_num = '2'
+			text = text_templates[card_num].format(**data)
 			title = '최종 투표율'
 		else:
+			card_num = '2-1'
 			data['hour'] = hourConverter(time.hour)
-			text = text_templates['2-1'].format(**data)
+			text = text_templates[card_num].format(**data)
 			title = hourConverter(time.hour) + ', 현재 투표율'
 
 		meta_card = {
@@ -137,7 +148,9 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				'title': title,
 				'rate': round(toorate_avg_nat),
 				'text': text,
-			}
+			},
+			'debugging': card_num,
+
 		}
 
 	elif card_seq == 3:
@@ -181,9 +194,11 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		}
 
 		if t > 18:
-			text = text_templates[card_seq].format(**data)
+			card_num = '3'
+			text = text_templates[card_num].format(**data)
 		else:
-			text = text_templates['3-1'].format(**data)
+			card_num = '3-1'
+			text = text_templates[card_num].format(**data)
 
 		map_data = []
 		for v, r in ranks:
@@ -204,7 +219,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'data': map_data,
 				},
 				'text': text,
-			}
+			},
+			'debugging': card_num,
 		}
 
 	elif card_seq == 4:
@@ -243,9 +259,11 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		}
 
 		if t > 18:
-			text = text_templates[card_seq].format(**data)
+			card_num = '4'
+			text = text_templates[card_num].format(**data)
 		else:
-			text = text_templates['4-1'].format(**data)
+			card_num = '4-1'
+			text = text_templates[card_num].format(**data)
 
 		toorate_region1_sub = sess.query(func.max(VoteProgress.tooRate), VoteProgress.gusigun).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).order_by(func.max(VoteProgress.tooRate).desc()).all()
 		# print(region1)
@@ -268,7 +286,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'data': map_data,
 				},
 				'text': text,
-			}
+			},
+			'debugging': card_num,
 		}
 
 	elif card_seq == 5:
@@ -288,10 +307,12 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			'candidate_region_toorate': candidate_region_toorate,
 		}
 		if t > 18:
-			text = text_templates[card_seq].format(**data)
+			card_num = '5'
+			text = text_templates[card_num].format(**data)
 		else:
+			card_num = '5-1'
 			data['hour'] = hourConverter(time.hour)
-			text = text_templates['5-1'].format(**data)
+			text = text_templates[card_num].format(**data)
 
 		candidate_region_sub = sess.query(VoteProgress.tooRate, VoteProgress.gusigun).filter(VoteProgress.timeslot<=t, VoteProgress.sido==candidate_sdName, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).all()
 		# print(candidate_sdName)
@@ -314,7 +335,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'data': map_data,
 				},
 				'text': text,
-			}
+			},
+			'debugging': card_num,
 		}
 		
 
@@ -347,7 +369,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		currentPastDf = pd.merge(currentDf, pastDf, on='sido')
 		# print(currentPastDf['max_x'] - currentPastDf['max_y'])
 		if t > 18:
-			text = text_templates[card_seq] if current_toorate_past_toorate > 0 else text_templates['6-0']
+			card_num = '6' if current_toorate_past_toorate > 0 else text_templates['6-0']
+			text = text_templates[card_num]
 		else:
 			# print(current.all())
 			# print(past.all())
@@ -355,9 +378,11 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			ratio = sum([1 for s in (currentPastDf['max_x'] - currentPastDf['max_y']).values if s > 0]) / len(currentDf['sido'])
 			# print(ratio)
 			if current_toorate_past_toorate >= 5:
-				text = text_templates['6-1']
+				card_num = '6-1'
+				text = text_templates[card_num]
 			elif ratio >= 0.8:
-				text = text_templates['6-2']
+				card_num = '6-2'
+				text = text_templates[card_num]
 			else:
 				# text = None
 				raise NoTextError
@@ -368,7 +393,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			'party': 'default',
 			'data': {
 				'text': text,
-			}
+			},
+			'debugging': card_num,
 		}
 
 	elif card_seq == 7:
@@ -385,7 +411,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			'hour': hourConverter(time.hour),
 			'openrate_avg_nat': round(openrate_avg_nat, 2),
 		}
-		text = text_templates[card_seq].format(**data)
+		card_num = '7'
+		text = text_templates[card_num].format(**data)
 
 		meta_card = {
 			'order': order,
@@ -395,7 +422,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				'title': hourConverter(time.hour) + ', 평균 개표율',
 				'rate': round(openrate_avg_nat),
 				'text': text,
-			}
+			},
+			'debugging': card_num,
 		}
 
 	elif card_seq == 8:
@@ -418,7 +446,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'openrate_sunname1_rank1': openrate_sunname1_rank1['sido'],
 					'openrate_sunname1_rank1_rate': openrate_sunname1_rank1['max'],
 				}
-				text = text_templates['8-1'].format(**data)
+				card_num = '8-1'
+				text = text_templates[card_num].format(**data)
 			else:
 				data = {
 					'hour': hourConverter(time.hour),
@@ -428,7 +457,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'openrate_sunname1_rank2': openrate_sunname1_ranks[1][1],
 					'openrate_sunname1_rank2_rate': round(openrate_sunname1_ranks[1][0], 2),
 				}
-				text = text_templates[card_seq].format(**data)
+				card_num = '8'
+				text = text_templates[card_num].format(**data)
 		else:
 			raise NoTextError
 
@@ -449,7 +479,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'data': map_data,
 				},
 				'text': text,
-			}
+			},
+			'debugging': card_num,
 		}
 
 	elif card_seq == 9:
@@ -472,7 +503,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'openrate_sunname2_rank1': openrate_sunname2_rank1['gusigun'],
 					'openrate_sunname2_rank1_rate': openrate_sunname2_rank1['max'],
 				}
-				text = text_templates['9-1'].format(**data)
+				card_num = '9-1'
+				text = text_templates[card_num].format(**data)
 			else:
 				data = {
 					'hour': hourConverter(time.hour),
@@ -481,7 +513,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'openrate_sunname2_rank2': openrate_sunname2_ranks[1][1],
 					'openrate_sunname2_rank2_rate': round(openrate_sunname2_ranks[1][0], 2),
 				}
-				text = text_templates[card_seq].format(**data)
+				card_num = '9'
+				text = text_templates[card_num].format(**data)
 		else:
 			raise NoTextError
 
@@ -500,7 +533,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'data': graph_data,
 				},
 				'text': text,
-			}
+			},
+			'debugging': card_num,
 		}
 
 	elif card_seq == 10:
@@ -534,9 +568,11 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			'region1': region1,
 		}
 		if openrate_region1 == 0:
-			text = text_templates['10-1'].format(**data)
+			card_num = '10-1'
+			text = text_templates[card_num].format(**data)
 		elif openrate_region1 >= 100:
-			text = text_templates['10-2'].format(**data)
+			card_num = '10-2'
+			text = text_templates[card_num].format(**data)
 		else:
 			sub = sess.query(func.max(OpenProgress.tooTotal).label('tooTotal'), func.max(OpenProgress.n_total).label('n_total'), func.max(OpenProgress.invalid).label('invalid')).filter(OpenProgress.datatime<=time).group_by(OpenProgress.townCode).subquery()
 
@@ -553,8 +589,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			data['openrate_region1'] = round(openrate_region1, 2)
 			data['openrate_region1_openrate_avg_nat'] = round(abs(openrate_region1_openrate_avg_nat), 2)
 			data['compare_region1'] = compare_region1
-			
-			text = text_templates[card_seq].format(**data)
+			card_num = '10'
+			text = text_templates[card_num].format(**data)
 
 		# openrate_region1_sub = sess.query(func.max(OpenProgress.openPercent), OpenProgress.sido).filter(OpenProgress.datatime<=time).group_by(OpenProgress.sido).all()
 
@@ -574,7 +610,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'data': map_data,
 				},
 				'text': text,
-			}
+			},
+			'debugging': card_num,
 		}
 
 	elif card_seq == 11:
@@ -635,7 +672,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'hour': hourConverter(time.hour),
 					'poll': poll,
 				}
-				text = text_templates['11-2'].format(**data)
+				card_num = '11-2'
+				text = text_templates[card_num].format(**data)
 			else:
 				data = {
 					'poll_num_sunname': poll_num_sunname,
@@ -647,7 +685,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'poll': poll, 
 					'poll_openrate_nat_avg': round(poll_openrate_nat_avg, 2),
 				}
-				text = text_templates[card_seq].format(**data)
+				card_num = '11'
+				text = text_templates[card_num].format(**data)
 
 		except TypeError:
 			if tooTotal == None:
@@ -656,7 +695,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'poll': poll,
 					'josa': josaPick(poll, '은'),
 				}
-				text = text_templates['11-1'].format(**data)
+				card_num = '11-1'
+				text = text_templates[card_num].format(**data)
 			else:
 				raise NoTextError
 
@@ -670,7 +710,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'data': poll_openrate_ranks,
 				},
 				'text': text,
-			}
+			}, 
+			'debugging': card_num,
 		}
 
 	elif card_seq == 12:
@@ -708,11 +749,14 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		}
 		
 		if candidate_poll_openrate == None:
-			text = text_templates['12-1'].format(**data)
+			card_num = '12-1'
+			text = text_templates[card_num].format(**data)
 		elif candidate_poll_openrate >= 100:
-			text = text_templates['12-2'].format(**data)
+			card_num = '12-2'
+			text = text_templates[card_num].format(**data)
 		else:
-			text = text_templates[card_seq].format(**data)
+			card_num = '12'
+			text = text_templates[card_num].format(**data)
 
 		if candidate_poll_code in [2,4]:
 			meta_card = {
@@ -721,7 +765,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				'party': 'default',
 				'data': {
 					'text': text,
-				}
+				},
+				'debugging': card_num,
 			}
 		else:
 			map_data = []
@@ -742,7 +787,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 						'data': map_data,
 					},
 					'text': text,
-				}
+				}, 
+				'debugging': card_num,
 			}
 
 	elif card_seq == 13:
@@ -763,7 +809,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'hour': hourConverter(time.hour),
 					'open_finished_sido': ', '.join(sido[0] for sido in openrate_sido),
 				}
-				text = text_templates[card_seq].format(**data)
+				card_num = '13'
+				text = text_templates[card_num].format(**data)
 			else:
 				text = ''
 
@@ -773,11 +820,13 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'hour': hourConverter(time.hour),
 					'open_finished_gusigun': ', '.join(gusigun[0] for gusigun in openrate_gusigun),
 				}
-				text += text_templates['13-1'].format(**data)
+				card_num = '13-1'
+				text += text_templates[card_num].format(**data)
 			else:
 				text += ''
 		else:
-			text = text_templates['13-2'].format(hour=hourConverter(time.hour))
+			card_num = '13-2'
+			text = text_templates[card_num].format(hour=hourConverter(time.hour))
 
 		if text == '':
 			raise NoTextError
@@ -790,7 +839,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			'party': 'default',
 			'data': {
 				'text': text,
-			}
+			},
+			'debugging': card_num,
 		}
 
 	# elif card_seq == 14:
@@ -915,7 +965,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			}
 
 			if (candidate_poll_code == 11) or (polls[index] == 11):
-				text = text_templates['15-11'].format(**data)
+				card_num = '15-11'
+				text = text_templates[card_num].format(**data)
 				meta_card = {
 					'order': order,
 					'type': 'winner',
@@ -924,13 +975,13 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 						'title': hourConverter(time.hour) + ', ' + openrate_rank1_region + ' 교육감선거 1위',
 						'name': openrate_rank1_region_candidate,
 						'text': text,
-					}
+					},
+					'debugging': card_num,
 				}
 			else:
-				num = candidate_poll_code or polls[index]
-				num = '15-' + str(num)
-				print(num)
-				text = text_templates[num].format(**data)
+				card_num = candidate_poll_code or polls[index]
+				card_num = '15-' + str(card_num)
+				text = text_templates[card_num].format(**data)
 
 				meta_card = {
 					'order': order,
@@ -940,7 +991,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 						'title': hourConverter(time.hour) + ', ' + str(rank1_party_num) + '개 선거구 1위',
 						'name': rank1_party,
 						'text': text,
-					}
+					},
+					'debugging': card_num,
 				}
 			# else:
 				# raise NoTextError
@@ -980,7 +1032,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				'josa2': josaPick(rank1_party, '은'),
 				'rank1_party_num': rank1_party_num,
 			}
-			text = text_templates[14].format(**data)
+			card_num = '14'
+			text = text_templates[card_num].format(**data)
 
 			meta_card = {
 				'order': order,
@@ -990,7 +1043,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'title': hourConverter(time.hour) + ', ' + str(rank1_party_num) + '개 선거구 1위',
 					'name': rank1_party,
 					'text': text,
-				}
+				},
+				'debugging': card_num,
 			}
 
 	elif card_seq == 16:
@@ -1050,14 +1104,16 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		confirm = True if (rank1_cnt-rank2_cnt) > yet_cnt else False
 
 		if confirm:
-			text = text_templates['16-3'].format(**data)
+			card_num = '16-3'
 		else:
 			if (region1_rank1_rate - region1_rank2_rate) >= 15:
-				text = text_templates['16-2'].format(**data)
+				card_num = '16-2'
 			elif (region1_rank1_rate - region1_rank2_rate) < 5:
-				text = text_templates['16-1'].format(**data)
+				card_num = '16-1'
 			else:
-				text = text_templates[16].format(**data)
+				card_num = '16'
+		
+		text = text_templates[card_num].format(**data)
 
 		graph_data = []
 		for r in ranking:
@@ -1077,7 +1133,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'data': graph_data,
 				},
 				'text': text,
-			}
+			},
+			'debugging': card_num,
 		}
 	
 	elif card_seq == 17:
@@ -1156,29 +1213,38 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 
 		if candidate_poll_rank1_name == candidate: 
 			if (candidate_poll_rank1_rate - candidate_poll_rank2_rate) >= 15:
-				text = text_templates['17-3'].format(**data)
+				card_num = '17-3'
+				text = text_templates[card_num].format(**data)
 			elif (candidate_poll_rank1_rate - candidate_poll_rank2_rate) < 5:
-				text = text_templates['17-1'].format(**data)
+				card_num = '17-1'
+				text = text_templates[card_num].format(**data)
 			elif confirm:
-				text = text_templates['17-6'].format(**data)
+				card_num = '17-6'
+				text = text_templates[card_num].format(**data)
 			else:
-				text = text_templates[card_seq].format(**data)
+				card_num = '17'
+				text = text_templates[card_num].format(**data)
 
 		elif candidate_poll_rank2_name == candidate:
 			if abs(candidate_poll_rank1_rate - candidate_poll_rank2_rate) >= 15:
-				text = text_templates['17-4'].format(**data)
+				card_num = '17-4'
+				text = text_templates[card_num].format(**data)
 			elif abs(candidate_poll_rank1_rate - candidate_poll_rank2_rate) < 5:
-				text = text_templates['17-2'].format(**data)
+				card_num = '17-2'
+				text = text_templates[card_num].format(**data)
 			elif confirm:
-				text = text_templates['17-7'].format(**data)
+				card_num = '17-7'
+				text = text_templates[card_num].format(**data)
 			else:
 				text = text_templates[card_seq].format(**data)
 
 		else:
 			if abs(candidate_poll_rank1_rate - candidate_poll_rank2_rate) < 5:
-				text = text_templates['17-5'].format(**data)
+				card_num = '17-5'
+				text = text_templates[card_num].format(**data)
 			else:
-				text = text_templates[card_seq].format(**data)
+				card_num = '17'
+				text = text_templates[card_num].format(**data)
 		
 		graph_data = []
 		for r in ranking:
@@ -1198,7 +1264,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 					'data': graph_data,
 				},
 				'text': text,
-			}
+			},
+			'debugging': card_num,
 		}
 		
 
@@ -1314,41 +1381,42 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		
 		# print(graph_data)
 		if abs(party_rank1_sido_num - party_rank2_sido_num) / len(rank1_count_g) < 0.05: # 1,2위 경합
-			text = text_templates['18-1'].format(**data)
+			card_num = '18-1'
 			graph = True
 
 		elif abs(party_rank2_sido_num - party_rank3_sido_num) / len(rank1_count_g) < 0.05: # 2,3위 경합
-			text = text_templates['18-2'].format(**data)
+			card_num = '18-2'
 			graph = True
 		
 		elif (abs(party_rank1_sido_num - party_rank2_sido_num) / len(rank1_count_g) < 0.05) and (abs(party_rank2_sido_num - party_rank3_sido_num) / len(rank1_count_g) < 0.05): # 1,2,3위 경합
-			text = text_templates['18-3'].format(**data)
+			card_num = '18-3'
 			graph = True
 
 		elif (party == party_rank1_sido_name) and (abs(ranking[0][0]['percent'] - ranking[0][1]['percent']) > 15): # 내가 선택한 정당이 1위일때, 1위와 2위의 격차가 15% 이상
-			text = text_templates['18-4'].format(**data)
+			card_num = '18-4'
 			graph = True
 		
 		elif (party == party_rank2_sido_name) and (abs(ranking[0][0]['percent'] - ranking[0][1]['percent']) > 15): # 내가 선택한 정당이 2위일때, 1위와 2위의 격차가 15% 이상
-			text = text_templates['18-5'].format(**data)
+			card_num = '18-5'
 			graph = True
 
 		elif confirms_count[0][0] == party:
 			data['party_rank1_sido_num_confirm'] = confirms_count[0][1],
 			data['party_rank1_gusigun_num_confirm'] = [v for r, v in confirms_count_g if r == party][0],
-			text = text_templates['18-6'].format(**data)
+			card_num = '18-6'
 			graph = False
 
 		elif confirms_count[1][0] == party:
 			data['party_rank1_sido_num_confirm'] = confirms_count[1][1],
 			data['party_rank1_gusigun_num_confirm'] = [v for r, v in confirms_count_g if r == party][0],
-			text = text_templates['18-7'].format(**data)
+			card_num = '18-7'
 			graph = False
 		
 		else:
-			text = text_templates[card_seq].format(**data)
+			card_num = '18'
 			graph = False
-		
+			
+		text = text_templates[card_num].format(**data)
 		if graph:
 			meta_card = {
 				'order': order,
@@ -1360,7 +1428,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 						'data': graph_data,
 					},
 					'text': text,
-				}
+				},
+				'debugging': card_num,
 			}
 		else:
 			meta_card = {
@@ -1369,7 +1438,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				'party': 'default',
 				'data': {
 					'text': text,
-				}
+				},
+				'debugging': card_num,
 			}
 
 
@@ -1524,47 +1594,53 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		print("index:    ", index)
 		if polls[index] == 2:
 			if (abs(rank1_party_num-rank2_party_num) / len(ranking) < 0.05):
-				text = text_templates['19-4'].format(**data)
+				card_num = '19-4'
 			elif (abs(rank1_party_num-rank2_party_num) / len(ranking) > 0.15):
-				text = text_templates['19-7'].format(**data)
+				card_num = '19-7'
 			elif (confirms_rank1_party_num + confirms_rank2_party_num) > 2:
-				text = text_templates['19-14'].format(**data)
+				card_num = '19-14'
 			else:
-				text = text_templates[card_seq].format(**data)
+				card_num = '19'
 			
 		elif polls[index] == 3:
 			if (abs(rank1_party_num-rank2_party_num) / len(ranking) < 0.05):
-				text = text_templates['19-5'].format(**data)
+				card_num = '19-5'
 			elif (abs(rank1_party_num-rank2_party_num) / len(ranking) > 0.15):
-				text = text_templates['19-8'].format(**data)
+				card_num = '19-8'
 			elif (confirms_rank1_party_num + confirms_rank2_party_num) > 2:
-				text = text_templates['19-15'].format(**data)
+				card_num = '19-15'
 			else:
-				text = text_templates['19-1'].format(**data)
+				card_num = '19-1'
 		
 		elif polls[index] == 4:
 			if (abs(rank1_party_num-rank2_party_num) / len(ranking) < 0.05):
-				text = text_templates['19-6'].format(**data)
+				card_num = '19-6'
 			elif (abs(rank1_party_num-rank2_party_num) / len(ranking) > 0.15):
-				text = text_templates['19-9'].format(**data)
+				card_num = '19-9'
 			elif (confirms_rank1_party_num + confirms_rank2_party_num) > 2:
-				text = text_templates['19-16'].format(**data)
+				card_num = '19-16'
 			else:
-				text = text_templates['19-2'].format(**data)
+				card_num = '19-2'
+			
 		
 		elif polls[index] == 11:
 			if len(confirms) > 2:
-				text = text_templates['19-17'].format(**data)
+				card_num = '19-17'
 			else:
-				text = text_templates['19-3'].format(**data)
-		
+				card_num = '19-3'
+		try:
+			text = text_templates[card_num].format(**data)
+		except KeyError:
+			raise NoTextError
+
 		meta_card = {
 			'order': order,
 			'type': 'default',
 			'party': 'default',
 			'data': {
 				'text': text,
-			}
+			},
+			'debugging': card_num,
 		}
 
 	elif card_seq == 20:
@@ -1628,7 +1704,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 						'rank2_name': rank2_candidate['name'],
 						'diff_percent': round(abs(rank1_candidate['percent']-rank2_candidate['percent']), 2),
 					}
-					texts.append(text_templates['20-2'].format(**data))
+					card_num = '20-2'
+					texts.append(text_templates[card_num].format(**data))
 				
 				else:
 					data = {
@@ -1638,7 +1715,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 						'rank1_name': rank1_candidate['name'],
 						'diff_percent': round(abs(rank1_candidate['percent']-current_candidate['percent']), 2),
 					}
-					texts.append(text_templates['20-1'].format(**data))
+					card_num = '20-1'
+					texts.append(text_templates[card_num].format(**data))
 			except:
 				pass
 
@@ -1699,7 +1777,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 						'rank2_name': rank2_candidate_g['name'],
 						'diff_percent': round(abs(rank1_candidate_g['percent']-rank2_candidate_g['percent']), 2),
 					}
-					texts.append(text_templates['20-2'].format(**data))
+					card_num = '20-2'
+					texts.append(text_templates[card_num].format(**data))
 				
 				else:
 					data = {
@@ -1709,7 +1788,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 						'rank1_name': rank1_candidate_g['name'],
 						'diff_percent': round(abs(rank1_candidate_g['percent']-current_candidate_g['percent']), 2),
 					}
-					texts.append(text_templates['20-1'].format(**data))
+					card_num = '20-1'
+					texts.append(text_templates[card_num].format(**data))
 			except:
 				pass
 
@@ -1740,7 +1820,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				'sido_rank1_party_num': sido_rank1_party_num,
 				'gusigun_rank1_party_num': gusigun_rank1_party_num,
 			}
-			text = text_templates['20-33'].format(**data)
+			card_num = '20-33'
+			text = text_templates[card_num].format(**data)
 
 		elif output_num == 2:
 			# 지역주의
@@ -1771,8 +1852,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				bs_ratio = round((bs_jayu + bs_bamin) / gj_num * 100, 2)
 			except ZeroDivisionError:
 				bs_ratio = 0
-
-			bsjbtexts.append(text_templates['20-3'].format(bs_jayu=bs_jayu, bs_bamin=bs_bamin, bs_ratio=bs_ratio))
+			card_num = '20-3'
+			bsjbtexts.append(text_templates[card_num].format(bs_jayu=bs_jayu, bs_bamin=bs_bamin, bs_ratio=bs_ratio))
 			# 대국경북 민주당
 			# 대구 경국 정의당
 			sub_jb = sess.query(OpenProgress.serial, func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.sido).filter(OpenProgress.electionCode.in_([3,4]), OpenProgress.sido.in_(['경상북도', '대구광역시']), OpenProgress.datatime<=time).subquery()
@@ -1798,8 +1879,9 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				jb_ratio = round((jb_minju + jb_jung) / tk_num * 100, 2)
 			except ZeroDivisionError:
 				jb_ratio = 0
-
-			bsjbtexts.append(text_templates['20-4'].format(jb_minju=jb_minju, jb_jung=jb_jung, jb_ratio=jb_ratio))
+			
+			card_num = '20-4'
+			bsjbtexts.append(text_templates[card_num].format(jb_minju=jb_minju, jb_jung=jb_jung, jb_ratio=jb_ratio))
 
 			text = choice(bsjbtexts)
 
@@ -1810,7 +1892,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			'party': 'default',
 			'data': {
 				'text': text,
-			}
+			},
+			'debugging': card_num,
 		}
 
 	elif card_seq == 21:
@@ -1874,7 +1957,7 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			if candidates_text:
 				candidates_text += ', '
 		else: # len(candidates) == 0:
-			candidate_text = ''
+			candidates_text = ''
 
 		if len(regions) > 0:
 			regions_all = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode.in_(regions)).all()
@@ -1955,7 +2038,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 				'party': 'default',
 				'data': {
 					'text': text,
-				}
+				},
+				'debugging': '21',
 			}
 		else:
 			raise NoTextError
@@ -1971,13 +2055,15 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 		toorate_avg_nat = (tooToday+tooEarly) / (yooToday+yooEarly) * 100
 
 		if toorate_avg_nat < 68.4:
-			text = text_templates[22].format(toorate_avg_nat=round(toorate_avg_nat, 2))
+			card_num = '22'
+			text = text_templates[card_num].format(toorate_avg_nat=round(toorate_avg_nat, 2))
 		elif toorate_avg_nat > 68.4:
-			text = text_templates['22-20'].format(toorate_avg_nat=round(toorate_avg_nat, 2))
+			card_num = '22-20'
+			text = text_templates[card_num].format(toorate_avg_nat=round(toorate_avg_nat, 2))
 
 		else:
-			num = '22-' + str(randint(0,7))
-			text = text_templates[num]
+			card_num = '22-' + str(randint(0,7))
+			text = text_templates[card_num]
 
 		meta_card = {
 			'order': order,
@@ -1985,7 +2071,8 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			'party': 'default',
 			'data': {
 				'text': text,
-			}
+			},
+			'debugging': card_num,
 		}
 
 	elif card_seq == 23:
@@ -1995,17 +2082,18 @@ def query_card_data(order, index, polls, regions, parties, candidates, time, car
 			t = time.hour
 
 		if t > 18:
-			num = '23-' + str(randint(0,4))
+			card_num = '23-' + str(randint(0,4))
 		else: 
-			num = '23-' + str(randint(0,3))
-		text = text_templates[num].format(hour=hourConverter(time.hour))
+			card_num = '23-' + str(randint(0,3))
+		text = text_templates[card_num].format(hour=hourConverter(time.hour))
 		meta_card = {
 			'order': order,
 			'type': 'default',
 			'party': 'default',
 			'data': {
 				'text': text,
-			}
+			},
+			'debugging': card_num,
 		}
 	# return text, RANK1, title, rate, name, graph, map
 	return meta_card

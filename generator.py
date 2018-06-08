@@ -215,7 +215,7 @@ def generateMeta(args):
 		meta['updated'] = True
 		meta['serial'] = serial_current
 		meta['card_count'] = len(card_seqs)
-		meta['design_variation'] = randint(0,3)
+		meta['design_variation'] = randint(1,4)
 		meta_cards = []
 
 		index = 0
@@ -232,7 +232,7 @@ def generateMeta(args):
 			except NoTextError:
 				print("pass:    ", card_seq)
 				continue
-			meta_card['debugging'] = card_seq
+			# meta_card['debugging'] = card_seq
 			meta_cards.append(meta_card)
 		# end for
 
