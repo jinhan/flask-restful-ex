@@ -3,6 +3,8 @@ from sqlalchemy.ext.automap import automap_base
 # from sqlalchemy.orm import Session, mapper
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy import create_engine
+from contextlib import contextmanager
+
 # from sqlalchemy.sql import func
 # from sqlalchemy import MetaData, Table
 # from sqlalchemy.ext.declarative import declarative_base
@@ -29,5 +31,18 @@ PartyCode = Base.classes.PartyCode
 QueryTime = Base.classes.QueryTime
 MetaCards = Base.classes.MetaCards
 
-sess = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine, expire_on_commit=True))
+@contextmanager
+def session_scope():
+        sess = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine, expire_on_commit=True))
+        try:
+            yield sess
+            sess.commit()
+        except:
+            sess.rollback()
+            raise
+        finally:
+            sess.close()
+        
+
+
 

@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_restful import Resource, Api, reqparse
-import generator
+from generator import generateMeta
+# from orm import run
 
 app = Flask(__name__)
 api = Api(app)
@@ -17,8 +18,7 @@ class RequestAPI(Resource):
         args = parser.parse_args()
         print(args)
 
-        meta = generator.generateMeta(args)
-        return meta
+        return generateMeta(args)
 
 api.add_resource(RequestAPI, '/api', endpoint='api')
 
