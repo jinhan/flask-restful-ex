@@ -52,7 +52,9 @@ def generateMeta(args):
 		except TypeError:
 			pass
 
-		serial_ontable = sess.query(QueryTime.serial).filter(QueryTime.args==str(arguments), QueryTime.times==str(time_update)).scalar() # 값이 나오면 같은게 있다는 것
+		serial_ontable = sess.query(QueryTime.serial).filter(QueryTime.args==str(arguments), QueryTime.times==str(time_update)).first() # 값이 나오면 같은게 있다는 것
+		if serial_ontable != None:
+			serial_ontable = serial_ontable[0]
 		print("serial:  ", serial_ontable)
 		meta_previous = sess.query(MetaCards.meta).filter(MetaCards.serial==serial_ontable).scalar()
 
