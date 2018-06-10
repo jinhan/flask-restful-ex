@@ -1024,24 +1024,29 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		except IndexError:
 			candidate_poll_code = None
 		# print("candidate_poll_code", candidate_poll_code)
+		try:
+			poll_num = polls[index]
+		except IndexError:
+			poll_num = 9
+
 		if len(regions) == 0:
 			openrate_rank1_region = None
-			if (candidate_poll_code == 3) or (polls[index] == 3): # 시도지사
+			if (candidate_poll_code == 3) or (poll_num == 3): # 시도지사
 				subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
 
 				sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
 		
-			elif (candidate_poll_code == 4) or (polls[index] == 4): # 시군구청장
+			elif (candidate_poll_code == 4) or (poll_num == 4): # 시군구청장
 				subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.gusigun).filter(OpenProgress4.datatime<=time).subquery()
 
 				sub_ranks = sess.query(OpenProgress4).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
 
-			elif (candidate_poll_code == 2) or (polls[index] == 2): # 국회의원
+			elif (candidate_poll_code == 2) or (poll_num == 2): # 국회의원
 				subq = sess.query(func.max(OpenProgress2.serial).label('maxserial'), func.max(OpenProgress2.datatime).label('maxtime')).group_by(OpenProgress2.sgg).filter(OpenProgress2.datatime<=time).subquery()
 
 				sub_ranks = sess.query(OpenProgress2).join(subq, and_(OpenProgress2.serial==subq.c.maxserial, OpenProgress2.datatime==subq.c.maxtime))
 
-			elif (candidate_poll_code == 11) or (polls[index] == 11): # 교육감
+			elif (candidate_poll_code == 11) or (poll_num == 11): # 교육감
 				openrate_rank1_region = sess.query(OpenProgress11.sido).filter(OpenProgress11.datatime<=time, OpenProgress11.gusigun=='합계').order_by(func.max(OpenProgress11.openPercent).desc()).scalar()
 			
 				subq = sess.query(func.max(OpenProgress11.serial).label('maxserial'), func.max(OpenProgress11.datatime).label('maxtime')).group_by(OpenProgress11.sido).filter(OpenProgress11.datatime<=time, OpenProgress11.gusigun=='합계').subquery()
@@ -1095,7 +1100,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				'openrate_rank2_region_candidate': openrate_rank2_region_candidate,
 			}
 
-			if (candidate_poll_code == 11) or (polls[index] == 11):
+			if (candidate_poll_code == 11) or (poll_num == 11):
 				card_num = '15-11'
 				text = text_templates[card_num].format(**data)
 				meta_card = {
@@ -1111,7 +1116,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 					'debugging': card_num,
 				}
 			else:
-				card_num = candidate_poll_code or polls[index]
+				card_num = candidate_poll_code or poll_num
 				card_num = '15-' + str(card_num)
 				text = text_templates[card_num].format(**data)
 
