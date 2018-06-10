@@ -102,6 +102,7 @@ text_templates = {
 
 	'17-4': '{hour} 현재 {candidate} 후보가 속해 있는 {candidate_region}의 {candidate_poll} 선거에서는 {candidate_poll_rank2_name} 후보가 {candidate_poll_rank2_rate}%의 득표율로 2위를 기록하고 있으며, {candidate_poll_rank1_name} 후보가 {candidate_poll_rank1_rate}%의 득표율로 앞서 있다. ', # 내가 선택한 후보가 2위일때, 1위와 2위의 격차가 15% 이상
 	
+	# TODO:
 	'17-5': '{hour} 현재 {candidate} 후보가 속해 있는 {candidate_region}의 {candidate_poll} 선거에서는 {candidate_poll_rank1_name} 후보가 {candidate_poll_rank1_rate}%의 득표율로 1위, {candidate_poll_rank2_name} 후보가 {candidate_poll_rank2_rate}%의 득표율로 2위를 기록하며 경합을 벌이고 있으며, {candidate} 후보의 경우 뒤쳐진 {candidate_poll_rank1_rate}%의 득표율을 보이고 있다.', # 내가 선택한 후보가 3위 이하일때, 1위와 2위가 5% 이내
 
 	'17-6': '{hour} 현재 {candidate} 후보가 속해 있는 {candidate_region}의 {candidate_poll} 선거에서는 {candidate_poll_rank1_name} 후보가 {candidate_poll_rank1_rate}%의 득표율로 당선이 확정되었다.', # 내가 선택한 후보가 1위일때, 1위와 2위의 격차 > 남은 표수
@@ -238,6 +239,7 @@ text_templates = {
 # }
 background_variations = {
     '6': 1,
+	'6-0': 1,
     '6-1': 2,
     '6-2': 3,
     '6-3': 4,

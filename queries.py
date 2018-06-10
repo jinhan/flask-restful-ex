@@ -72,7 +72,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						region_join.append(r1)
 					else:
 						region_join.append(r1+ ' ' + r2)
-				region_names = ', '.join(region_join)
+				# region_names = ', '.join(region_join)
+				region_names = region_join[0]
 				data = {
 					'region_names': region_names,
 					'tooOrget': '득표율' if seqs_type else '투표율',
@@ -379,7 +380,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		currentPastDf = pd.merge(currentDf, pastDf, on='sido')
 		# print(currentPastDf['max_x'] - currentPastDf['max_y'])
 		if t > 18:
-			card_num = '6' if current_toorate_past_toorate > 0 else text_templates['6-0']
+			card_num = '6' if current_toorate_past_toorate > 0 else '6-0'
 			text = text_templates[card_num]
 		else:
 			ratio = sum([1 for s in (currentPastDf['max_x'] - currentPastDf['max_y']).values if s > 0]) / len(currentDf['sido'])
@@ -416,7 +417,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		
 		if invalid == None:
 			invalid = 0
-		openrate_avg_nat = (n_total + invalid) / tooTotal * 100
+		try:		
+			openrate_avg_nat = (n_total + invalid) / tooTotal * 100
+		except TypeError:
+			raise NoTextError
 
 		data = {
 			'hour': hourConverter(time.hour),
@@ -609,7 +613,11 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 			if invalid == None:
 				invalid = 0
-			openrate_avg_nat = (n_total + invalid) / tooTotal * 100
+			# openrate_avg_nat = (n_total + invalid) / tooTotal * 100
+			try:		
+				openrate_avg_nat = (n_total + invalid) / tooTotal * 100
+			except TypeError:
+				raise NoTextError
 
 			openrate_region1_openrate_avg_nat = openrate_region1 - openrate_avg_nat
 			compare_region1 = '높은' if openrate_region1_openrate_avg_nat > 0 else '낮은'
@@ -884,7 +892,11 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		if invalid == None:
 			invalid = 0
-		openrate_avg_nat = (n_total + invalid) / tooTotal * 100
+		# openrate_avg_nat = (n_total + invalid) / tooTotal * 100
+		try:		
+			openrate_avg_nat = (n_total + invalid) / tooTotal * 100
+		except TypeError:
+			raise NoTextError
 
 		if openrate_avg_nat < 100:
 			openrate_sido = sess.query(OpenProgress3.sido).filter(OpenProgress3.openPercent==100, OpenProgress3.gusigun=='합계').group_by(OpenProgress3.sido).all()
@@ -909,17 +921,20 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			else:
 				text += ''
 			
-			meta_card = {
-				'order': order,
-				'type': 'rate',
-				'party': 'default',
-				'data': {
-					'title': '개표 완료 지역',
-					'rate': round(openrate_avg_nat),
-					'text': text,
-				},
-				'debugging': card_num,
-			}	
+			if text == '':
+				raise NoTextError
+			else:
+				meta_card = {
+					'order': order,
+					'type': 'rate',
+					'party': 'default',
+					'data': {
+						'title': '개표 완료 지역',
+						'rate': round(openrate_avg_nat),
+						'text': text,
+					},
+					'debugging': card_num,
+				}	
 
 		else:
 			card_num = '13-2'
