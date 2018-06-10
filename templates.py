@@ -39,7 +39,7 @@ text_templates = {
 	'8-1':'{hour} 현재 {open_finished}의 시도지사 선거의 개표가 완료되었다. {openrate_sunname1_rank1}{josa1} {openrate_sunname1_rank1_rate}%의 개표율로 그 뒤를 이어 개표가 마무리되고 있다.', # 1개 이상 완료, 몇개 표시? 
 
 
-	'9': '{hour} 현재 시군구청장 선거에서 {openrate_sunname2_rank1}{josa} {openrate_sunname2_rank1_rate}%로 개표가 가장 빠르게 이루어지고 있으며, {openrate_sunname2_rank2}{josa} {openrate_sunname2_rank2_rate}%의 개표율로 그 뒤을 잇고 있다.',
+	'9': '{hour} 현재 시군구청장 선거에서 {openrate_sunname2_rank1}{josa1} {openrate_sunname2_rank1_rate}%로 개표가 가장 빠르게 이루어지고 있으며, {openrate_sunname2_rank2}{josa2} {openrate_sunname2_rank2_rate}%의 개표율로 그 뒤을 잇고 있다.',
 
 	'9-1': '{hour} 현재 {open_finished} 등의 지역에서 시군구청장 선거의 개표가 완료되었다. 그 다음으로는 {openrate_sunname2_rank1}{josa} {openrate_sunname2_rank1_rate}%의 개표율을 보이며 개표를 마무리짓고 있다.',  # 1개 이상 완료, 몇개 표시?
 

@@ -516,6 +516,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 					'hour': hourConverter(time.hour),
 					'open_finished': open_finished,
 					'openrate_sunname2_rank1': openrate_sunname2_rank1['gusigun'],
+					'josa': josaPick(openrate_sunname2_rank1['gusigun'], '이')
 					'openrate_sunname2_rank1_rate': openrate_sunname2_rank1['max'],
 				}
 				card_num = '9-1'
@@ -524,8 +525,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				data = {
 					'hour': hourConverter(time.hour),
 					'openrate_sunname2_rank1': openrate_sunname2_ranks[0][1],
+					'josa1': josaPick(openrate_sunname2_ranks[0][1], '이'),
 					'openrate_sunname2_rank1_rate': round(openrate_sunname2_ranks[0][0], 2),
 					'openrate_sunname2_rank2': openrate_sunname2_ranks[1][1],
+					'josa2': josaPick(openrate_sunname2_ranks[1][1], '이')
 					'openrate_sunname2_rank2_rate': round(openrate_sunname2_ranks[1][0], 2),
 				}
 				card_num = '9'
