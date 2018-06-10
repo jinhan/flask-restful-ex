@@ -539,7 +539,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		graph_data = []
 		for v, r in openrate_sunname2_ranks:
 			graph_data.append({'name':r, 'value':float(v)*0.01})
-		# print(map_data)
+		# print(graph_data[:10])
+		graph_data = list({v['name']:v for v in graph_data}.values())
 
 		meta_card = {
 			'order': order,
@@ -548,7 +549,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			'data': {
 				'graph_data': {
 					'type': 'region',
-					'data': graph_data,
+					'data': graph_data[:10],
 				},
 				'text': text,
 			},
@@ -655,9 +656,9 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 
 	elif card_seq == 11:
-		poll, poll_num_sunname = sess.query(SgTypecode.sgName, func.count(PrecinctCode.sggCityCode)).join(PrecinctCode, PrecinctCode.electionCode==SgTypecode.sgTypecode).filter(SgTypecode.sgTypecode==polls[index]).first()
-
 		if polls[index] == 2: # 국회의원
+			poll, poll_num_sunname = sess.query(SgTypecode.sgName, func.count(PrecinctCode.sgg)).join(PrecinctCode, PrecinctCode.electionCode==SgTypecode.sgTypecode).filter(SgTypecode.sgTypecode==polls[index]).first()
+
 			subq = sess.query(func.max(OpenProgress2.serial).label('maxserial'), func.max(OpenProgress2.datatime).label('maxtime')).group_by(OpenProgress2.sgg).filter(OpenProgress2.datatime<=time).subquery()
 
 			sub = sess.query(OpenProgress2.sgg, OpenProgress2.tooTotal, OpenProgress2.n_total, OpenProgress2.invalid).join(subq, and_(OpenProgress2.serial==subq.c.maxserial, OpenProgress2.datatime==subq.c.maxtime))
@@ -665,6 +666,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			tooTotal, n_total, invalid = sess.query(func.sum(OpenProgress2.tooTotal), func.sum(OpenProgress2.n_total), func.sum(OpenProgress2.invalid)).join(subq, and_(OpenProgress2.serial==subq.c.maxserial, OpenProgress2.datatime==subq.c.maxtime)).first()
 
 		elif polls[index] == 3:
+			poll, poll_num_sunname = sess.query(SgTypecode.sgName, func.count(PrecinctCode.cityCode)).join(PrecinctCode, PrecinctCode.electionCode==SgTypecode.sgTypecode).filter(SgTypecode.sgTypecode==polls[index]).first()
+
 			subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
 
 			sub = sess.query(OpenProgress3.sido, OpenProgress3.tooTotal, OpenProgress3.n_total, OpenProgress3.invalid).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
@@ -672,6 +675,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			tooTotal, n_total, invalid = sess.query(func.sum(OpenProgress3.tooTotal), func.sum(OpenProgress3.n_total), func.sum(OpenProgress3.invalid)).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime)).first()
 
 		elif polls[index] == 4:
+			poll, poll_num_sunname = sess.query(SgTypecode.sgName, func.count(PrecinctCode.gusigun)).join(PrecinctCode, PrecinctCode.electionCode==SgTypecode.sgTypecode).filter(SgTypecode.sgTypecode==polls[index]).first()
+
 			subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.townCode).filter(OpenProgress4.datatime<=time).subquery()
 
 			sub = sess.query(OpenProgress4.sido, OpenProgress4.tooTotal, OpenProgress4.n_total, OpenProgress4.invalid).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
@@ -679,6 +684,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			tooTotal, n_total, invalid = sess.query(func.sum(OpenProgress4.tooTotal), func.sum(OpenProgress4.n_total), func.sum(OpenProgress4.invalid)).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime)).first()
 
 		elif polls[index] == 11:
+			poll, poll_num_sunname = sess.query(SgTypecode.sgName, func.count(PrecinctCode.cityCode)).join(PrecinctCode, PrecinctCode.electionCode==SgTypecode.sgTypecode).filter(SgTypecode.sgTypecode==polls[index]).first()
+
 			subq = sess.query(func.max(OpenProgress11.serial).label('maxserial'), func.max(OpenProgress11.datatime).label('maxtime')).group_by(OpenProgress11.sido).filter(OpenProgress11.datatime<=time, OpenProgress11.gusigun=='합계').subquery()
 
 			sub = sess.query(OpenProgress11.sido, OpenProgress11.tooTotal, OpenProgress11.n_total, OpenProgress11.invalid).join(subq, and_(OpenProgress11.serial==subq.c.maxserial, OpenProgress11.datatime==subq.c.maxtime))
@@ -702,7 +709,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				poll_openrate_ranks.append({'name':r, 'value':v})
 			
 			poll_openrate_ranks = sorted(poll_openrate_ranks, key=lambda x: x['value'], reverse=True)
-			print(poll_openrate_ranks)
+			# print(poll_openrate_ranks)
+			poll_openrate_ranks = list({v['name']:v for v in poll_openrate_ranks}.values())
 
 			if poll_openrate_nat_avg >= 100:
 				data = {
@@ -742,7 +750,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 					'data': {
 						'graph_data': {
 							'type': 'region',
-							'data': poll_openrate_ranks,
+							'data': poll_openrate_ranks[:10],
 						},
 						'text': text,
 					}, 
@@ -1032,16 +1040,22 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		if len(regions) == 0:
 			openrate_rank1_region = None
 			if (candidate_poll_code == 3) or (poll_num == 3): # 시도지사
+				openrate_rank1_region = sess.query(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').order_by(func.max(OpenProgress3.openPercent).desc()).scalar()
+
 				subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
 
 				sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
 		
 			elif (candidate_poll_code == 4) or (poll_num == 4): # 시군구청장
+				openrate_rank1_region = sess.query(OpenProgress4.sido).filter(OpenProgress4.datatime<=time).order_by(func.max(OpenProgress4.openPercent).desc()).scalar()
+
 				subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.gusigun).filter(OpenProgress4.datatime<=time).subquery()
 
 				sub_ranks = sess.query(OpenProgress4).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
 
 			elif (candidate_poll_code == 2) or (poll_num == 2): # 국회의원
+				openrate_rank1_region = sess.query(OpenProgress2.sido).filter(OpenProgress2.datatime<=time).order_by(func.max(OpenProgress2.openPercent).desc()).scalar()
+
 				subq = sess.query(func.max(OpenProgress2.serial).label('maxserial'), func.max(OpenProgress2.datatime).label('maxtime')).group_by(OpenProgress2.sgg).filter(OpenProgress2.datatime<=time).subquery()
 
 				sub_ranks = sess.query(OpenProgress2).join(subq, and_(OpenProgress2.serial==subq.c.maxserial, OpenProgress2.datatime==subq.c.maxtime))
@@ -1116,8 +1130,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 					'debugging': card_num,
 				}
 			else:
-				card_num = candidate_poll_code or poll_num
-				card_num = '15-' + str(card_num)
+				pnum = candidate_poll_code or poll_num
+				card_num = '15-' + str(pnum)
 				text = text_templates[card_num].format(**data)
 
 				meta_card = {
@@ -1125,7 +1139,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 					'type': 'rank2',
 					'party': rank1_party,
 					'data': {
-						'title': sess.query(SgTypecode.sgName).filter(SgTypecode.sgTypecode==candidate_poll_code).scalar() + ' 개표 1·2위',
+						'title': sess.query(SgTypecode.sgName).filter(SgTypecode.sgTypecode==pnum).scalar() + ' 개표 1·2위',
 						'rank1': rank1_party,
 						'rank2': rank1_count[1][0],
 						'text': text,
@@ -1265,6 +1279,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				'value': float(r['percent']) * 0.01,
 			})
 		# print(graph_data)
+		graph_data = list({v['name']:v for v in graph_data}.values())
+
 		meta_card = {
 			'order': order,
 			'type': 'graph',
@@ -1389,6 +1405,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				'value': float(r['percent']) * 0.01,
 			})
 		# print(graph_data)
+		graph_data = list({v['name']:v for v in graph_data}.values())
+
 		meta_card = {
 			'order': order,
 			'type': 'graph',
@@ -2630,7 +2648,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				'order': order,
 				'party': 'default',
 				'data': {
-					'background': 5,
+					'background': background_variations[card_num],
 					'text': text
 				}
 			}
@@ -2720,7 +2738,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 					'order': order,
 					'party': 'default',
 					'data': {
-						'background': 3,
+						'background': background_variations[card_num],
 						'text': text,
 					}
 				}
@@ -2738,7 +2756,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 					'order': order,
 					'party': 'default',
 					'data': {
-						'background': 3,
+						'background': background_variations[card_num],
 						'text': text,
 					}
 				}
@@ -2754,7 +2772,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 					'order': order,
 					'party': 'default',
 					'data': {
-						'background': 3,
+						'background': background_variations[card_num],
 						'text': text,
 					}
 				}
@@ -2770,7 +2788,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 					'order': order,
 					'party': 'default',
 					'data': {
-						'background': 3,
+						'background': background_variations[card_num],
 						'text': text,
 					}
 				}

@@ -66,7 +66,7 @@ def generateMeta(args):
 		# if True:
 			row = QueryTime(serial=serial_current, args=str(arguments), times=str(time_update))
 			sess.add(row)
-			# sess.commit()
+			sess.commit()
 
 			card_seqs, seqs_type = getCardSeqs(sess, polls, regions, parties, candidates, time)
 			print(card_seqs)
@@ -100,7 +100,7 @@ def generateMeta(args):
 			
 			meta_row = MetaCards(serial=serial_current, meta=str(meta))
 			sess.add(meta_row)
-			# sess.commit()
+			sess.commit()
 
 	return meta
 
