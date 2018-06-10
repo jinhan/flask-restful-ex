@@ -702,7 +702,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				poll_openrate_ranks.append({'name':r, 'value':v})
 			
 			poll_openrate_ranks = sorted(poll_openrate_ranks, key=lambda x: x['value'], reverse=True)
-			# print(poll_openrate_ranks)
+			print(poll_openrate_ranks)
 
 			if poll_openrate_nat_avg >= 100:
 				data = {
@@ -726,10 +726,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				data = {
 					'poll_num_sunname': poll_num_sunname,
 					'poll': poll,
-					'poll_openrate_rank1': poll_openrate_ranks[0][1],
-					'poll_openrate_rank1_rate': round(poll_openrate_ranks[0][0], 2),
-					'poll_openrate_rank2': poll_openrate_ranks[1][1],
-					'poll_openrate_rank2_rate': round(poll_openrate_ranks[1][0], 2),
+					'poll_openrate_rank1': poll_openrate_ranks[0]['name'],
+					'poll_openrate_rank1_rate': round(poll_openrate_ranks[0]['value'] * 100, 2),
+					'poll_openrate_rank2': poll_openrate_ranks[1]['name'],
+					'poll_openrate_rank2_rate': round(poll_openrate_ranks[1]['value'] * 100, 2),
 					'poll': poll, 
 					'poll_openrate_nat_avg': round(poll_openrate_nat_avg, 2),
 				}
@@ -2522,8 +2522,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						ranking_g = []
 						region2_confirm_name = ''
 						for idx, ranks in enumerate(ranks_ttl_g):
-							rank1_cnt = ranksDf_g.loc[idx, rank[0]+'_vote']
-							rank2_cnt = ranksDf_g.loc[idx, rank[1]+'_vote']
+							rank1_cnt = ranksDf_g.loc[idx, ranks[0]+'_vote']
+							rank2_cnt = ranksDf_g.loc[idx, ranks[1]+'_vote']
 							yet_cnt = ranksDf_g.loc[idx, 'tooTotal'] - ranksDf_g.loc[idx, 'n_total'] - ranksDf_g.loc[idx, 'invalid']
 							confirm = 1 if (rank1_cnt-rank2_cnt) > yet_cnt else 0
 							if confirm:
