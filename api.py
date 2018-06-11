@@ -23,6 +23,11 @@ class RequestAPI(Resource):
 api.add_resource(RequestAPI, '/api', endpoint='api')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    # config = argparse.ArgumentParser()
+    # config.add_argument('--save', default=True)
+    # config = config.parse_args() 
+    # app.config['save'] = config['save']
+    app.run(host='0.0.0.0', debug=False)
+
 
 # TODO: production mode
