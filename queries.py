@@ -368,7 +368,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			data['hour'] = hourConverter(time.hour)
 			text = text_templates[card_num].format(**data)
 
-		candidate_region_sub = sess.query(VoteProgress.tooRate, VoteProgress.gusigun).filter(VoteProgress.timeslot<=t, VoteProgress.sido==candidate_sdName, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).all()
+		candidate_region_sub = sess.query(func.max(VoteProgress.tooRate), VoteProgress.gusigun).filter(VoteProgress.timeslot<=t, VoteProgress.sido==candidate_sdName, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).all()
 		# print(candidate_sdName)
 		# print(candidate_region_sub)
 		map_data = []
