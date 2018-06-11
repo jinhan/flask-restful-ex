@@ -2060,6 +2060,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		text = None
 
 		if rnum == 1:
+			meta_cards = []
 			subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
 
 			sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
@@ -2075,8 +2076,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				rank1_cnt = ranksDf.loc[idx, ranks[0]+'_vote']
 				rank2_cnt = ranksDf.loc[idx, ranks[1]+'_vote']
 				confirm = True if (rank1_cnt-rank2_cnt) > yet_cnt else False
+
+				open_finished = True if ranksDf.loc[idx,'openPercent'] == 100 else False
 				ranking = []
-				if confirm:
+				if confirm or open_finished:
 					rank1_candidate = {
 								'idx': idx,
 								'rank': 0,
@@ -2107,7 +2110,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 								'percent': ranksDf.loc[idx, r+'_percent'],
 							}
 						else:
-							current_candidate = None
+							pass
 
 				try:
 					if rank1_candidate['huboid'] == current_candidate['huboid']:
@@ -2164,6 +2167,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						}
 				except TypeError: # 20-6
 					pass
+				meta_cards.append(meta_card)
+				
+			meta_cards = list({v['data']['difference_data']['first']:v for v in meta_cards}.values())
+			meta_card = choice(meta_cards)
 		
 		elif rnum == 2:
 			# 구시군청장
@@ -2182,8 +2189,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				rank1_cnt = ranksDf_g.loc[idx, ranks[0]+'_vote']
 				rank2_cnt = ranksDf_g.loc[idx, ranks[1]+'_vote']
 				confirm = True if (rank1_cnt-rank2_cnt) > yet_cnt else False
+
+				open_finished = True if ranksDf_g.loc[idx,'openPercent'] == 100 else False
 				ranking_g = []
-				if confirm:
+				if confirm or open_finished:
 					rank1_candidate_g = {
 								'idx': idx,
 								'rank': 0,
@@ -2214,7 +2223,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 								'percent': ranksDf_g.loc[idx, r+'_percent'],
 							}
 						else:
-							current_candidate_g = None
+							pass
 				try:
 					if rank1_candidate_g['huboid'] == current_candidate_g['huboid']:
 						# current = rank1
@@ -2269,6 +2278,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						}
 				except TypeError:
 					pass
+				meta_cards.append(meta_card)
+
+			meta_cards = list({v['data']['difference_data']['first']:v for v in meta_cards}.values())
+			meta_card = choice(meta_cards)
 
 		elif rnum == 5: # 바른정당
 			sido_rank1_party_num = 0
@@ -2870,7 +2883,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			card_num = '23-' + str(choice([7,8]))	
 		elif template == 4:
 			card_num = '23-' + str(choice([2,9,10,11,12]))
-			
+
 		text = text_templates[card_num].format(hour=hourConverter(time.hour))
 		meta_card = {
 			'order': order,

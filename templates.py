@@ -156,9 +156,9 @@ text_templates = {
 	'19-17': '{hour} 현재 전국 교육감 선거에서 {confirms_open_rank1_region}에서 {confirms_open_rank1_region_candidate} 후보가 당선이 확정되었다. {confirms_open_ranks}', # 교육감 선거 선택, 당선 확정 지역이 나왔을 경우(가장 먼저 당선 확정된 지역 먼저)
 
 	# 20: '득표율 특이사항',
-	'20-1': '{region} 의 {poll} 선거에서 현재 {poll}인 {current_name} 후보가 탈락의 고배를 마셨다. {current_name} 후보는 {rank1_name} 후보에게 {diff_percent}% 포인트 차이로 패하며 연임에 실패했다.',
+	'20-1': '{region}의 {poll} 선거에서 현재 {poll}인 {current_name} 후보가 탈락의 고배를 마셨다. {current_name} 후보는 {rank1_name} 후보에게 {diff_percent}% 포인트 차이로 패하며 연임에 실패했다.',
 
-	'20-2': '{region} 의 {poll} 선거에서 현재 {poll}인 {current_name} 후보가 재선에 성공했다. {current_name} 후보는 {rank2_name} 후보에게 {diff_percent}% 포인트 차이로 승리하며 연임에 성공했다.',
+	'20-2': '{region}의 {poll} 선거에서 현재 {poll}인 {current_name} 후보가 재선에 성공했다. {current_name} 후보는 {rank2_name} 후보에게 {diff_percent}% 포인트 차이로 승리하며 연임에 성공했다.',
 
 	'20-3': '이번 선거에서 과연 지역주의 구도가 타파될지도 관심사이다. 현재 호남지역 시군구청장 선거에서 자유한국당이 {bs_jayu}개의 선거구에서 1위를 달리고 있으며, 같은 보수 정당인 바른미래당은 {bs_bamin}개의 선거구에서 1위를 달리고 있다. 보수정당들은 현재 호남지역의 {bs_ratio}%의 선거구에서 1위를 달리고 있다.',
 
