@@ -1512,8 +1512,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		# 
 		# print(rank1_count)
-		my_party_rank1_sido_num = [v for r, v in rank1_count if r == party]
-		my_party_rank1_gusigun_num = [v for r, v in rank1_count_g if r == party]
+		my_party_rank1_sido_num = [v for r, v in rank1_count if r == party][0]
+		my_party_rank1_gusigun_num = [v for r, v in rank1_count_g if r == party][0]
 		party_rank1_sido_num = rank1_count[0][1]
 		party_rank1_sido_name = rank1_count[0][0]
 		party_rank2_sido_num = rank1_count[1][1]
@@ -1632,6 +1632,15 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		else:
 			card_num = '18'
 			graph = False
+			win_data = [{
+				'name': '시도지사 선거',
+				'value': my_party_rank1_sido_num,
+				'total': 17,
+			},{
+				'name': '시군구청장 선거',
+				'value': my_party_rank1_gusigun_num,
+				'total': 226,
+			}]
 			
 		text = text_templates[card_num].format(**data)
 		if graph:
