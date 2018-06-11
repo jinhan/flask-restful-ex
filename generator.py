@@ -7,6 +7,7 @@ from queries import query_card_data, NoTextError
 import uuid
 import ast
 
+deploy_mode = True
 
 def generateMeta(args):
 	with session_scope() as sess:
@@ -53,8 +54,7 @@ def generateMeta(args):
 			pass
 
 		serial_ontable = sess.query(QueryTime.serial).filter(QueryTime.args==str(arguments), QueryTime.times==str(time_update)).first() # 값이 나오면 같은게 있다는 것
-		deploy_mode = False
-
+		
 		if deploy_mode:
 			if serial_ontable != None:
 				serial_ontable = serial_ontable[0]

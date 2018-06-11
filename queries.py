@@ -910,8 +910,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				'type': 'rate',
 				'party': 'default',
 				'data': {
-					'title': candidate_region_name + ' 지역의 ' + candidate_poll + ' 선거 개표 준비중',
-					'rate': 0,
+					'title': candidate_region_name + ' 지역의 ' + candidate_poll + ' 선거 개표율',
+					'rate': float(round(candidate_poll_openrate)),
 					'text': text,
 				},
 				'debugging': card_num,
