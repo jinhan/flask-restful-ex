@@ -1383,7 +1383,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			elif confirm or open_finished:
 				card_num = '17-6'
 			else:
-				card_num = '17'
+				if open_finished:
+					card_num = '17-6'
+				else:
+					card_num = '17'
 
 		elif candidate_poll_rank2_name == candidate:
 			if abs(candidate_poll_rank1_rate - candidate_poll_rank2_rate) >= 15:
@@ -1399,7 +1402,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			elif confirm or open_finished:
 				card_num = '17-7'
 			else:
-				card_num = '17'
+				if open_finished:
+					card_num = '17-7'
+				else:
+					card_num = '17'
 
 		else:
 			if abs(candidate_poll_rank1_rate - candidate_poll_rank2_rate) < 5:
@@ -1408,7 +1414,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				else:
 					card_num = '17-5'
 			else:
-				card_num = '17'
+				if open_finished:
+					card_num = '17-7'
+				else:
+					card_num = '17'
 		
 		text = text_templates[card_num].format(**data)
 		
