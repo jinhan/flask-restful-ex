@@ -1,10 +1,13 @@
 from flask import Flask
 from flask_restful import Resource, Api, reqparse
 from generator import generateMeta
+# import argparse
 # from orm import run
-
 app = Flask(__name__)
 api = Api(app)
+
+
+# print(config['save'])
 
 class RequestAPI(Resource):
     # get requests and parsing
@@ -27,7 +30,7 @@ if __name__ == '__main__':
     # config.add_argument('--save', default=True)
     # config = config.parse_args() 
     # app.config['save'] = config['save']
-    app.run(host='0.0.0.0', debug=False)
+    app.run(host='0.0.0.0', debug=True)
 
 
 # TODO: production mode

@@ -1042,13 +1042,15 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				subq = sess.query(func.max(OpenProgress11.serial).label('maxserial'), func.max(OpenProgress11.datatime).label('maxtime')).group_by(OpenProgress11.sido).filter(OpenProgress11.datatime<=time, OpenProgress11.gusigun=='합계').subquery()
 
 				sub_ranks = sess.query(OpenProgress11).join(subq, and_(OpenProgress11.serial==subq.c.maxserial, OpenProgress11.datatime==subq.c.maxtime))
+			else: 
+				sub_ranks = None
+
+			if sub_ranks == None:
+				raise NoTextError
 
 			ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
 			ranksDf = ranksDf.sort_values(by=['openPercent', 'n_total'], ascending=False)
 			print(len(ranksDf))
-
-			if len(ranksDf) == 0:
-				raise NoTextError
 
 			openrate_rank1_region = ranksDf.loc[0,'sido']
 			if openrate_rank1_region == None:
@@ -1209,6 +1211,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 			region_name = region1 + ' ' + region2
 
+		if sub_ranks == None:
+			raise NoTextError
 		ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
 		if len(ranksDf) == 0:
 			raise NoTextError
@@ -1321,6 +1325,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 			sub_ranks = sess.query(OpenProgress11).join(subq, and_(OpenProgress11.serial==subq.c.maxserial, OpenProgress11.datatime==subq.c.maxtime))
 
+		if sub_ranks == None:
+			raise NoTextError
 		ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
 		if len(ranksDf) == 0:
 			raise NoTextError
@@ -1423,6 +1429,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
 
+		if sub_ranks == None:
+			raise NoTextError
 		ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
 		if len(ranksDf) == 0:
 			raise NoTextError
@@ -1492,7 +1500,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			if confirm:
 				confirms.append(ranksDf.loc[idx, rank[0]+'_jdName'])
 		confirms_count = Counter(confirms).most_common()
-
+		print("dddd", confirms_count)
 		confirms_g = []
 		for idx, rank in enumerate(ranks_ttl_g):
 			rank1_cnt = ranksDf_g.loc[idx, rank[0]+'_vote']
@@ -1549,32 +1557,39 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			graph = True
 
 		elif confirms_count[0][0] == party:
-			data['party_rank1_sido_num_confirm'] = confirms_count[0][1],
-			data['party_rank1_gusigun_num_confirm'] = [v for r, v in confirms_count_g if r == party][0],
+			print(confirms_count[1][1])
+			data = {
+				'party': party,
+				'party_rank1_sido_num_confirm': confirms_count[0][1],
+				'party_rank1_gusigun_num_confirm': [v for r, v in confirms_count_g if r == party][0],
+			}
 			card_num = '18-6'
 			graph = False
 			win_data = [{
 				'name': '시도지사 선거',
-				'value': data['party_rank1_sido_num_confirm'],
+				'value': confirms_count[0][1],
 				'total': 17,
 			},{
 				'name': '시군구청장 선거',
-				'value': data['party_rank1_gusigun_num_confirm'],
+				'value': [v for r, v in confirms_count_g if r == party][0],
 				'total': 226,
 			}]
 
 		elif confirms_count[1][0] == party:
-			data['party_rank1_sido_num_confirm'] = confirms_count[1][1],
-			data['party_rank1_gusigun_num_confirm'] = [v for r, v in confirms_count_g if r == party][0],
+			data = {
+				'party': party,
+				'party_rank1_sido_num_confirm': confirms_count[1][1],
+				'party_rank1_gusigun_num_confirm': [v for r, v in confirms_count_g if r == party][0],
+			}
 			card_num = '18-7'
 			graph = False
 			win_data = [{
 				'name': '시도지사 선거',
-				'value': data['party_rank1_sido_num_confirm'],
+				'value': confirms_count[1][1],
 				'total': 17,
 			},{
 				'name': '시군구청장 선거',
-				'value': data['party_rank1_gusigun_num_confirm'],
+				'value': [v for r, v in confirms_count_g if r == party][0],
 				'total': 226,
 			}]
 
@@ -1609,6 +1624,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				},
 				'debugging': card_num,
 			}
+		
 
 
 	elif card_seq == 19:
@@ -1628,6 +1644,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		# 	sub = sess.query(OpenProgress).group_by(OpenProgress.sido)
 
 		if polls[index] in [2,3,4]:
+			if sub == None:
+				raise NoTextError
 			ranksDf = pd.read_sql(sub.statement, sub.session.bind)
 			if len(ranksDf) == 0:
 				raise NoTextError
@@ -1694,6 +1712,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				# 'confirms_rank2_party_num': confirms_rank2_party_num,
 			}
 		else: # 11 type
+			if sub == None:
+				raise NoTextError
 			ranksDf = pd.read_sql(sub.statement, sub.session.bind)
 			if len(ranksDf) == 0:
 				raise NoTextError
@@ -1998,6 +2018,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 			sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
 
+			# if sub_ranks == None:
+				# raise NoTextError
 			ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
 			ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)	
 			ranks_ttl = [] # one line
