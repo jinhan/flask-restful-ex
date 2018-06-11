@@ -213,6 +213,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			else:
 				map_data.append({'name':r, 'value':float(v)*0.01})
 		# print(map_data)
+		map_data = list({v['name']:v for v in map_data}.values())
 
 		meta_card = {
 			'order': order,
@@ -230,40 +231,70 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		}
 
 	elif card_seq == 4:
-		try:
-			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
-		except TypeError:
-			raise NoTextError
-		# print(region1, region2)
-		if region2 == '합계':
-			# region2 = None
-			raise NoTextError
-
 		if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
 			t = 23
 		else:
 			t = time.hour
 
-		# 서울, 서울
-		# TODO: NoTextError되는 이유 찾기: 해결
-		# region1이 아니라 region2로 수정해야함 0607
-		toorate_region1 = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun==region2).scalar()
-	
-		if toorate_region1 == None: # toorate_region1 없으면
+		try:
+			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
+		except TypeError:
 			raise NoTextError
+		# print(region1, region2)
+		if region2 == '합계': # 시도만
+			only_sido = True
+		else: # 시 + 구시군
+			only_sido = False
+
+		if only_sido:
+			toorate_region1 = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1, VoteProgress.gusigun=='합계').scalar()
+	
+			if toorate_region1 == None: # toorate_region1 없으면
+				raise NoTextError
 			
-		each_toorate = sess.query(func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).subquery()
-		yooToday, yooEarly, tooToday, tooEarly = sess.query(func.sum(each_toorate.c.yooToday), func.sum(each_toorate.c.yooEarly), func.sum(each_toorate.c.tooToday), func.sum(each_toorate.c.tooEarly)).first()
-		if tooEarly == None:
-			tooEarly = 0
-		toorate_avg_nat = (tooToday+tooEarly) / (yooToday+yooEarly) * 100
+			each_toorate = sess.query(func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=t, VotePrgress.sido==region1, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).subquery()
+		
+			yooToday, yooEarly, tooToday, tooEarly = sess.query(func.sum(each_toorate.c.yooToday), func.sum(each_toorate.c.yooEarly), func.sum(each_toorate.c.tooToday), func.sum(each_toorate.c.tooEarly)).first()
+			
+			if tooEarly == None:
+				tooEarly = 0
+			try:
+				toorate_avg_nat = (tooToday+tooEarly) / (yooToday+yooEarly) * 100
+			except TypeError:
+				raise NoTextError
 
-		toorate_region1_toorate_avg_nat = toorate_region1 - toorate_avg_nat
+			toorate_region1_toorate_avg_nat = toorate_region1 - toorate_avg_nat
 
-		toorate_compare1 = '높은' if toorate_region1_toorate_avg_nat > 0 else '낮은'
+			toorate_compare1 = '높은' if toorate_region1_toorate_avg_nat > 0 else '낮은'
+
+			region_name = region1
+
+
+		else: # 시 + 구시군
+			toorate_region1 = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1, VoteProgress.gusigun==region2).scalar()
+	
+			if toorate_region1 == None: # toorate_region1 없으면
+				raise NoTextError
+			
+			each_toorate = sess.query(func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).subquery()
+
+			yooToday, yooEarly, tooToday, tooEarly = sess.query(func.sum(each_toorate.c.yooToday), func.sum(each_toorate.c.yooEarly), func.sum(each_toorate.c.tooToday), func.sum(each_toorate.c.tooEarly)).first()
+			if tooEarly == None:
+				tooEarly = 0
+			try:
+				toorate_avg_nat = (tooToday+tooEarly) / (yooToday+yooEarly) * 100
+			except TypeError:
+				raise NoTextError
+
+			toorate_region1_toorate_avg_nat = toorate_region1 - toorate_avg_nat
+
+			toorate_compare1 = '높은' if toorate_region1_toorate_avg_nat > 0 else '낮은'
+
+			region_name = region1 + ' ' + region2
+
 
 		data = {
-			'region1': region2,
+			'region1': region_name,
 			'toorate_region1': round(toorate_region1, 2),
 			'toorate_region1_toorate_avg_nat': round(abs(toorate_region1_toorate_avg_nat),2),
 			'toorate_compare1': toorate_compare1,
@@ -286,6 +317,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			else:
 				map_data.append({'name':r, 'value':float(v)*0.01})
 		# print(map_data)
+		map_data = list({v['name']:v for v in map_data}.values())
 		meta_card = {
 			'order': order,
 			'type': 'map',
@@ -335,6 +367,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			else:
 				map_data.append({'name':r, 'value':float(v)*0.01})
 		# print(map_data)
+		map_data = list({v['name']:v for v in map_data}.values())
 		meta_card = {
 			'order': order,
 			'type': 'map',
@@ -482,6 +515,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		for v, r in openrate_sunname1_ranks:
 			map_data.append({'name':r, 'value':float(v)*0.01})
 		# print(map_data)
+		map_data = list({v['name']:v for v in map_data}.values())
 
 		meta_card = {
 			'order': order,
@@ -561,27 +595,50 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
 		except TypeError:
 			raise NoTextError
-		if region2 == '합계':
-			region2 = None
 
-		subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.townCode).filter(OpenProgress.datatime<=time, OpenProgress.gusigun!='합계', OpenProgress.electionCode==3, OpenProgress.sido==region1).subquery()
+		if region2 == '합계': # 시도만
+			only_sido = True
+		else: # 시 + 구시군
+			only_sido = False
 
-		sub_r = sess.query(OpenProgress.gusigun, OpenProgress.tooTotal, OpenProgress.n_total, OpenProgress.invalid).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxtime))
+		if only_sido:
+			subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.townCode).filter(OpenProgress.datatime<=time, OpenProgress.gusigun=='합계', OpenProgress.electionCode==3, OpenProgress.sido==region1).subquery()
 
-		tooTotal_r, n_total_r, invalid_r = sess.query(func.sum(OpenProgress.tooTotal), func.sum(OpenProgress.n_total), func.sum(OpenProgress.invalid)).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxtime)).first()
-		
-		if invalid_r == None:
-			invalid_r = 0
-		try:
-			openrate_region1 = (n_total_r + invalid_r) / tooTotal_r * 100
-		except TypeError:
-			openrate_region1 = 0
+			sub_r = sess.query(OpenProgress.gusigun, OpenProgress.tooTotal, OpenProgress.n_total, OpenProgress.invalid).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxtime))
+
+			tooTotal_r, n_total_r, invalid_r = sess.query(func.sum(OpenProgress.tooTotal), func.sum(OpenProgress.n_total), func.sum(OpenProgress.invalid)).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxtime)).first()
+
+			region_name = region1
+			if invalid_r == None:
+				invalid_r = 0
+			try:
+				openrate_region1 = (n_total_r + invalid_r) / tooTotal_r * 100
+			except TypeError:
+				openrate_region1 = 0
+
+
+		else: # 시+도 : 도의 결과
+			subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.townCode).filter(OpenProgress.datatime<=time, OpenProgress.gusigun!='합계', OpenProgress.electionCode==4, OpenProgress.sido==region1).subquery()
+
+			sub_r = sess.query(OpenProgress.gusigun, OpenProgress.tooTotal, OpenProgress.n_total, OpenProgress.invalid).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxtime))
+
+			tooTotal_r, n_total_r, invalid_r = sess.query(func.sum(OpenProgress.tooTotal), func.sum(OpenProgress.n_total), func.sum(OpenProgress.invalid)).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxtime)).first()
+
+			region_name = region1 + ' ' + region2
+			if invalid_r == None:
+				invalid_r = 0
+			try:
+				openrate_region1 = (n_total_r + invalid_r) / tooTotal_r * 100
+			except TypeError:
+				openrate_region1 = 0
+
 
 		data = {
 			'hour': hourConverter(time.hour),
-			'region1': region1,
-			'josa1': josaPick(region1, '은')
+			'region1': region_name,
+			'josa1': josaPick(region_name, '은')
 		}
+
 		if openrate_region1 == 0:
 			card_num = '10-1'
 			text = text_templates[card_num].format(**data)
@@ -638,7 +695,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 					invalid = 0
 				v = (n_total + invalid) / tooTotal
 				map_data.append({'name':r, 'value':v})
-
+			map_data = list({v['name']:v for v in map_data}.values())
 			meta_card = {
 				'order': order,
 				'type': 'map',

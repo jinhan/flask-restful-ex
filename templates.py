@@ -43,7 +43,7 @@ text_templates = {
 
 	'9-1': '{hour} 현재 {open_finished} 등의 지역에서 시군구청장 선거의 개표가 완료되었다. 그 다음으로는 {openrate_sunname2_rank1}{josa} {openrate_sunname2_rank1_rate}%의 개표율을 보이며 개표를 마무리짓고 있다.',  # 1개 이상 완료, 몇개 표시?
 
-	'10': '{hour} 현재 {region1} 전체의 개표율은 {openrate_region1}%로 전국 평균보다 약 {openrate_region1_openrate_avg_nat}% 포인트 {compare_region1} 수치이다.', # 개표율 > 0 && 개표율 <100
+	'10': '{hour} 현재 {region1}의 개표율은 {openrate_region1}%로 전국 평균보다 약 {openrate_region1_openrate_avg_nat}% 포인트 {compare_region1} 수치이다.', # 개표율 > 0 && 개표율 <100
 
 	'10-1': '{hour} 현재 {region1}{josa1} 아직 개표가 시작되지 않았다.', # 개표율 = 0
 
@@ -242,6 +242,8 @@ background_variations = {
     '6-0': 2,
     '6-1': 3,
     '6-2': 4,
+	'6-3': 2,
+	'6-4': 3,
     '22-0': 1,
     '22-4': 2,
     '22-5': 3,

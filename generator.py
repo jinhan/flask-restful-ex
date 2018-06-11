@@ -53,20 +53,25 @@ def generateMeta(args):
 			pass
 
 		serial_ontable = sess.query(QueryTime.serial).filter(QueryTime.args==str(arguments), QueryTime.times==str(time_update)).first() # 값이 나오면 같은게 있다는 것
-		if serial_ontable != None:
-			serial_ontable = serial_ontable[0]
-		print("serial:  ", serial_ontable)
-		meta_previous = sess.query(MetaCards.meta).filter(MetaCards.serial==serial_ontable).scalar()
+		deploy_mode = False
+
+		if deploy_mode:
+			if serial_ontable != None:
+				serial_ontable = serial_ontable[0]
+			print("serial:  ", serial_ontable)
+			meta_previous = sess.query(MetaCards.meta).filter(MetaCards.serial==serial_ontable).scalar()
+		else:
+			serial_ontable = None
+			mete_previous = None
 
 		if (serial_ontable != None) and (meta_previous != None): # 전에 있으면
 			meta = ast.literal_eval(meta_previous)
 			meta['updated'] = False
-
 		else: # 전에 없으면
-		# if True:
-			row = QueryTime(serial=serial_current, args=str(arguments), times=str(time_update))
-			sess.add(row)
-			sess.commit()
+			if deploy_mode:
+				row = QueryTime(serial=serial_current, args=str(arguments), times=str(time_update))
+				sess.add(row)
+				# sess.commit()
 
 			card_seqs, seqs_type = getCardSeqs(sess, polls, regions, parties, candidates, time)
 			print(card_seqs)
@@ -98,9 +103,10 @@ def generateMeta(args):
 
 			meta['cards'] = meta_cards
 			
-			meta_row = MetaCards(serial=serial_current, meta=str(meta))
-			sess.add(meta_row)
-			sess.commit()
+			if deploy_mode:
+				meta_row = MetaCards(serial=serial_current, meta=str(meta))
+				sess.add(meta_row)
+				# sess.commit()
 
 	return meta
 
