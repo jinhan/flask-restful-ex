@@ -1371,9 +1371,15 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		open_finished = True if candidate_poll_openrate >= 100 else False
 		if candidate_poll_rank1_name == candidate: 
 			if (candidate_poll_rank1_rate - candidate_poll_rank2_rate) >= 15:
-				card_num = '17-3'
+				if open_finished:
+					card_num = '17-6'
+				else:
+					card_num = '17-3'
 			elif (candidate_poll_rank1_rate - candidate_poll_rank2_rate) < 5:
-				card_num = '17-1'
+				if open_finished:
+					card_num = '17-6'
+				else:
+					card_num = '17-1'
 			elif confirm or open_finished:
 				card_num = '17-6'
 			else:
@@ -1381,9 +1387,15 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		elif candidate_poll_rank2_name == candidate:
 			if abs(candidate_poll_rank1_rate - candidate_poll_rank2_rate) >= 15:
-				card_num = '17-4'
+				if open_finished:
+					card_num = '17-7'
+				else:
+					card_num = '17-4'
 			elif abs(candidate_poll_rank1_rate - candidate_poll_rank2_rate) < 5:
-				card_num = '17-2'
+				if open_finished:
+					card_num = '17-7'
+				else:
+					card_num = '17-2'
 			elif confirm or open_finished:
 				card_num = '17-7'
 			else:
@@ -1391,7 +1403,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		else:
 			if abs(candidate_poll_rank1_rate - candidate_poll_rank2_rate) < 5:
-				card_num = '17-5'
+				if open_finished:
+					card_num = '17-7'
+				else:
+					card_num = '17-5'
 			else:
 				card_num = '17'
 		
@@ -2089,7 +2104,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 								'difference_data': {
 									'first': rank1_candidate['name'],
 									'second': rank2_candidate['name'],
-									'difference': round(abs(rank1_candidate['percent']-rank2_candidate['percent']), 2)
+									'difference': float(round(abs(rank1_candidate['percent']-rank2_candidate['percent']), 2)),
 								},
 								'text': text,
 								'title': rank1_candidate['sido'] + ' 시도지사 결과'
@@ -2115,7 +2130,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 								'difference_data': {
 									'first': rank1_candidate['name'],
 									'second': rank2_candidate['name'],
-									'difference': round(abs(rank1_candidate['percent']-rank2_candidate['percent']), 2)
+									'difference': float(round(abs(rank1_candidate['percent']-rank2_candidate['percent']), 2))
 								},
 								'text': text,
 								'title': rank1_candidate['sido'] + ' 시도지사 결과'
