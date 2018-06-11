@@ -47,7 +47,7 @@ def regionPoll(r, code):
 	return poll
 
 
-def query_card_data(sess, order, index, polls, regions, parties, candidates, time, card_seq, seqs_type):
+def query_card_data(sess, order, index, polls, regions, parties, candidates, time, card_seq, seqs_type, template):
 	if card_seq == 1:
 		if (len(candidates) > 0):
 			card_num = '1'
@@ -2858,10 +2858,19 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		else:
 			t = time.hour
 
-		if t > 18:
-			card_num = '23-' + str(randint(0,4))
-		else: 
-			card_num = '23-' + str(randint(0,3))
+		# if t > 18:
+		# 	card_num = '23-' + str(randint(0,4))
+		# else: 
+		# 	card_num = '23-' + str(randint(0,3))
+		if template == 1:
+			card_num = '23-' + str(choice([5,6]))
+		elif template == 2:
+			card_num = '23-' + str(choice([0,1,3]))
+		elif template == 3:
+			card_num = '23-' + str(choice([7,8]))	
+		elif template == 4:
+			card_num = '23-' + str(choice([2,9,10,11,12]))
+			
 		text = text_templates[card_num].format(hour=hourConverter(time.hour))
 		meta_card = {
 			'order': order,

@@ -73,7 +73,7 @@ def generateMeta(args):
 				sess.add(row)
 				# sess.commit()
 
-			card_seqs, seqs_type = getCardSeqs(sess, polls, regions, parties, candidates, time)
+			card_seqs, seqs_type, template = getCardSeqs(sess, polls, regions, parties, candidates, time)
 			print(card_seqs)
 
 			meta = {}
@@ -94,7 +94,7 @@ def generateMeta(args):
 				order = i+1
 				
 				try:
-					meta_card = query_card_data(sess, order, index, polls, regions, parties, candidates, time, card_seq, seqs_type)
+					meta_card = query_card_data(sess, order, index, polls, regions, parties, candidates, time, card_seq, seqs_type, template)
 				except NoTextError:
 					print("pass:    ", card_seq)
 					continue
@@ -245,7 +245,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 		# 내가 선택한 선거에서 한명이라도 당선 확정이 나오는 경우 21번을 index 1에 insert
 	# else:
 	# 	seqs_type = 0
-	return card_seqs, seqs_type
+	return card_seqs, seqs_type, template
 
 
 if __name__ == '__main__':
