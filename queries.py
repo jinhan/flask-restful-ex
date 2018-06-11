@@ -1202,7 +1202,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						'name': ranksDf.loc[idx, r+'_name'],
 						'percent': ranksDf.loc[idx, r+'_percent'],
 					})
-			rank1_count = Counter([r['jdName'] for r in ranking if r['rank']==1]).most_common()
+			rank1_count = Counter([r['jdName'] for r in ranking if r['rank']==0]).most_common()
 			# TODO: count 개수가 같아서 동률일때 
 			rank1_party = rank1_count[0][0]
 			rank1_party_num = rank1_count[0][1]
@@ -2168,7 +2168,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				except TypeError: # 20-6
 					pass
 				meta_cards.append(meta_card)
-				
+
 			meta_cards = list({v['data']['difference_data']['first']:v for v in meta_cards}.values())
 			meta_card = choice(meta_cards)
 		
@@ -2545,7 +2545,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						pass
 				else: # len(ranksDf) == 0
 					pass
-			
+			candidates_text = list(set(candidates_text))
 			candidates_text = ', '.join(candidates_text)
 
 			if candidates_text:
@@ -2616,7 +2616,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 				except AttributeError:
 					pass
-		
+			regions_text = list(set(regions_text))
 			regions_text = ', '.join([r for r in regions_text if r != ''])
 			# print(regions_text)
 		else:
