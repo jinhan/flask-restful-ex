@@ -3,7 +3,7 @@ from orm import *
 from sqlalchemy.sql import func
 from random import randint
 from timeit import default_timer as timer
-from queries import query_card_data, NoTextError
+from queries import query_card_data, NoTextError, regionCodeCheck
 import uuid
 import ast
 
@@ -100,7 +100,7 @@ def generateMeta(args):
 					continue
 				meta_cards.append(meta_card)
 			# end for
-
+			meta_cards = list({v['data']['text']:v for v in meta_cards}.values())
 			meta['cards'] = meta_cards
 			
 			if deploy_mode:
@@ -140,8 +140,9 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 			print(candidate_poll_code, openrate)
 
 		elif (len(candidates) == 0) and (len(regions) > 0) and (len(parties) > 0) and (len(polls) > 0):
+			region_num = regionCodeCheck(regions[0])
 			try:
-				region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==regions[0]).first()
+				region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==region_num).first()
 			except TypeError:
 				raise NoTextError
 

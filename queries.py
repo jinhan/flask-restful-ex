@@ -46,6 +46,11 @@ def regionPoll(r, code):
 		poll = None
 	return poll
 
+def regionCodeCheck(r):
+	if r in [4101, 4102, 4103, 4104]: # 수원시
+		r = 9900
+	
+	return r
 
 def query_card_data(sess, order, index, polls, regions, parties, candidates, time, card_seq, seqs_type, template):
 	if card_seq == 1:
@@ -65,7 +70,11 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			if len(regions) > 0:
 				card_num = '1-1'
 				# **해당 변수가 2개 선택됐을 경우 먼저 선택한 변수를 출력 {투표율|득표율}에서는 해당 지역 시도지사 선거의 개표율이 10% 이하일 경우 투표율, 이상일 경우 득표율 출력
-				region_names = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode.in_(regions)).all()
+				region_nums = []
+				for r in regions:
+					region_nums.append(regionCodeCheck(r))
+
+				region_names = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode.in_(region_nums)).all()
 				region_names = list(set(region_names))
 				region_join = []
 				for r1, r2 in region_names:
@@ -605,8 +614,9 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		}
 
 	elif card_seq == 10:
+		region_num = regionCodeCheck(regions[index])
 		try:
-			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
+			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==region_num).first()
 		except TypeError:
 			raise NoTextError
 
@@ -1179,8 +1189,9 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			}
 
 	elif card_seq == 16:
+		region_num = regionCodeCheck(regions[index])
 		try:
-			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
+			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==region_num).first()
 		except TypeError:
 			raise NoTextError
 
@@ -2530,7 +2541,11 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			candidates_text = ''
 
 		if len(regions) > 0:
-			regions_all = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode.in_(regions)).all()
+			region_nums = []
+			for r in regions:
+				region_nums.append(regionCodeCheck(r))
+
+			regions_all = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode.in_(region_nums)).all()
 			regions_all = list(set(regions_all))
 			# print(regions_all)
 			regions_text = []
