@@ -7,7 +7,7 @@ from queries import query_card_data, NoTextError
 import uuid
 import ast
 
-deploy_mode = True
+deploy_mode = False
 
 def generateMeta(args):
 	with session_scope() as sess:
@@ -136,7 +136,8 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 			elif candidate_poll_code == 11:
 				openrate = sess.query(func.max(OpenProgress11.openPercent)).filter(OpenProgress11.sido==candidate_region, OpenProgress11.gusigun=='합계',OpenProgress11.datatime<=time).scalar() # , 
 			else:
-				openrate = sess.query(func.max(OpenProgress.openPercent)).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==candidate_poll_code, OpenProgress.sido==candidate_region,OpenProgress.datatime<=time).scalar()
+				openrate = None
+			print(candidate_poll_code, openrate)
 
 		elif (len(candidates) == 0) and (len(regions) > 0) and (len(parties) > 0) and (len(polls) > 0):
 			try:
@@ -144,33 +145,34 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 			except TypeError:
 				raise NoTextError
 
-			openrate = sess.query(func.max(OpenProgress3.openPercent)).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==region1).scalar()
+			openrate = sess.query(func.max(OpenProgress3.openPercent)).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==region1, OpenProgress3.gusigun=='합계').scalar()
+			print(openrate)
 
 		# 	parites
 		elif (len(candidates) == 0) and (len(regions) == 0) and (len(parties) == 0) and (len(polls) > 0):
 			if polls[0] == 2:
-				sub = sess.query(func.max(OpenProgress2.tooTotal).label('tooTotal'), func.max(OpenProgress2.n_total).label('n_total'), func.max(OpenProgress2.invalid).label('invalid')).subquery() # .filter(OpenProgress2.datatime<=time)
+				sub = sess.query(func.max(OpenProgress2.tooTotal).label('tooTotal'), func.max(OpenProgress2.n_total).label('n_total'), func.max(OpenProgress2.invalid).label('invalid')).filter(OpenProgress2.datatime<=time).group_by(OpenProgress2.gusigun).subquery() # 
 				tooTotal, n_total, invalid = sess.query(func.sum(sub.c.tooTotal), func.sum(sub.c.n_total), func.sum(sub.c.invalid)).first()
 				if invalid == None:
 					invalid = 0
 				# openrate = (n_total + invalid) / tooTotal * 100
 
 			elif polls[0] == 3:
-				sub = sess.query(func.max(OpenProgress3.tooTotal).label('tooTotal'), func.max(OpenProgress3.n_total).label('n_total'), func.max(OpenProgress3.invalid).label('invalid')).filter(OpenProgress3.gusigun=='합계').subquery() # .filter(OpenProgress2.datatime<=time)
+				sub = sess.query(func.max(OpenProgress3.tooTotal).label('tooTotal'), func.max(OpenProgress3.n_total).label('n_total'), func.max(OpenProgress3.invalid).label('invalid')).filter(OpenProgress3.gusigun=='합계',OpenProgress3.datatime<=time).group_by(OpenProgress3.sido).subquery() # 
 				tooTotal, n_total, invalid = sess.query(func.sum(sub.c.tooTotal), func.sum(sub.c.n_total), func.sum(sub.c.invalid)).first()
 				if invalid == None:
 					invalid = 0
 				# openrate = (n_total + invalid) / tooTotal * 100
 			
 			elif polls[0] == 4:
-				sub = sess.query(func.max(OpenProgress4.tooTotal).label('tooTotal'), func.max(OpenProgress4.n_total).label('n_total'), func.max(OpenProgress4.invalid).label('invalid')).subquery() # .filter(OpenProgress2.datatime<=time)
+				sub = sess.query(func.max(OpenProgress4.tooTotal).label('tooTotal'), func.max(OpenProgress4.n_total).label('n_total'), func.max(OpenProgress4.invalid).label('invalid')).filter(OpenProgress4.datatime<=time).group_by(OpenProgress4.gusigun).subquery() # 
 				tooTotal, n_total, invalid = sess.query(func.sum(sub.c.tooTotal), func.sum(sub.c.n_total), func.sum(sub.c.invalid)).first()
 				if invalid == None:
 					invalid = 0
 				# openrate = (n_total + invalid) / tooTotal * 100
 			
 			elif polls[0] == 11:
-				sub = sess.query(func.max(OpenProgress11.tooTotal).label('tooTotal'), func.max(OpenProgress11.n_total).label('n_total'), func.max(OpenProgress11.invalid).label('invalid')).filter(OpenProgress11.gusigun=='합계').subquery() # .filter(OpenProgress2.datatime<=time)
+				sub = sess.query(func.max(OpenProgress11.tooTotal).label('tooTotal'), func.max(OpenProgress11.n_total).label('n_total'), func.max(OpenProgress11.invalid).label('invalid')).filter(OpenProgress11.gusigun=='합계', OpenProgress2.datatime<=time).group_by(OpenProgress11.sido).subquery() # .filter()
 				tooTotal, n_total, invalid = sess.query(func.sum(sub.c.tooTotal), func.sum(sub.c.n_total), func.sum(sub.c.invalid)).first()
 				if invalid == None:
 					invalid = 0
@@ -179,17 +181,19 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 				openrate = (n_total + invalid) / tooTotal * 100
 			except TypeError:
 				openrate = 0
+			print(polls[0], openrate)
 
 		else:
 			sub = sess.query(func.max(OpenProgress.tooTotal).label('tooTotal'), func.max(OpenProgress.n_total).label('n_total'), func.max(OpenProgress.invalid).label('invalid')).filter(OpenProgress.datatime<=time).group_by(OpenProgress.townCode).subquery()
 			tooTotal, n_total, invalid = sess.query(func.sum(sub.c.tooTotal), func.sum(sub.c.n_total), func.sum(sub.c.invalid)).first()
 			if invalid == None:
 				invalid = 0
-			print(tooTotal, n_total, invalid)
+			
 			try:
 				openrate = (n_total + invalid) / tooTotal * 100
 			except TypeError:
 				openrate = 0
+			print(openrate)
 	else:
 		openrate = 0
 	
