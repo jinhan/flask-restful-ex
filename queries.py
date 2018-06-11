@@ -134,7 +134,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		yooToday, yooEarly, tooToday, tooEarly = sess.query(func.sum(each_toorate.c.yooToday), func.sum(each_toorate.c.yooEarly), func.sum(each_toorate.c.tooToday), func.sum(each_toorate.c.tooEarly)).first()
 		if tooEarly == None:
 			tooEarly = 0
-		toorate_avg_nat = (tooToday+tooEarly) / (yooToday+yooEarly) * 100
+		try:	
+			toorate_avg_nat = (tooToday+tooEarly) / (yooToday+yooEarly) * 100
+		except TypeError:
+			raise NoTextError
 
 		data = {
 			'toorate_avg_nat': round(toorate_avg_nat, 2),
@@ -173,7 +176,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		yooToday_p, yooEarly_p, tooToday_p, tooEarly_p = sess.query(func.sum(each_toorate_p.c.yooToday), func.sum(each_toorate_p.c.yooEarly), func.sum(each_toorate_p.c.tooToday), func.sum(each_toorate_p.c.tooEarly)).first()
 		if tooEarly_p == None:
 			tooEarly_p = 0
-		past_toorate = (tooToday_p+tooEarly_p) / (yooToday_p+yooEarly_p) * 100
+		try:
+			past_toorate = (tooToday_p+tooEarly_p) / (yooToday_p+yooEarly_p) * 100
+		except TypeError:
+			raise NoTextError
 
 		# current = sess.query(func.max(VoteProgress.tooRate).label('max')).filter(VoteProgress.timeslot <= time.hour).group_by(VoteProgress.sido).subquery()
 		# current_toorate = sess.query(func.avg(current.c.max)).scalar()
@@ -346,6 +352,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		candidate_region_toorate = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==candidate_sdName, VoteProgress.gusigun=='합계').scalar()
 		# VoteProgress에 sggName 필요함
+		if candidate_region_toorate == None:
+			raise NoTextError
 
 		data = {
 			'candidate': candidate,
@@ -398,7 +406,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		yooToday_p, yooEarly_p, tooToday_p, tooEarly_p = sess.query(func.sum(each_toorate_p.subquery().c.yooToday), func.sum(each_toorate_p.subquery().c.yooEarly), func.sum(each_toorate_p.subquery().c.tooToday), func.sum(each_toorate_p.subquery().c.tooEarly)).first()
 		if tooEarly_p == None:
 			tooEarly_p = 0
-		past_toorate = (tooToday_p+tooEarly_p) / (yooToday_p+yooEarly_p) * 100
+		try:
+			past_toorate = (tooToday_p+tooEarly_p) / (yooToday_p+yooEarly_p) * 100
+		except TypeError:
+			raise NoTextError
 
 		each_toorate = sess.query(VoteProgress.sido, func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido)
 		
@@ -990,70 +1001,6 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				},
 				'debugging': card_num,
 			}	
-
-		# if text == '':
-		# 	raise NoTextError
-		# else:
-		# 	text = text
-
-		# meta_card = {
-		# 	'order': order,
-		# 	'type': 'text',
-		# 	'party': 'default',
-		# 	'data': {
-		# 		'text': text,
-		# 	},
-		# 	'debugging': card_num,
-		# }
-
-	# elif card_seq == 14:
-	# 	subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
-
-	# 	sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
-	# 	# 실제에서 time 살리기
-	# 	ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
-	# 	if len(ranksDf) == 0:
-	# 		raise NoTextError
-
-	# 	ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)	
-	# 	ranks_ttl = []
-	# 	for i, ranks in ranks_vote.iterrows():
-	# 		ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
-	# 	# 각 group 마다 랭킹 만들기
-	# 	ranking = []
-	# 	for idx, ranks in enumerate(ranks_ttl):
-	# 		for i, r in enumerate(ranks):
-	# 			ranking.append({
-	# 				'idx': idx,
-	# 				'rank': i,
-	# 				'jdName':ranksDf.loc[idx, r+'_jdName'],현
-	# 				'name': ranksDf.loc[idx, r+'_name'],
-	# 				'percent': ranksDf.loc[idx, r+'_percent'],
-	# 			})
-	# 	rank1_count = Counter([r['jdName'] for r in ranking if r['rank']==1]).most_common()
-	# 	# TODO: count 개수가 같아서 동률일때 
-	# 	rank1_party = rank1_count[0][0]
-	# 	rank1_party_num = rank1_count[0][1]
-
-	# 	data = {
-	# 		'hour': hourConverter(time.hour),
-	# 		'rank1_party': rank1_party,
-	# 		'josa1': josaPick(rank1_party, '이'),
-	# 		'josa2': josaPick(rank1_party, '은'),
-	# 		'rank1_party_num': rank1_party_num,
-	# 	}
-	# 	text = text_templates[card_seq].format(**data)
-
-	# 	meta_card = {
-	# 		'order': order,
-	# 		'type': 'winner',
-	# 		'party': rank1_party,
-	# 		'data': {
-	# 			'title': hourConverter(time.hour) + ', ' + str(rank1_party_num) + '개 선거구 1위',
-	# 			'name': rank1_party,
-	# 			'text': text,
-	# 		}
-	# 	}
 
 	elif card_seq == 15:
 		try:
@@ -2037,29 +1984,15 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				},
 				'debugging': card_num,
 			}
-	
-		# try:
-		# 	text = text_templates[card_num].format(**data)
-		# except KeyError:
-		# 	raise NoTextError
-
-		# meta_card = {
-		# 	'order': order,
-		# 	'type': 'default',
-		# 	'party': 'default',
-		# 	'data': {
-		# 		'text': text,
-		# 	},
-		# 	'debugging': card_num,
-		# }
 
 	elif card_seq == 20:
 		# texts = []
 		# TODO: sub_ranks
-		rnum = str(randint(1,6))
-		text = None
+		rnum = str(randint(1,5))
+		rnum = str(1)
+		meta_card = None
 
-		if rnum == 1:
+		if rnum == '1':
 			meta_cards = []
 			subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
 
@@ -2170,10 +2103,15 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				meta_cards.append(meta_card)
 
 			meta_cards = list({v['data']['difference_data']['first']:v for v in meta_cards}.values())
-			meta_card = choice(meta_cards)
+			try:
+				meta_card = choice(meta_cards)
+			except IndexError:
+				meta_card = None
+				pass
 		
-		elif rnum == 2:
+		elif rnum == '2':
 			# 구시군청장
+			meta_cards = []
 			subq_g = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.gusigun).filter(OpenProgress4.datatime<=time).subquery()
 
 			sub_ranks_g = sess.query(OpenProgress4).join(subq_g, and_(OpenProgress4.serial==subq_g.c.maxserial, OpenProgress4.datatime==subq_g.c.maxtime))
@@ -2281,9 +2219,13 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				meta_cards.append(meta_card)
 
 			meta_cards = list({v['data']['difference_data']['first']:v for v in meta_cards}.values())
-			meta_card = choice(meta_cards)
+			try:
+				meta_card = choice(meta_cards)
+			except IndexError:
+				meta_card = None
+				pass
 
-		elif rnum == 5: # 바른정당
+		elif rnum == '5': # 바른정당
 			sido_rank1_party_num = 0
 			for idx, ranks in enumerate(ranks_ttl):
 				if ranksDf.loc[idx, ranks[0]+'_jdName'] == '바른미래당':
@@ -2314,7 +2256,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 					'debugging': card_num,
 				}
 
-		elif rnum == 3:
+		elif rnum == '3':
 			# 지역주의
 			bsjbtexts = []
 			sub_bs = sess.query(OpenProgress.serial, func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.sido).filter(OpenProgress.electionCode.in_([3,4]), OpenProgress.sido.in_(['전라남도', '광주광역시']), OpenProgress.datatime<=time).subquery()
@@ -2368,7 +2310,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			else:
 				pass
 
-		elif rnum == 4:
+		elif rnum == '4':
 			# 대국경북 민주당
 			# 대구 경국 정의당
 			sub_jb = sess.query(OpenProgress.serial, func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.sido).filter(OpenProgress.electionCode.in_([3,4]), OpenProgress.sido.in_(['경상북도', '대구광역시']), OpenProgress.datatime<=time).subquery()
@@ -2423,13 +2365,15 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				}
 			else:
 				pass
-		print("20000", rnum, text)
-		if text == None:
+
+		print(meta_card)
+		if meta_card == None:
 			subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
 
 			sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
 
 			ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
+			print(len(ranksDf))
 			if len(ranksDf) == 0:
 				raise NoTextError
 			ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)
@@ -2474,21 +2418,6 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				},
 				'debugging': card_num,
 			}
-
-
-
-
-
-
-		# meta_card = {
-		# 	'order': order,
-		# 	'type': 'default',
-		# 	'party': 'default',
-		# 	'data': {
-		# 		'text': text,
-		# 	},
-		# 	'debugging': card_num,
-		# }
 
 	elif card_seq == 21:
 		# 당선확정, 이용자가 선택한 선거구에서 당선 확정자가 나왔을 경우
@@ -2721,7 +2650,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				rnum = str(randint(1,3))
 
 			card_num = '22-' + rnum
-			if rnum == 1:
+			if rnum == '1':
 				text = text_templates[card_num]
 				meta_card = {
 					'debugging': card_num,
@@ -2732,7 +2661,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						'text': text
 					}
 				}
-			elif rnum == 2:
+			elif rnum == '2':
 				text = text_templates[card_num]
 				meta_card = {
 					'debugging': card_num,
@@ -2755,7 +2684,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						'text': text,
 					}
 				}
-			elif rnum == 3:	
+			elif rnum == '3':	
 				text = text_templates[card_num]
 				meta_card = {
 					'debugging': card_num,
@@ -2790,7 +2719,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						'text': text,
 					}
 				}
-			elif rnum == 4:
+			elif rnum == '4':
 				yoo = yooToday + yooEarly
 				too = tooToday + tooEarly
 				text = text_templates[card_num].format(yoo=yoo, too=too)
@@ -2804,7 +2733,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						'text': text,
 					}
 				}
-			elif rnum == 5:
+			elif rnum == '5':
 				sido_rank1 = sess.query(VoteProgress.sido).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).order_by(func.max(VoteProgress.tooRate).desc()).first()[0]
 				josa1 = josaPick(sido_rank1, '이며')
 
@@ -2822,7 +2751,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						'text': text,
 					}
 				}
-			elif rnum == 6:
+			elif rnum == '6':
 				rank1, rank1_num, toorate = sess.query(VoteProgress.sido, VoteProgress.yooTotal, VoteProgress.tooRate).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).order_by(func.max(VoteProgress.yooTotal).desc()).first()
 				josa1 = josaPick(rank1, '으로')
 
@@ -2838,7 +2767,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						'text': text,
 					}
 				}
-			elif rnum == 7:
+			elif rnum == '7':
 				rank1, rank1_num, toorate = sess.query(VoteProgress.sido, VoteProgress.yooTotal, VoteProgress.tooRate).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).order_by(func.max(VoteProgress.yooTotal).asc()).first()
 				josa1 = josaPick(rank1, '으로')
 
