@@ -7,7 +7,7 @@ from queries import query_card_data, NoTextError
 import uuid
 import ast
 
-deploy_mode = False
+deploy_mode = True
 
 def generateMeta(args):
 	with session_scope() as sess:
@@ -208,6 +208,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 		card_seqs.extend([5] * len(candidates))
 		card_seqs.sort()
 		seqs_type = 0
+		template = 1
 	# 어떤 선거의 개표율 10 기준?
 	elif (t > 18) and (openrate < 10): # 투표마감이후
 		card_seqs.extend([1, 2, 3, 6, 22, 23]) # 6 특이사항
@@ -215,6 +216,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 		card_seqs.extend([5] * len(candidates))
 		card_seqs.sort()
 		seqs_type = 0
+		template = 2
 	elif (t > 18) and (openrate >= 10) and (openrate < 30): # 개표율 10% 이상
 		card_seqs.extend([1, 2, 3, 7, 8, 9, 20, 23]) # 6, 13, 20 특이사항
 		card_seqs.extend([4] * len(regions))
@@ -227,6 +229,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 		card_seqs.extend([18] * len(parties))
 		card_seqs.sort()
 		seqs_type = 1
+		template = 3
 	elif (t > 18) and (openrate >= 30): # 개표율 30% 이상
 		card_seqs.extend([1, 2, 7, 13, 15, 20, 23]) # 13, 20 특이사항
 		card_seqs.extend([10] * len(regions))
@@ -238,6 +241,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 		card_seqs.sort()
 		card_seqs.insert(1, 21)
 		seqs_type = 1
+		template = 4
 		# 내가 선택한 선거에서 한명이라도 당선 확정이 나오는 경우 21번을 index 1에 insert
 	# else:
 	# 	seqs_type = 0
