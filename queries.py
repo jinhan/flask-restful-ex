@@ -1366,14 +1366,15 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		rank1_cnt = ranking[0]['vote']
 		rank2_cnt = ranking[1]['vote']
 		yet_cnt = ranksDf.loc[0, 'tooTotal'] - ranksDf.loc[0, 'n_total'] - ranksDf.loc[0, 'invalid']
-		confirm = True if (rank1_cnt-rank2_cnt) > yet_cnt else False
 
+		confirm = True if (rank1_cnt-rank2_cnt) > yet_cnt else False
+		open_finished = True if candidate_poll_openrate >= 100 else False
 		if candidate_poll_rank1_name == candidate: 
 			if (candidate_poll_rank1_rate - candidate_poll_rank2_rate) >= 15:
 				card_num = '17-3'
 			elif (candidate_poll_rank1_rate - candidate_poll_rank2_rate) < 5:
 				card_num = '17-1'
-			elif confirm:
+			elif confirm or open_finished:
 				card_num = '17-6'
 			else:
 				card_num = '17'
@@ -1383,7 +1384,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				card_num = '17-4'
 			elif abs(candidate_poll_rank1_rate - candidate_poll_rank2_rate) < 5:
 				card_num = '17-2'
-			elif confirm:
+			elif confirm or open_finished:
 				card_num = '17-7'
 			else:
 				card_num = '17'
