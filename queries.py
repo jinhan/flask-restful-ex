@@ -293,7 +293,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			t = 23
 		else:
 			t = time.hour
-
+		print(t)
 		try:
 			# region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
 			region_num = regionCodeCheck(regions[index])
