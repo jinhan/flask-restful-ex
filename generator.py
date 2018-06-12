@@ -19,7 +19,7 @@ def generateMeta(args):
 		# time = datetime.datetime.strptime(args['time'], '%Y%m%d%H%M%S')
 		print(datetime.datetime.now())
 		time = datetime.datetime.now()
-		
+
 		serial_current = str(uuid.uuid4().hex)
 		arguments = args
 		# if 'time' in arguments:
@@ -138,7 +138,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 				openrate = sess.query(func.max(OpenProgress11.openPercent)).filter(OpenProgress11.sido==candidate_region, OpenProgress11.gusigun=='합계',OpenProgress11.datatime<=time).scalar() # , 
 			else:
 				openrate = None
-			print(candidate_poll_code, openrate)
+			# print(candidate_poll_code, openrate)
 
 		elif (len(candidates) == 0) and (len(regions) > 0) and (len(parties) > 0) and (len(polls) > 0):
 			region_num = regionCodeCheck(regions[0])
@@ -149,7 +149,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 				raise NoTextError
 
 			openrate = sess.query(func.max(OpenProgress3.openPercent)).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==region1, OpenProgress3.gusigun=='합계').scalar()
-			print(openrate)
+			# print(openrate)
 
 		# 	parites
 		elif (len(candidates) == 0) and (len(regions) == 0) and (len(parties) == 0) and (len(polls) > 0):
@@ -196,7 +196,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 				openrate = (n_total + invalid) / tooTotal * 100
 			except TypeError:
 				openrate = 0
-			print(polls[0], openrate)
+			# print(polls[0], openrate)
 
 		else:
 			subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
@@ -211,7 +211,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 				openrate = (n_total + invalid) / tooTotal * 100
 			except TypeError:
 				openrate = 0
-			print(openrate)
+			# print(openrate)
 	else:
 		openrate = 0
 	

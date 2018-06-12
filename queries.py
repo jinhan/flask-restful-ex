@@ -114,7 +114,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				region_nums = []
 				for r in regions:
 					region_nums.append(regionCodeCheck(r))
-				print(region_nums)
+				# print(region_nums)
 				# region_names = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode.in_(region_nums)).all()
 				region_names = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode.in_(region_nums)).all()
 
@@ -300,7 +300,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==region_num).first()
 		except TypeError:
 			raise NoTextError
-		print(region1, region2)
+		# print(region1, region2)
 		if (region2 == '합계') or (region2 == None): # 시도만
 			only_sido = True
 		else: # 시 + 구시군
@@ -308,7 +308,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		if only_sido:
 			toorate_region1 = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1, VoteProgress.gusigun=='합계').scalar()
-			print(toorate_region1)
+			# print(toorate_region1)
 			if toorate_region1 == None: # toorate_region1 없으면
 				raise NoTextError
 			
@@ -406,7 +406,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 	elif card_seq == 5:
 		candidate, candidate_region, candidate_sdName = sess.query(CandidateInfo.name, CandidateInfo.sggName, CandidateInfo.sdName).filter(CandidateInfo.huboid==candidates[index]).first()
-		print(candidate_sdName)
+		# print(candidate_sdName)
 
 		if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
 			t = 23
@@ -434,8 +434,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		# candidate_region_sub = sess.query(func.max(VoteProgress.tooRate), VoteProgress.gusigun).filter(VoteProgress.timeslot<=t, VoteProgress.sido==candidate_sdName, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).all()
 		candidate_region_sub = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.timeslot<=t, VoteProgressLatest.gusigun!='합계', VoteProgressLatest.sido==candidate_sdName).group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun)
-		print(candidate_sdName)
-		print(candidate_region_sub)
+		# print(candidate_sdName)
+		# print(candidate_region_sub)
 		map_data = []
 		for _, r, yooTotal, tooTotal in candidate_region_sub:
 			
@@ -590,7 +590,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		else:
 			raise NoTextError
 
-		print(openrate_sunname1_ranks)
+		# print(openrate_sunname1_ranks)
 		map_data = []
 		for v, r in openrate_sunname1_ranks:
 			map_data.append({'name':r, 'value':float(v)*0.01})
@@ -716,7 +716,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			except TypeError:
 				openrate_region1 = 0
 
-		print(sub_r.all())
+		# print(sub_r.all())
 		data = {
 			'hour': hourConverter(time.hour),
 			'region1': region_name,
@@ -2496,7 +2496,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			else:
 				pass
 
-		print(meta_card)
+		# print(meta_card)
 		if meta_card == None:
 			subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
 
