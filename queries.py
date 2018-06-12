@@ -221,6 +221,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			t = 23
 		else:
 			t = time.hour
+		if t in [8,10]:
+			raise NoTextError
 		# past = sess.query(func.max(PastVoteProgress.tooRate).label('max')).filter(PastVoteProgress.timeslot <= time.hour).group_by(PastVoteProgress.sido).subquery()
 		# past_toorate = sess.query(func.avg(past.c.max)).scalar()
 		each_toorate_p = sess.query(func.max(PastVoteProgress.yooTotal).label('yooTotal'), func.max(PastVoteProgress.tooTotal).label('tooTotal')).filter(PastVoteProgress.timeslot<=t, PastVoteProgress.gusigun=='합계').group_by(PastVoteProgress.sido).subquery()

@@ -84,3 +84,15 @@ with session_scope() as sess:
 	yooTotal_a, tooTotal_a = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
 	toorate_avg_nat = (tooTotal_a) / (yooTotal_a) * 100
 	print(toorate_avg_nat)
+
+	each_toorate_p = sess.query(func.max(PastVoteProgress.yooTotal).label('yooTotal'), func.max(PastVoteProgress.tooTotal).label('tooTotal')).filter(PastVoteProgress.timeslot<=t, PastVoteProgress.gusigun=='합계').group_by(PastVoteProgress.sido).subquery()
+	yooTotal_p, tooTotal_p = sess.query(func.sum(each_toorate_p.c.yooTotal), func.sum(each_toorate_p.c.tooTotal)).first()
+	
+	try:
+		past_toorate = (tooTotal_p) / (yooTotal_p) * 100
+	except TypeError:
+		raise NoTextError
+	print(past_toorate)
+
+	each_toorate_p = sess.query(func.max(PastVoteProgress.yooTotal).label('yooTotal'), func.max(PastVoteProgress.tooTotal).label('tooTotal')).filter(PastVoteProgress.timeslot<=t, PastVoteProgress.gusigun=='합계').group_by(PastVoteProgress.sido)
+	print(each_toorate_p.all())
