@@ -144,7 +144,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						'party_names': party_names,
 						'tooOrget': '득표율' if seqs_type else '투표율',
 					}
-					text = '{party_names}의 618 지방선거'.format(**data)
+					text = '{party_names}의 613 지방선거'.format(**data)
 				
 				else:
 					if len(polls) > 0:
