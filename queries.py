@@ -48,9 +48,31 @@ def regionPoll(r, code):
 
 def regionCodeCheck(r):
 	if r in [4101, 4102, 4103, 4104]: # 수원시
-		r = 9900
+		r = 4103
+	elif r in [4105,4106,4107]: # 성남
+		r = 4105
+	elif r in [4109,4110]: #안양
+		r = 4110
 	
-	return r
+	elif r in [4119,4118]: #안산
+		r = 4119
+	elif r in [4120,4121,4122]: # 고양
+		r = 4120
+	elif r in [4135,4136,4137]: #용인
+		r = 4135
+	elif r in [4301,4302,4306,4314]: #청주
+		r = 4301
+	elif r in [4417,4418]: # 천안
+		r = 4417
+	elif r in [4701,4702]: # 포항
+		r = 4701
+	elif r in [4821,4823,4822,4824,4825]: #창원
+		r = 4821
+	elif r in [4501,4502]: #전주
+		r = 4501
+	else:
+		r = r
+	return int(str(4)+str(r)+str(0)*2)
 
 def query_card_data(sess, order, index, polls, regions, parties, candidates, time, card_seq, seqs_type, template):
 	if card_seq == 1:
@@ -74,7 +96,9 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				for r in regions:
 					region_nums.append(regionCodeCheck(r))
 
-				region_names = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode.in_(region_nums)).all()
+				# region_names = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode.in_(region_nums)).all()
+				region_names = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode.in_(region_nums)).all()
+
 				region_names = list(set(region_names))
 				region_join = []
 				for r1, r2 in region_names:
@@ -223,7 +247,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		else:
 			card_num = '3-1'
 			text = text_templates[card_num].format(**data)
-
+		# 전국단위 문제 없음
 		map_data = []
 		for v, r in ranks:
 			if r == '합계':
@@ -255,7 +279,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			t = time.hour
 
 		try:
-			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
+			# region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
+			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==regions[index]).first()
 		except TypeError:
 			raise NoTextError
 		# print(region1, region2)
@@ -616,7 +641,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 	elif card_seq == 10:
 		region_num = regionCodeCheck(regions[index])
 		try:
-			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==region_num).first()
+			# region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==region_num).first()
+			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==region_num).first()
 		except TypeError:
 			raise NoTextError
 
@@ -1183,7 +1209,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 	elif card_seq == 16:
 		region_num = regionCodeCheck(regions[index])
 		try:
-			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==region_num).first()
+			# region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==region_num).first()
+			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==region_num).first()
 		except TypeError:
 			raise NoTextError
 
@@ -2553,7 +2580,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			for r in regions:
 				region_nums.append(regionCodeCheck(r))
 
-			regions_all = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode.in_(region_nums)).all()
+			# regions_all = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode.in_(region_nums)).all()
+			regions_all = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode.in_(region_nums)).all()
 			regions_all = list(set(regions_all))
 			# print(regions_all)
 			regions_text = []

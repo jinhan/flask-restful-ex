@@ -7,7 +7,7 @@ from queries import query_card_data, NoTextError, regionCodeCheck
 import uuid
 import ast
 
-deploy_mode = True
+deploy_mode = False
 
 def generateMeta(args):
 	with session_scope() as sess:
@@ -142,7 +142,8 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 		elif (len(candidates) == 0) and (len(regions) > 0) and (len(parties) > 0) and (len(polls) > 0):
 			region_num = regionCodeCheck(regions[0])
 			try:
-				region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==region_num).first()
+				# region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==region_num).first()
+				region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==region_num).first()
 			except TypeError:
 				raise NoTextError
 

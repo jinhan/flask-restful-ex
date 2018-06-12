@@ -31,6 +31,8 @@ PartyCode = Base.classes.PartyCode
 QueryTime = Base.classes.QueryTime
 MetaCards = Base.classes.MetaCards
 
+PrecinctCode4 = Base.classes.PrecinctCode4
+
 @contextmanager
 def session_scope():
         sess = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine, expire_on_commit=True))
