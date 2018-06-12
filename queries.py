@@ -312,7 +312,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			if toorate_region1 == None: # toorate_region1 없으면
 				raise NoTextError
 			
-			each_toorate = sess.query(func.max(VoteProgress.yooTotal).label('yooTotal'), func.max(VoteProgress.tooTotal).label('tooTotal')).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).subquery()
+			each_toorate = sess.query(func.max(VoteProgress.yooTotal).label('yooTotal'), func.max(VoteProgress.tooTotal).label('tooTotal')).filter(VoteProgress.timeslot<=t,VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).subquery()
 		
 			yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
 			
