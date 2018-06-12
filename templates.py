@@ -32,7 +32,7 @@ text_templates = {
 
 	### 개표율
 	# 지난 선거의 시간대 별 개표율 
-	'7': '{hour} 현재 제7회 지방선거 개표가 진행중이며 개표율은 전국 평균 {openrate_avg_nat}%이다.',
+	'7': '{hour} 현재 제7회 지방선거 개표율은 전국 평균 {openrate_avg_nat}%이다.',
 
 	'8': '{hour} 현재 시도지사 선거에서 가장 개표가 빠른 지역은 {openrate_sunname1_rank1}{josa} {openrate_sunname1_rank1_rate}%의 개표율을 보이고 있으며, {openrate_sunname1_rank2}{josa} {openrate_sunname1_rank2_rate}%로 뒤따르고 있다.', # 개표 중
 
@@ -66,7 +66,7 @@ text_templates = {
 
 	'13-1': ' {hour} 현재 시군구청장 선거에서 {open_finished_gusigun} 지역의 개표가 가장 빠르게 완료되었다.', # {개표율.시군구청장.순위1}=100
 
-	'13-2': '{hour} 현재 모든 지역에서 개표가 완료되었다.', # {개표율.전국.평균}=100
+	# '13-2': '{hour} 현재 모든 지역에서 개표가 완료되었다.', # {개표율.전국.평균}=100
 	
 	
 	### 득표율
@@ -107,7 +107,7 @@ text_templates = {
 
 	'17-6': '{hour} 현재 {candidate} 후보가 속해 있는 {candidate_region}의 {candidate_poll} 선거에서는 {candidate_poll_rank1_name} 후보가 {candidate_poll_rank1_rate}%의 득표율로 당선이 확정되었다.', # 내가 선택한 후보가 1위일때, 1위와 2위의 격차 > 남은 표수
 
-	'17-7': '{hour} 현재 {candidate} 후보가 속해 있는 {candidate_region}의 {candidate_poll} 선거에서는 {candidate_poll_rank2_name} 후보가 {candidate_poll_rank2_rate}%의 득표율로 당선에 실패했으며, {candidate_poll_rank1_name} 후보가 {candidate_poll_rank1_rate}%의 득표율로 당선이 확정되었다. ', # 내가 선택한 후보가 2위 이하일때, 1위와 2위의 격차 > 남은 표수
+	'17-7': '{hour} 현재 {candidate} 후보가 속해 있는 {candidate_region}의 {candidate_poll} 선거에서는 {candidate} 후보가 {candidate_rate}%의 득표율로 당선에 실패했으며, {candidate_poll_rank1_name} 후보가 {candidate_poll_rank1_rate}%의 득표율로 당선이 확정되었다. ', # 내가 선택한 후보가 2위 이하일때, 1위와 2위의 격차 > 남은 표수
 
 	## 선거구수.관심정당1.시도지사.1위, 관심정당1.시도지사.순위 
 	'18': '{party}은 시도지사 선거에서 총 17개 선거구 중 {my_party_rank1_sido_num}개의 선거구에서 득표율 1위를 달리고 있다. 시군구청장 선거에서는 총 226개 선거구 중 {my_party_rank1_gusigun_num}개의 선거구에서 득표율 1위를 달리고 있다.', # 경합, 우세, 열세 이외의 상황

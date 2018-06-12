@@ -8,7 +8,7 @@ from collections import Counter
 from random import choice
 
 with session_scope() as sess:
-	t = '20180614050000'
+	t = '20180613180000'
 	time = datetime.datetime.strptime(t, '%Y%m%d%H%M%S')
 	index = 0
 	# regions = [1100]
@@ -31,15 +31,17 @@ with session_scope() as sess:
 	# print(d.all())
 
 	# subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
-	subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.sggCityCode).filter(OpenProgress4.datatime<=time, OpenProgress4.gusigun=='예산군', OpenProgress4.sggCityCode!=None).subquery()
+	# subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.sggCityCode).filter(OpenProgress4.datatime<=time, OpenProgress4.gusigun=='예산군', OpenProgress4.sggCityCode!=None).subquery()
 
-	sub_ranks = sess.query(OpenProgress4).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
-	# print(sub_ranks.all())
-	ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
-	print(ranksDf)
+	# sub_ranks = sess.query(OpenProgress4).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
+	# # print(sub_ranks.all())
+	# ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
+	# print(ranksDf)
 
-	d = sess.query(OpenProgress11.openPercent, OpenProgress11.gusigun).filter(OpenProgress11.datatime<=time, OpenProgress11.sido=='서울특별시', OpenProgress11.gusigun!='합계').all()
-	print(d)
+	# d = sess.query(OpenProgress11.openPercent, OpenProgress11.gusigun).filter(OpenProgress11.datatime<=time, OpenProgress11.sido=='서울특별시', OpenProgress11.gusigun!='합계').all()
+	# print(d)
+	# _, _, yooToday, yooEarly, tooToday, tooEarly = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooToday).label('yooToday'), func.sum(VoteProgressLatest.yooEarly).label('yooEarly'), func.sum(VoteProgressLatest.tooToday).label('tooToday'), func.sum(VoteProgressLatest.tooEarly).label('tooEarly')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.timeslot<=t, PrecinctCode4.gusigun=='수원시', VoteProgressLatest.sido=='경기도').group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun).first()
+	# print(yooToday, yooEarly, tooToday, tooEarly)
 	# each_toorate = sess.query(VoteProgress.townCode, PrecinctCode4.gusigun.label('gusigun'), func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).outerjoin(PrecinctCode4, and_(VoteProgress.gusigun==PrecinctCode4.sgg, VoteProgress.sido==PrecinctCode4.sido)).filter(VoteProgress.timeslot<=t, VoteProgress.sido=='경기도', Vote
 	# Progress.gusigun!='합계').group_by(PrecinctCode4.sido. PrecinctCode4.gusigun).subquery()
 	
@@ -71,4 +73,6 @@ with session_scope() as sess:
 	# 		pass
 	# 	else:
 	# 		map_data.append({'name':r, 'value':float(v)*0.01})
-	
+	region_nums = [4110000, 4270000]
+	d = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode.in_(region_nums)).all()
+	print(d)
