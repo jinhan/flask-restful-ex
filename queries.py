@@ -49,30 +49,49 @@ def regionPoll(r, code):
 def regionCodeCheck(r):
 	if r in [4101, 4102, 4103, 4104]: # 수원시
 		r = 4103
+		r = int(str(4)+str(r)+str(0)*2)
 	elif r in [4105,4106,4107]: # 성남
 		r = 4105
+		r = int(str(4)+str(r)+str(0)*2)
 	elif r in [4109,4110]: #안양
 		r = 4110
-	
+		r = int(str(4)+str(r)+str(0)*2)
 	elif r in [4119,4118]: #안산
 		r = 4119
+		r = int(str(4)+str(r)+str(0)*2)
 	elif r in [4120,4121,4122]: # 고양
 		r = 4120
+		r = int(str(4)+str(r)+str(0)*2)
 	elif r in [4135,4136,4137]: #용인
 		r = 4135
+		r = int(str(4)+str(r)+str(0)*2)
 	elif r in [4301,4302,4306,4314]: #청주
 		r = 4301
+		r = int(str(4)+str(r)+str(0)*2)
 	elif r in [4417,4418]: # 천안
 		r = 4417
+		r = int(str(4)+str(r)+str(0)*2)
 	elif r in [4701,4702]: # 포항
 		r = 4701
+		r = int(str(4)+str(r)+str(0)*2)
 	elif r in [4821,4823,4822,4824,4825]: #창원
 		r = 4821
+		r = int(str(4)+str(r)+str(0)*2)
 	elif r in [4501,4502]: #전주
 		r = 4501
-	else:
-		r = r
-	return int(str(4)+str(r)+str(0)*2)
+		r = int(str(4)+str(r)+str(0)*2)
+	
+	elif r == 4145: # 부천시
+		r = 4411100
+	elif r == 5100: # 세종
+		r = 1510000
+	elif r == 4901: #제주
+		r = 1490100
+	elif r == 4902: # 서귀포
+		r = 1490200
+	else: # 서울표시 
+		r = int(str(4)+str(r)+str(0)*2)
+	return r
 
 def query_card_data(sess, order, index, polls, regions, parties, candidates, time, card_seq, seqs_type, template):
 	if card_seq == 1:
@@ -280,10 +299,11 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		try:
 			# region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==regions[index]).first()
-			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==regions[index]).first()
+			region_num = regionCodeCheck(regions[index])
+			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==region_num).first()
 		except TypeError:
 			raise NoTextError
-		# print(region1, region2)
+		print(region1, region2)
 		if region2 == '합계': # 시도만
 			only_sido = True
 		else: # 시 + 구시군
@@ -291,7 +311,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		if only_sido:
 			toorate_region1 = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1, VoteProgress.gusigun=='합계').scalar()
-	
+			print(toorate_region1)
 			if toorate_region1 == None: # toorate_region1 없으면
 				raise NoTextError
 			
@@ -314,10 +334,21 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 
 		else: # 시 + 구시군
-			toorate_region1 = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1, VoteProgress.gusigun==region2).scalar()
-	
-			if toorate_region1 == None: # toorate_region1 없으면
+			# toorate_region1 = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1, VoteProgress.gusigun==region2).scalar()
+			try:
+				_, _, yooToday, yooEarly, tooToday, tooEarly = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooToday).label('yooToday'), func.sum(VoteProgressLatest.yooEarly).label('yooEarly'), func.sum(VoteProgressLatest.tooToday).label('tooToday'), func.sum(VoteProgressLatest.tooEarly).label('tooEarly')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.timeslot<=t, PrecinctCode4.gusigun==region2, VoteProgressLatest.sido==region1).group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun).first()
+			except TypeError:
 				raise NoTextError
+				
+			if tooEarly == None:
+				tooEarly = 0
+			try:
+				toorate_region1 = (tooToday+tooEarly) / (yooToday+yooEarly) * 100
+			except TypeError:
+				raise NoTextError
+	
+			# if toorate_region1 == None: # toorate_region1 없으면
+			# 	raise NoTextError
 			
 			each_toorate = sess.query(func.max(VoteProgress.yooToday).label('yooToday'), func.max(VoteProgress.yooEarly).label('yooEarly'), func.max(VoteProgress.tooToday).label('tooToday'), func.max(VoteProgress.tooEarly).label('tooEarly')).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).subquery()
 
@@ -350,15 +381,21 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			card_num = '4-1'
 			text = text_templates[card_num].format(**data)
 
-		toorate_region1_sub = sess.query(func.max(VoteProgress.tooRate), VoteProgress.gusigun).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).order_by(func.max(VoteProgress.tooRate).desc(), func.max(VoteProgress.tooTotal).desc()).all()
+		# toorate_region1_sub = sess.query(func.max(VoteProgress.tooRate), VoteProgress.gusigun).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).order_by(func.max(VoteProgress.tooRate).desc(), func.max(VoteProgress.tooTotal).desc()).all()
+		toorate_region1_sub = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooToday).label('yooToday'), func.sum(VoteProgressLatest.yooEarly).label('yooEarly'), func.sum(VoteProgressLatest.tooToday).label('tooToday'), func.sum(VoteProgressLatest.tooEarly).label('tooEarly')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.timeslot<=t, VoteProgressLatest.gusigun!='합계', VoteProgressLatest.sido==region1).group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun)
+		# (4144, '가평군', Decimal('100000'), Decimal('1000'), Decimal('54364'), None),
+
 		# print(region1)
 		# print(toorate_region1_sub)
 		map_data = []
-		for v, r in toorate_region1_sub:
-			if r == '합계':
-				pass
-			else:
-				map_data.append({'name':r, 'value':float(v)*0.01})
+		for _, r, yooTotal, yooEarly, tooToday, tooEarly in toorate_region1_sub:
+			if tooEarly == None:
+				tooEarly = 0
+			try:
+				v = (tooToday+tooEarly) / (yooToday+yooEarly)
+			except TypeError:
+				v = 0
+			map_data.append({'name':r, 'value':float(v)})
 		# print(map_data)
 		map_data = list({v['name']:v for v in map_data}.values())
 		meta_card = {
@@ -378,6 +415,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 	elif card_seq == 5:
 		candidate, candidate_region, candidate_sdName = sess.query(CandidateInfo.name, CandidateInfo.sggName, CandidateInfo.sdName).filter(CandidateInfo.huboid==candidates[index]).first()
+		print(candidate_sdName)
 
 		if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
 			t = 23
@@ -385,6 +423,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			t = time.hour
 
 		candidate_region_toorate = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==candidate_sdName, VoteProgress.gusigun=='합계').scalar()
+
 		# VoteProgress에 sggName 필요함
 		if candidate_region_toorate == None:
 			raise NoTextError
@@ -402,15 +441,19 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			data['hour'] = hourConverter(time.hour)
 			text = text_templates[card_num].format(**data)
 
-		candidate_region_sub = sess.query(func.max(VoteProgress.tooRate), VoteProgress.gusigun).filter(VoteProgress.timeslot<=t, VoteProgress.sido==candidate_sdName, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).all()
-		# print(candidate_sdName)
-		# print(candidate_region_sub)
+		# candidate_region_sub = sess.query(func.max(VoteProgress.tooRate), VoteProgress.gusigun).filter(VoteProgress.timeslot<=t, VoteProgress.sido==candidate_sdName, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).all()
+		candidate_region_sub = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooToday).label('yooToday'), func.sum(VoteProgressLatest.yooEarly).label('yooEarly'), func.sum(VoteProgressLatest.tooToday).label('tooToday'), func.sum(VoteProgressLatest.tooEarly).label('tooEarly')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.timeslot<=t, VoteProgressLatest.gusigun!='합계', VoteProgressLatest.sido==candidate_sdName).group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun)
+		print(candidate_sdName)
+		print(candidate_region_sub)
 		map_data = []
-		for v, r in candidate_region_sub:
-			if r == '합계':
-				pass
-			else:
-				map_data.append({'name':r, 'value':float(v)*0.01})
+		for _, r, yooTotal, yooEarly, tooToday, tooEarly in candidate_region_sub:
+			if tooEarly == None:
+				tooEarly = 0
+			try:
+				v = (tooToday+tooEarly) / (yooToday+yooEarly)
+			except TypeError:
+				v = 0
+			map_data.append({'name':r, 'value':float(v)})
 		# print(map_data)
 		map_data = list({v['name']:v for v in map_data}.values())
 		meta_card = {
@@ -492,7 +535,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		}
 
 	elif card_seq == 7:
-		subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.townCode).filter(OpenProgress.datatime<=time, OpenProgress.gusigun!='합계', OpenProgress.electionCode==3).subquery()
+		# subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.townCode).filter(OpenProgress.datatime<=time, OpenProgress.gusigun!='합계', OpenProgress.electionCode==3).subquery()
+		subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
 
 		tooTotal, n_total, invalid = sess.query(func.sum(OpenProgress.tooTotal), func.sum(OpenProgress.n_total), func.sum(OpenProgress.invalid)).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxtime)).first()
 		
@@ -558,7 +602,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		else:
 			raise NoTextError
 
-		# print(openrate_sunname1_ranks)
+		print(openrate_sunname1_ranks)
 		map_data = []
 		for v, r in openrate_sunname1_ranks:
 			map_data.append({'name':r, 'value':float(v)*0.01})
@@ -652,11 +696,12 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			only_sido = False
 
 		if only_sido:
-			subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.townCode).filter(OpenProgress.datatime<=time, OpenProgress.gusigun=='합계', OpenProgress.electionCode==3, OpenProgress.sido==region1).subquery()
+			subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
 
-			sub_r = sess.query(OpenProgress.gusigun, OpenProgress.tooTotal, OpenProgress.n_total, OpenProgress.invalid).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxtime))
+			sub_r = sess.query(OpenProgress3.gusigun, OpenProgress3.tooTotal, OpenProgress3.n_total, OpenProgress3.invalid).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
+			# print(sub_r.all())
 
-			tooTotal_r, n_total_r, invalid_r = sess.query(func.sum(OpenProgress.tooTotal), func.sum(OpenProgress.n_total), func.sum(OpenProgress.invalid)).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxtime)).first()
+			tooTotal_r, n_total_r, invalid_r = sess.query(func.sum(OpenProgress3.tooTotal), func.sum(OpenProgress3.n_total), func.sum(OpenProgress3.invalid)).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime)).first()
 
 			region_name = region1
 			if invalid_r == None:
@@ -668,11 +713,12 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 
 		else: # 시+도 : 도의 결과
-			subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.townCode).filter(OpenProgress.datatime<=time, OpenProgress.gusigun!='합계', OpenProgress.electionCode==4, OpenProgress.sido==region1).subquery()
+			subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.sggCityCode).filter(OpenProgress4.datatime<=time, OpenProgress4.sido==region1, OpenProgress4.sggCityCode!=None).subquery()
 
-			sub_r = sess.query(OpenProgress.gusigun, OpenProgress.tooTotal, OpenProgress.n_total, OpenProgress.invalid).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxtime))
+			sub_r = sess.query(OpenProgress4.gusigun, OpenProgress4.tooTotal, OpenProgress4.n_total, OpenProgress4.invalid).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
+			# print(sub_r.all())
 
-			tooTotal_r, n_total_r, invalid_r = sess.query(func.sum(OpenProgress.tooTotal), func.sum(OpenProgress.n_total), func.sum(OpenProgress.invalid)).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxtime)).first()
+			tooTotal_r, n_total_r, invalid_r = sess.query(func.sum(OpenProgress4.tooTotal), func.sum(OpenProgress4.n_total), func.sum(OpenProgress4.invalid)).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime)).first()
 
 			region_name = region1 + ' ' + region2
 			if invalid_r == None:
@@ -682,7 +728,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			except TypeError:
 				openrate_region1 = 0
 
-
+		print(sub_r.all())
 		data = {
 			'hour': hourConverter(time.hour),
 			'region1': region_name,
@@ -767,7 +813,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		if polls[index] == 2: # 국회의원
 			poll, poll_num_sunname = sess.query(SgTypecode.sgName, func.count(PrecinctCode.sgg)).join(PrecinctCode, PrecinctCode.electionCode==SgTypecode.sgTypecode).filter(SgTypecode.sgTypecode==polls[index]).first()
 
-			subq = sess.query(func.max(OpenProgress2.serial).label('maxserial'), func.max(OpenProgress2.datatime).label('maxtime')).group_by(OpenProgress2.sgg).filter(OpenProgress2.datatime<=time).subquery()
+			subq = sess.query(func.max(OpenProgress2.serial).label('maxserial'), func.max(OpenProgress2.datatime).label('maxtime')).group_by(OpenProgress2.sggCityCode).filter(OpenProgress2.datatime<=time, OpenProgress2.sggCityCode!=None).subquery()
 
 			sub = sess.query(OpenProgress2.sgg, OpenProgress2.tooTotal, OpenProgress2.n_total, OpenProgress2.invalid).join(subq, and_(OpenProgress2.serial==subq.c.maxserial, OpenProgress2.datatime==subq.c.maxtime))
 
@@ -785,7 +831,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		elif polls[index] == 4:
 			poll, poll_num_sunname = sess.query(SgTypecode.sgName, func.count(PrecinctCode.gusigun)).join(PrecinctCode, PrecinctCode.electionCode==SgTypecode.sgTypecode).filter(SgTypecode.sgTypecode==polls[index]).first()
 
-			subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.townCode).filter(OpenProgress4.datatime<=time).subquery()
+			subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.sggCityCode).filter(OpenProgress4.datatime<=time, OpenProgress4.sido==region1, OpenProgress4.sggCityCode!=None).subquery()
 
 			sub = sess.query(OpenProgress4.sido, OpenProgress4.tooTotal, OpenProgress4.n_total, OpenProgress4.invalid).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
 
@@ -898,18 +944,18 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		# print(candidate_region)
 		# candidate_poll에 맞게 테이블 선택		
 		if candidate_poll_code == 2: # 국회의원
-			candidate_poll_openrate = sess.query(func.max(OpenProgress2.openPercent)).filter(OpenProgress2.datatime<=time, OpenProgress2.sgg==candidate_region).scalar()
+			candidate_poll_openrate = sess.query(func.max(OpenProgress2.openPercent)).filter(OpenProgress2.sgg==candidate_region,OpenProgress2.datatime<=time, OpenProgress2.sggCityCode!=None).scalar()
 		
 		elif candidate_poll_code == 4:
-			candidate_poll_openrate = sess.query(func.max(OpenProgress4.openPercent)).filter(OpenProgress4.datatime<=time, OpenProgress4.gusigun==candidate_region).scalar()
+			candidate_poll_openrate = sess.query(func.max(OpenProgress4.openPercent)).filter(OpenProgress4.gusigun==candidate_region,OpenProgress4.datatime<=time, OpenProgress4.sggCityCode!=None).scalar()
 
 		elif candidate_poll_code == 3:
-			candidate_poll_openrate = sess.query(func.max(OpenProgress3.openPercent)).filter(OpenProgress3.datatime<=time,  OpenProgress3.sido==candidate_region, OpenProgress3.gusigun=='합계').scalar()
+			candidate_poll_openrate = sess.query(func.max(OpenProgress3.openPercent)).filter(OpenProgress3.sido==candidate_region, OpenProgress3.gusigun=='합계',OpenProgress3.datatime<=time).scalar()
 
 			candidate_poll_openrate_sub = sess.query(OpenProgress3.openPercent, OpenProgress3.gusigun).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==candidate_sdName, OpenProgress3.gusigun!='합계').all()
 
 		elif candidate_poll_code == 11:
-			candidate_poll_openrate = sess.query(func.max(OpenProgress11.openPercent)).filter(OpenProgress11.datatime<=time, OpenProgress11.sido==candidate_region, OpenProgress11.gusigun=='합계').scalar()
+			candidate_poll_openrate = sess.query(func.max(OpenProgress11.openPercent)).filter(OpenProgress11.sido==candidate_region, OpenProgress11.gusigun=='합계',OpenProgress11.datatime<=time).scalar()
 			# print(candidate_poll_openrate)
 			candidate_poll_openrate_sub = sess.query(OpenProgress11.openPercent, OpenProgress11.gusigun).filter(OpenProgress11.datatime<=time, OpenProgress11.sido==candidate_sdName, OpenProgress11.gusigun!='합계').all()
 
@@ -1057,12 +1103,12 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
 		
 			elif (candidate_poll_code == 4) or (poll_num == 4): # 시군구청장
-				subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.gusigun).filter(OpenProgress4.datatime<=time).subquery()
+				subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.sggCityCode).filter(OpenProgress4.datatime<=time, OpenProgress4.sido==region1, OpenProgress4.sggCityCode!=None).subquery()
 
 				sub_ranks = sess.query(OpenProgress4).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
 
 			elif (candidate_poll_code == 2) or (poll_num == 2): # 국회의원
-				subq = sess.query(func.max(OpenProgress2.serial).label('maxserial'), func.max(OpenProgress2.datatime).label('maxtime')).group_by(OpenProgress2.sgg).filter(OpenProgress2.datatime<=time).subquery()
+				subq = sess.query(func.max(OpenProgress2.serial).label('maxserial'), func.max(OpenProgress2.datatime).label('maxtime')).group_by(OpenProgress2.sggCityCode).filter(OpenProgress2.datatime<=time, OpenProgress2.sggCityCode!=None).subquery()
 
 				sub_ranks = sess.query(OpenProgress2).join(subq, and_(OpenProgress2.serial==subq.c.maxserial, OpenProgress2.datatime==subq.c.maxtime))
 
@@ -1235,7 +1281,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 			region1_openrate = sess.query(func.max(OpenProgress4.openPercent)).filter(OpenProgress4.datatime<=time, OpenProgress4.sido==region1, OpenProgress4.gusigun==region2).scalar()
 
-			subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.gusigun).filter(OpenProgress4.datatime<=time, OpenProgress4.sido==region1, OpenProgress4.gusigun==region2).subquery()
+			subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.sggCityCode).filter(OpenProgress4.datatime<=time, OpenProgress4.sido==region1, OpenProgress4.gusigun==region2, OpenProgress4.sggCityCode!=None).subquery()
 
 			sub_ranks = sess.query(OpenProgress4).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
 
@@ -1330,7 +1376,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		if sgtype == 2: 
 			candidate_poll_openrate = sess.query(func.max(OpenProgress2.openPercent)).filter(OpenProgress2.datatime<=time, OpenProgress2.sgg==candidate_region).scalar()
 
-			subq = sess.query(func.max(OpenProgress2.serial).label('maxserial'), func.max(OpenProgress2.datatime).label('maxtime')).group_by(OpenProgress2.sgg).filter(OpenProgress2.datatime<=time, OpenProgress2.sgg==candidate_region).subquery()
+			subq = sess.query(func.max(OpenProgress2.serial).label('maxserial'), func.max(OpenProgress2.datatime).label('maxtime')).group_by(OpenProgress2.sggCityCode).filter(OpenProgress2.datatime<=time, OpenProgress2.sgg==candidate_region, OpenProgress2.sggCityCode!=None).subquery()
 
 			sub_ranks = sess.query(OpenProgress2).join(subq, and_(OpenProgress2.serial==subq.c.maxserial, OpenProgress2.datatime==subq.c.maxtime))
 
@@ -1344,7 +1390,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		elif sgtype == 4:
 			candidate_poll_openrate = sess.query(func.max(OpenProgress4.openPercent)).filter(OpenProgress4.datatime<=time, OpenProgress4.gusigun==candidate_region).scalar()
 			
-			subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.gusigun).filter(OpenProgress4.datatime<=time, OpenProgress4.gusigun==candidate_region).subquery()
+			subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.sggCityCode).filter(OpenProgress4.datatime<=time, OpenProgress4.gusigun==candidate_region, OpenProgress4.sggCityCode!=None).subquery()
 
 			sub_ranks = sess.query(OpenProgress4).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
 
