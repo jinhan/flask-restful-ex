@@ -2257,8 +2257,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				except TypeError: # 20-6
 					pass
 				meta_cards.append(meta_card)
-
-			meta_cards = list({v['data']['difference_data']['first']:v for v in meta_cards}.values())
+			try:
+				meta_cards = list({v['data']['difference_data']['first']:v for v in meta_cards}.values())
+			except TypeError:
+				meta_cards = meta_cards
 			try:
 				meta_card = choice(meta_cards)
 			except IndexError:

@@ -102,11 +102,8 @@ def generateMeta(args):
 					continue
 				meta_cards.append(meta_card)
 			# end for
-			print(meta_cards)
 			# try:
-			# 	meta_cards = list({v['data']['text']:v for v in meta_cards}.values())
-			# except TypeError:
-			# 	meta_cards = meta_cards
+			meta_cards = list({v['data']['text']:v for v in meta_cards}.values())
 			meta['cards'] = meta_cards
 			
 			if deploy_mode:
