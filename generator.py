@@ -34,10 +34,10 @@ def generateMeta(args):
 
 		time_update = []
 		# TODO:
-		# try:
-		# 	time_update.append(sess.query(VoteProgressLatest.datatime).order_by(VoteProgressLatest.datatime.desc()).first()[0])
-		# except TypeError:
-		# 	pass
+		try:
+			time_update.append(sess.query(VoteProgressLatest.datatime).order_by(VoteProgressLatest.datatime.desc()).first()[0])
+		except TypeError:
+			pass
 		try:
 			time_update.append(sess.query(OpenProgress2.datatime).order_by(OpenProgress2.datatime.desc()).first()[0])
 		except TypeError:
