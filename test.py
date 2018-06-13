@@ -74,25 +74,31 @@ with session_scope() as sess:
 	# 	else:
 	# 		map_data.append({'name':r, 'value':float(v)*0.01})
 	# 
-	region1='서울특별시'
-	region2='서초구'
-	_, _, yooTotal, tooTotal = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.timeslot<=t, PrecinctCode4.gusigun==region2, VoteProgressLatest.sido==region1).group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun).first()
-	print((tooTotal) / (yooTotal) * 100)
+	# region1='서울특별시'
+	# region2='서초구'
+	# _, _, yooTotal, tooTotal = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.timeslot<=t, PrecinctCode4.gusigun==region2, VoteProgressLatest.sido==region1).group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun).first()
+	# print((tooTotal) / (yooTotal) * 100)
 
-	each_toorate = sess.query(func.max(VoteProgressLatest.yooTotal).label('yooTotal'), func.max(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot<=t, VoteProgressLatest.gusigun=='합계').group_by(VoteProgressLatest.sido).subquery()
+	# each_toorate = sess.query(func.max(VoteProgressLatest.yooTotal).label('yooTotal'), func.max(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot<=t, VoteProgressLatest.gusigun=='합계').group_by(VoteProgressLatest.sido).subquery()
 
-	yooTotal_a, tooTotal_a = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
-	toorate_avg_nat = (tooTotal_a) / (yooTotal_a) * 100
-	print(toorate_avg_nat)
+	# yooTotal_a, tooTotal_a = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
+	# toorate_avg_nat = (tooTotal_a) / (yooTotal_a) * 100
+	# print(toorate_avg_nat)
 
-	each_toorate_p = sess.query(func.max(PastVoteProgress.yooTotal).label('yooTotal'), func.max(PastVoteProgress.tooTotal).label('tooTotal')).filter(PastVoteProgress.timeslot<=t, PastVoteProgress.gusigun=='합계').group_by(PastVoteProgress.sido).subquery()
-	yooTotal_p, tooTotal_p = sess.query(func.sum(each_toorate_p.c.yooTotal), func.sum(each_toorate_p.c.tooTotal)).first()
+	# each_toorate_p = sess.query(func.max(PastVoteProgress.yooTotal).label('yooTotal'), func.max(PastVoteProgress.tooTotal).label('tooTotal')).filter(PastVoteProgress.timeslot<=t, PastVoteProgress.gusigun=='합계').group_by(PastVoteProgress.sido).subquery()
+	# yooTotal_p, tooTotal_p = sess.query(func.sum(each_toorate_p.c.yooTotal), func.sum(each_toorate_p.c.tooTotal)).first()
 	
-	try:
-		past_toorate = (tooTotal_p) / (yooTotal_p) * 100
-	except TypeError:
-		raise NoTextError
-	print(past_toorate)
+	# try:
+	# 	past_toorate = (tooTotal_p) / (yooTotal_p) * 100
+	# except TypeError:
+	# 	raise NoTextError
+	# print(past_toorate)
 
-	each_toorate_p = sess.query(func.max(PastVoteProgress.yooTotal).label('yooTotal'), func.max(PastVoteProgress.tooTotal).label('tooTotal')).filter(PastVoteProgress.timeslot<=t, PastVoteProgress.gusigun=='합계').group_by(PastVoteProgress.sido)
-	print(each_toorate_p.all())
+	# each_toorate_p = sess.query(func.max(PastVoteProgress.yooTotal).label('yooTotal'), func.max(PastVoteProgress.tooTotal).label('tooTotal')).filter(PastVoteProgress.timeslot<=t, PastVoteProgress.gusigun=='합계').group_by(PastVoteProgress.sido)
+	# print(each_toorate_p.all())
+
+	each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter( VoteProgressLatest.gusigun!='합계').subquery()
+
+	yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
+
+	print(tooTotal/yooTotal*100)

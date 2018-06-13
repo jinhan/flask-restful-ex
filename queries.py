@@ -181,7 +181,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		else:
 			t = time.hour
 
-		each_toorate = sess.query(func.max(VoteProgress.yooTotal).label('yooTotal'), func.max(VoteProgress.tooTotal).label('tooTotal')).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).subquery()
+		each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter( VoteProgressLatest.gusigun!='합계').subquery()
 
 		yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
 	
@@ -226,6 +226,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		# past = sess.query(func.max(PastVoteProgress.tooRate).label('max')).filter(PastVoteProgress.timeslot <= time.hour).group_by(PastVoteProgress.sido).subquery()
 		# past_toorate = sess.query(func.avg(past.c.max)).scalar()
 		each_toorate_p = sess.query(func.max(PastVoteProgress.yooTotal).label('yooTotal'), func.max(PastVoteProgress.tooTotal).label('tooTotal')).filter(PastVoteProgress.timeslot<=t, PastVoteProgress.gusigun=='합계').group_by(PastVoteProgress.sido).subquery()
+
 		yooTotal_p, tooTotal_p = sess.query(func.sum(each_toorate_p.c.yooTotal), func.sum(each_toorate_p.c.tooTotal)).first()
 		
 		try:
@@ -235,7 +236,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		# current = sess.query(func.max(VoteProgress.tooRate).label('max')).filter(VoteProgress.timeslot <= time.hour).group_by(VoteProgress.sido).subquery()
 		# current_toorate = sess.query(func.avg(current.c.max)).scalar()
-		each_toorate = sess.query(func.max(VoteProgressLatest.yooTotal).label('yooTotal'), func.max(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot<=t, VoteProgressLatest.gusigun=='합계').group_by(VoteProgressLatest.sido).subquery()
+		each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.gusigun!='합계').subquery()
 		yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
 		
 		current_toorate = (tooTotal) / (yooTotal) * 100
@@ -310,12 +311,12 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			only_sido = False
 
 		if only_sido:
-			toorate_region1 = sess.query(func.max(VoteProgressLatest.tooRate)).filter(VoteProgressLatest.timeslot<=t, VoteProgressLatest.sido==region1, VoteProgressLatest.gusigun=='합계').scalar()
+			toorate_region1 = sess.query(func.sum(VoteProgressLatest.tooRate)).filter( VoteProgressLatest.sido==region1, VoteProgressLatest.gusigun!='합계').scalar()
 			# print(toorate_region1)
 			if toorate_region1 == None: # toorate_region1 없으면
 				raise NoTextError
 			
-			each_toorate = sess.query(func.max(VoteProgressLatest.yooTotal).label('yooTotal'), func.max(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot<=t,VoteProgressLatest.gusigun=='합계').group_by(VoteProgressLatest.sido).subquery()
+			each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.gusigun!='합계').subquery()
 		
 			yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
 			
@@ -346,7 +347,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			# if toorate_region1 == None: # toorate_region1 없으면
 			# 	raise NoTextError
 			
-			each_toorate = sess.query(func.max(VoteProgressLatest.yooTotal).label('yooTotal'), func.max(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot<=t, VoteProgressLatest.gusigun=='합계').group_by(VoteProgressLatest.sido).subquery()
+			each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.gusigun!='합계').subquery()
 
 			yooTotal_a, tooTotal_a = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
 			
@@ -417,7 +418,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		else:
 			t = time.hour
 
-		candidate_region_toorate = sess.query(func.max(VoteProgress.tooRate)).filter(VoteProgress.timeslot<=t, VoteProgress.sido==candidate_sdName, VoteProgress.gusigun=='합계').scalar()
+		candidate_region_toorate = sess.query(func.sum(VoteProgressLatest.tooRate)).filter(VoteProgressLatest.sido==candidate_sdName, VoteProgressLatest.gusigun!='합계').scalar()
 
 		# VoteProgress에 sggName 필요함
 		if candidate_region_toorate == None:
@@ -472,25 +473,30 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		else:
 			t = time.hour
 
-		each_toorate_p = sess.query(PastVoteProgress.sido, func.max(PastVoteProgress.yooTotal).label('yooTotal'), func.max(PastVoteProgress.tooTotal).label('tooTotal')).filter(PastVoteProgress.timeslot<=t, PastVoteProgress.gusigun=='합계').group_by(PastVoteProgress.sido)
+		each_toorate_p = sess.query(PastVoteProgress.sido, func.max(PastVoteProgress.yooTotal).label('yooTotal'), func.max(PastVoteProgress.tooTotal).label('tooTotal')).filter(PastVoteProgress.timeslot<=t, PastVoteProgress.gusigun=='합계').group_by(PastVoteProgress.sido).subquery()
 
-		yooTotal_p, tooTotal_p = sess.query(func.sum(each_toorate_p.subquery().c.yooTotal), func.sum(each_toorate_p.subquery().c.tooTotal)).first()
+		yooTotal_p, tooTotal_p = sess.query(func.sum(each_toorate_p.c.yooTotal), func.sum(each_toorate_p.c.tooTotal)).first()
 		
 		try:
 			past_toorate = (tooTotal_p) / (yooTotal_p) * 100
 		except TypeError:
 			raise NoTextError
 
-		each_toorate = sess.query(VoteProgress.sido, func.max(VoteProgress.yooTotal).label('yooTotal'), func.max(VoteProgress.tooTotal).label('tooTotal')).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido)
+		each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.gusigun!='합계').subquery()
 		
-		yooTotal, tooTotal = sess.query(func.sum(each_toorate.subquery().c.yooTotal), func.sum(each_toorate.subquery().c.tooTotal)).first()
+		yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
 		
-		current_toorate = (tooTotal) / (yooTotal) * 100
+		try:
+			current_toorate = (tooTotal) / (yooTotal) * 100
+		except TypeError:
+			raise NoTextError
 
 		current_toorate_past_toorate = current_toorate - past_toorate
 
 		past = sess.query(PastVoteProgress.sido, func.max(PastVoteProgress.tooRate).label('max')).filter(PastVoteProgress.timeslot <= t, PastVoteProgress.gusigun=='합계').group_by(PastVoteProgress.sido)
-		current = sess.query(VoteProgress.sido, func.max(VoteProgress.tooRate).label('max')).filter(VoteProgress.timeslot <= t).group_by(VoteProgress.sido)
+		
+		current = sess.query(VoteProgressLatest.sido, func.max(VoteProgressLatest.tooRate).label('max')).filter(VoteProgressLatest.timeslot <= t).group_by(VoteProgressLatest.sido)
+
 		currentDf = pd.DataFrame(current.all())
 		pastDf = pd.DataFrame(past.all())
 		currentPastDf = pd.merge(currentDf, pastDf, on='sido')
