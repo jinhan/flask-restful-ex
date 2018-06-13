@@ -1445,14 +1445,17 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						'vote': ranksDf.loc[idx, r+'_vote'],
 					})
 		# print(ranking)
-		candidate_rate = [r['percent'] for r in ranking if r['name']==candidate][0]
-		candidate_poll_rank1_party = ranking[0]['jdName']
-		candidate_poll_rank1_name = ranking[0]['name']
-		candidate_poll_rank1_rate = ranking[0]['percent']
+		try:
+			candidate_rate = [r['percent'] for r in ranking if r['name']==candidate][0]
+			candidate_poll_rank1_party = ranking[0]['jdName']
+			candidate_poll_rank1_name = ranking[0]['name']
+			candidate_poll_rank1_rate = ranking[0]['percent']
 
-		candidate_poll_rank2_party = ranking[1]['jdName']
-		candidate_poll_rank2_name = ranking[1]['name']
-		candidate_poll_rank2_rate = ranking[1]['percent']
+			candidate_poll_rank2_party = ranking[1]['jdName']
+			candidate_poll_rank2_name = ranking[1]['name']
+			candidate_poll_rank2_rate = ranking[1]['percent']
+		except IndexError:
+			raise NoTextError
 
 		data = {
 			'hour': timeDisplay(time),
