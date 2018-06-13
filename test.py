@@ -112,19 +112,35 @@ with session_scope() as sess:
 
 	# sido_rank1 = sess.query(VoteProgress.sido).filter(VoteProgress.timeslot==t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).order_by(func.max(VoteProgress.tooRate).desc()).first()[0]
 	# print(sido_rank1)
-	each_toorate = sess.query(func.max(VoteProgress.yooTotal).label('yooTotal'), func.max(VoteProgress.tooTotal).label('tooTotal')).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).subquery()
-	yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
+	# each_toorate = sess.query(func.max(VoteProgress.yooTotal).label('yooTotal'), func.max(VoteProgress.tooTotal).label('tooTotal')).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).subquery()
+	# yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
 		
-	toorate_avg_nat = (tooTotal) / (yooTotal) * 100
-	print(toorate_avg_nat)
+	# toorate_avg_nat = (tooTotal) / (yooTotal) * 100
+	# print(toorate_avg_nat)
 
-	each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계').subquery()
+	# each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계').subquery()
 
-	yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
+	# yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
 	
-	try:	
-		toorate_avg_nat = (tooTotal) / (yooTotal) * 100
-	except TypeError:
-		raise NoTextError
-	print(toorate_avg_nat)
+	# try:	
+	# 	toorate_avg_nat = (tooTotal) / (yooTotal) * 100
+	# except TypeError:
+	# 	raise NoTextError
+	# print(toorate_avg_nat)
+
+
+	# ranks = sess.query(func.max(VoteProgressLatest.tooRate).label('max'), VoteProgressLatest.sido).filter(VoteProgressLatest.timeslot==t).group_by(VoteProgressLatest.sido, VoteProgressLatest.gusigun!='합계').order_by(func.max(VoteProgressLatest.tooRate).desc(), func.max(VoteProgressLatest.tooTotal).desc()).all()
+
+	# print(ranks)
+	# print(', '.join(rank[1] for rank in ranks[1:3]))
+
+	# ranks = sess.query(func.max(VoteProgressLatest.tooRate).label('max'), VoteProgressLatest.sido).filter(VoteProgressLatest.timeslot<=t).group_by(VoteProgressLatest.sido, VoteProgressLatest.gusigun!='합계').order_by(func.max(VoteProgressLatest.tooRate).desc(), func.max(VoteProgressLatest.tooTotal).desc()).all()
+
+	# print(ranks)
+	sido_rank1 = sess.query(VoteProgress.sido).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).order_by(func.max(VoteProgress.tooRate).desc()).first()[0]
+	print(sido_rank1)
+
+	# sido_rank1 = sess.query(VoteProgressLatest.sido).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계').group_by(VoteProgress.sido).order_by(func.max(VoteProgress.tooRate).desc()).first()[0]
+	# print(sido_rank1)
+	print(len(sess.query(VoteProgressLatest.timeslot).group_by(VoteProgressLatest.timeslot).all()))
 

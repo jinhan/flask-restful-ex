@@ -184,7 +184,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		else:
 			t = time.hour
 
-		each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter( VoteProgressLatest.gusigun!='합계').subquery()
+		each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계').subquery()
 
 		yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
 	
@@ -239,18 +239,20 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		# current = sess.query(func.max(VoteProgress.tooRate).label('max')).filter(VoteProgress.timeslot <= time.hour).group_by(VoteProgress.sido).subquery()
 		# current_toorate = sess.query(func.avg(current.c.max)).scalar()
-		each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.gusigun!='합계').subquery()
+		each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계').subquery()
 		yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
-		
-		current_toorate = (tooTotal) / (yooTotal) * 100
+		try:
+			current_toorate = (tooTotal) / (yooTotal) * 100
+		except TypeError:
+			raise NoTextError
 
 		current_toorate_past_toorate = current_toorate - past_toorate
 		# print(past_toorate, current_toorate)
 		toorate_compare = '높은' if current_toorate_past_toorate > 0 else '낮은'
 
-		ranks = sess.query(func.max(VoteProgressLatest.tooRate).label('max'), VoteProgressLatest.sido).filter(VoteProgressLatest.timeslot<=t).group_by(VoteProgressLatest.sido, VoteProgressLatest.gusigun!='합계').order_by(func.max(VoteProgressLatest.tooRate).desc(), func.max(VoteProgressLatest.tooTotal).desc()).all()
+		ranks = sess.query(func.max(VoteProgressLatest.tooRate).label('max'), VoteProgressLatest.sido).filter(VoteProgressLatest.timeslot==t).group_by(VoteProgressLatest.sido, VoteProgressLatest.gusigun!='합계').order_by(func.max(VoteProgressLatest.tooRate).desc(), func.max(VoteProgressLatest.tooTotal).desc()).all()
 		# print(ranks)
-		ranks_map = sess.query(func.max(VoteProgressLatest.tooRate).label('max'), VoteProgressLatest.sido).group_by(VoteProgressLatest.sido, VoteProgressLatest.gusigun!='합계').order_by(func.max(VoteProgressLatest.tooRate).desc(), func.max(VoteProgressLatest.tooTotal).desc()).all()
+		ranks_map = sess.query(func.max(VoteProgressLatest.tooRate).label('max'), VoteProgressLatest.sido).filter(VoteProgressLatest.timeslot==t).group_by(VoteProgressLatest.sido, VoteProgressLatest.gusigun!='합계').order_by(func.max(VoteProgressLatest.tooRate).desc(), func.max(VoteProgressLatest.tooTotal).desc()).all()
 
 		toorate_rank1 = ranks[0][1]
 		toorate_rank = ', '.join(rank[1] for rank in ranks[1:3])
@@ -315,7 +317,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		if only_sido:
 			# toorate_region1 = sess.query(func.max(VoteProgressLatest.tooRate)).filter( VoteProgressLatest.sido==region1, VoteProgressLatest.gusigun!='합계').scalar()
-			yoo, too = sess.query(func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.sido==region1, VoteProgressLatest.gusigun!='합계').first()
+			yoo, too = sess.query(func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.sido==region1, VoteProgressLatest.gusigun!='합계').first()
 			try:
 				toorate_region1 = too/yoo*100
 			except TypeError:
@@ -325,7 +327,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			# if toorate_region1 == None: # toorate_region1 없으면
 			# 	raise NoTextError
 			
-			each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.gusigun!='합계').subquery()
+			each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계').subquery()
 		
 			yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
 			
@@ -356,7 +358,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			# if toorate_region1 == None: # toorate_region1 없으면
 			# 	raise NoTextError
 			
-			each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.gusigun!='합계').subquery()
+			each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계').subquery()
 
 			yooTotal_a, tooTotal_a = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
 			
@@ -388,7 +390,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			text = text_templates[card_num].format(**data)
 
 		# toorate_region1_sub = sess.query(func.max(VoteProgress.tooRate), VoteProgress.gusigun).filter(VoteProgress.timeslot<=t, VoteProgress.sido==region1, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).order_by(func.max(VoteProgress.tooRate).desc(), func.max(VoteProgress.tooTotal).desc()).all()
-		toorate_region1_sub = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.gusigun!='합계', VoteProgressLatest.sido==region1).group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun)
+		toorate_region1_sub = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계', VoteProgressLatest.sido==region1).group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun)
 		# (4144, '가평군', Decimal('100000'), Decimal('1000'), Decimal('54364'), None),
 
 		# print(region1)
@@ -428,7 +430,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			t = time.hour
 
 		# candidate_region_toorate = sess.query(func.max(VoteProgressLatest.tooRate)).filter(VoteProgressLatest.sido==candidate_sdName, VoteProgressLatest.gusigun!='합계').scalar()
-		yoo, too = sess.query(func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.sido==candidate_sdName, VoteProgressLatest.gusigun!='합계').first()
+		yoo, too = sess.query(func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.sido==candidate_sdName, VoteProgressLatest.gusigun!='합계').first()
 		try:
 			candidate_region_toorate = too/yoo*100
 		except TypeError:
@@ -452,7 +454,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			text = text_templates[card_num].format(**data)
 
 		# candidate_region_sub = sess.query(func.max(VoteProgress.tooRate), VoteProgress.gusigun).filter(VoteProgress.timeslot<=t, VoteProgress.sido==candidate_sdName, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).all()
-		candidate_region_sub = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.gusigun!='합계', VoteProgressLatest.sido==candidate_sdName).group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun)
+		candidate_region_sub = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계', VoteProgressLatest.sido==candidate_sdName).group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun)
 		# print(candidate_sdName)
 		# print(candidate_region_sub)
 		map_data = []
@@ -496,7 +498,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		except TypeError:
 			raise NoTextError
 
-		each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.gusigun!='합계').subquery()
+		each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계').subquery()
 		
 		yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
 		
@@ -509,7 +511,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		past = sess.query(PastVoteProgress.sido, func.max(PastVoteProgress.tooRate).label('max')).filter(PastVoteProgress.timeslot <= t, PastVoteProgress.gusigun=='합계').group_by(PastVoteProgress.sido)
 		
-		current = sess.query(VoteProgressLatest.sido, func.max(VoteProgressLatest.tooRate).label('max')).filter(VoteProgressLatest.timeslot <= t).group_by(VoteProgressLatest.sido)
+		current = sess.query(VoteProgressLatest.sido, func.max(VoteProgressLatest.tooRate).label('max')).filter(VoteProgressLatest.timeslot == t).group_by(VoteProgressLatest.sido)
 
 		currentDf = pd.DataFrame(current.all())
 		pastDf = pd.DataFrame(past.all())
@@ -2733,11 +2735,14 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			t = 23
 		else:
 			t = time.hour
+		# TODO
+		each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계').subquery()
 
-		each_toorate = sess.query(func.max(VoteProgress.yooTotal).label('yooTotal'), func.max(VoteProgress.tooTotal).label('tooTotal')).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).subquery()
 		yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
-		
-		toorate_avg_nat = (tooTotal) / (yooTotal) * 100
+		try:
+			toorate_avg_nat = (tooTotal) / (yooTotal) * 100
+		except TypeError:
+			raise NoTextError
 
 		if (toorate_avg_nat < 68.4) and (toorate_avg_nat >= 50):
 			card_num = '22'
@@ -2890,10 +2895,12 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 					}
 				}
 			elif rnum == '5':
-				sido_rank1 = sess.query(VoteProgress.sido).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).order_by(func.max(VoteProgress.tooRate).desc()).first()[0]
+				sido_rank1 = sess.query(VoteProgressLatest.sido).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun=='합계').group_by(VoteProgressLatest.sido).order_by(func.max(VoteProgressLatest.tooRate).desc()).first()[0]
+
 				josa1 = josaPick(sido_rank1, '이며')
 
 				gusigun_rank1 = sess.query(VoteProgress.gusigun).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).order_by(func.max(VoteProgress.tooRate).desc()).first()[0]
+
 				josa2 = josaPick(gusigun_rank1, '으로')
 				text = text_templates[card_num].format(sido_rank1=sido_rank1, josa1=josa1, gusigun_rank1=gusigun_rank1, josa2=josa2)
 
