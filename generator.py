@@ -34,7 +34,7 @@ def generateMeta(args):
 
 		time_update = []
 		try:
-			time_update.append(sess.query(VoteProgressLatest.timeslot).order_by(VoteProgressLatest.timeslot.desc()).first()[0])
+			time_update.append(sess.query(VoteProgressLatest.datatime).order_by(VoteProgressLatest.datatime.desc()).first()[0])
 		except TypeError:
 			pass
 		try:
