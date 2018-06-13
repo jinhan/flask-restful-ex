@@ -1170,8 +1170,11 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			# print(rank1_count)
 			ranks_party = ', '.join(r[0] for r in rank1_count[1:3] if r[0] != None)
 			# TODO: ddddd
-			openrate_rank1_region_candidate = [r['name'] for r in ranking if (r['idx']==0) and (r['rank']==0)][0]
-			openrate_rank2_region_candidate = [r['name'] for r in ranking if (r['idx']==0) and (r['rank']==1)][0]
+			try:
+				openrate_rank1_region_candidate = [r['name'] for r in ranking if (r['idx']==0) and (r['rank']==0)][0]
+				openrate_rank2_region_candidate = [r['name'] for r in ranking if (r['idx']==0) and (r['rank']==1)][0]
+			except IndexError:
+				raise NoTextError
 
 			data = {
 				'hour': timeDisplay(time),
