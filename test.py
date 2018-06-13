@@ -144,7 +144,7 @@ with session_scope() as sess:
 	# print(sido_rank1)
 	print(len(sess.query(VoteProgressLatest.timeslot).group_by(VoteProgressLatest.timeslot).all()))
 
-	region1 = "제주특별자치도"
+	region1 = "세종특별자치시"
 	# region1 = "경기도"
 	toorate_region1_sub = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.gusigun!='합계', VoteProgressLatest.sido==region1).group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun)
 	# print(toorate_region1_sub.all())
@@ -153,7 +153,7 @@ with session_scope() as sess:
 		print(tc)
 		if tc == 4901:
 			r = '제주특별자치도'
-		elif tc == 5100:
+		elif tc == 5101:
 			r = '세종특별자치시'
 		try:
 			v = (tooTotal) / (yooTotal)
