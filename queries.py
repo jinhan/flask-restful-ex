@@ -1392,7 +1392,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			sub_ranks = sess.query(OpenProgress2).join(subq, and_(OpenProgress2.serial==subq.c.maxserial, OpenProgress2.datatime==subq.c.maxtime))
 
 		elif sgtype == 3:
-			candidate_poll_openrate = sess.query(OpenProgress3.openPercent).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==candidate_region).scalar()
+			candidate_poll_openrate = sess.query(OpenProgress3.openPercent).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==candidate_region, OpenProgress3.gusigun=='합계').scalar()
 
 			subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==candidate_region, OpenProgress3.gusigun=='합계').subquery()
 
