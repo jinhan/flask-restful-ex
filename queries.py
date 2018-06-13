@@ -810,8 +810,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				if invalid == None:
 					invalid = 0
 				v = (n_total) / tooTotal
-				if r == '합계':
-					r = r1
+				# if r == '합계':
+				# 	r = r1
 				map_data.append({'name':r, 'value':v})
 			map_data = list({v['name']:v for v in map_data}.values())
 			meta_card = {
@@ -1664,75 +1664,77 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			})
 		
 		sido_total = sum([r[1] for r in rank1_count])
+		try:
+			if abs(party_rank1_sido_num - party_rank2_sido_num) / sido_total < 0.05: # 1,2위 경합
+				card_num = '18-1'
+				graph = True
 
-		if abs(party_rank1_sido_num - party_rank2_sido_num) / sido_total < 0.05: # 1,2위 경합
-			card_num = '18-1'
-			graph = True
+			elif abs(party_rank2_sido_num - party_rank3_sido_num) / sido_total < 0.05: # 2,3위 경합
+				card_num = '18-2'
+				graph = True
+			
+			elif (abs(party_rank1_sido_num - party_rank2_sido_num) / sido_total < 0.05) and (abs(party_rank2_sido_num - party_rank3_sido_num) / sido_total < 0.05): # 1,2,3위 경합
+				card_num = '18-3'
+				graph = True
 
-		elif abs(party_rank2_sido_num - party_rank3_sido_num) / sido_total < 0.05: # 2,3위 경합
-			card_num = '18-2'
-			graph = True
-		
-		elif (abs(party_rank1_sido_num - party_rank2_sido_num) / sido_total < 0.05) and (abs(party_rank2_sido_num - party_rank3_sido_num) / sido_total < 0.05): # 1,2,3위 경합
-			card_num = '18-3'
-			graph = True
+			elif (party == party_rank1_sido_name) and (abs(party_rank1_sido_num - party_rank2_sido_num) / sido_total > 15): # 내가 선택한 정당이 1위일때, 1위와 2위의 격차가 15% 이상
+				card_num = '18-4'
+				graph = True
+			
+			elif (party == party_rank2_sido_name) and (abs(party_rank1_sido_num - party_rank2_sido_num) / sido_total > 15): # 내가 선택한 정당이 2위일때, 1위와 2위의 격차가 15% 이상
+				card_num = '18-5'
+				graph = True
 
-		elif (party == party_rank1_sido_name) and (abs(party_rank1_sido_num - party_rank2_sido_num) / sido_total > 15): # 내가 선택한 정당이 1위일때, 1위와 2위의 격차가 15% 이상
-			card_num = '18-4'
-			graph = True
-		
-		elif (party == party_rank2_sido_name) and (abs(party_rank1_sido_num - party_rank2_sido_num) / sido_total > 15): # 내가 선택한 정당이 2위일때, 1위와 2위의 격차가 15% 이상
-			card_num = '18-5'
-			graph = True
+			elif confirms_count[0][0] == party:
+				data = {
+					'party': party,
+					'party_rank1_sido_num_confirm': confirms_count[0][1],
+					'party_rank1_gusigun_num_confirm': [v for r, v in confirms_count_g if r == party][0],
+				}
+				card_num = '18-6'
+				graph = False
+				win_data = [{
+					'name': '시도지사 선거',
+					'value': confirms_count[0][1],
+					'total': 17,
+				},{
+					'name': '시군구청장 선거',
+					'value': [v for r, v in confirms_count_g if r == party][0],
+					'total': 226,
+				}]
 
-		elif confirms_count[0][0] == party:
-			data = {
-				'party': party,
-				'party_rank1_sido_num_confirm': confirms_count[0][1],
-				'party_rank1_gusigun_num_confirm': [v for r, v in confirms_count_g if r == party][0],
-			}
-			card_num = '18-6'
-			graph = False
-			win_data = [{
-				'name': '시도지사 선거',
-				'value': confirms_count[0][1],
-				'total': 17,
-			},{
-				'name': '시군구청장 선거',
-				'value': [v for r, v in confirms_count_g if r == party][0],
-				'total': 226,
-			}]
+			elif confirms_count[1][0] == party:
+				data = {
+					'party': party,
+					'party_rank1_sido_num_confirm': confirms_count[1][1],
+					'party_rank1_gusigun_num_confirm': [v for r, v in confirms_count_g if r == party][0],
+				}
+				card_num = '18-7'
+				graph = False
+				win_data = [{
+					'name': '시도지사 선거',
+					'value': confirms_count[1][1],
+					'total': 17,
+				},{
+					'name': '시군구청장 선거',
+					'value': [v for r, v in confirms_count_g if r == party][0],
+					'total': 226,
+				}]
 
-		elif confirms_count[1][0] == party:
-			data = {
-				'party': party,
-				'party_rank1_sido_num_confirm': confirms_count[1][1],
-				'party_rank1_gusigun_num_confirm': [v for r, v in confirms_count_g if r == party][0],
-			}
-			card_num = '18-7'
-			graph = False
-			win_data = [{
-				'name': '시도지사 선거',
-				'value': confirms_count[1][1],
-				'total': 17,
-			},{
-				'name': '시군구청장 선거',
-				'value': [v for r, v in confirms_count_g if r == party][0],
-				'total': 226,
-			}]
-
-		else:
-			card_num = '18'
-			graph = False
-			win_data = [{
-				'name': '시도지사 선거',
-				'value': my_party_rank1_sido_num,
-				'total': 17,
-			},{
-				'name': '시군구청장 선거',
-				'value': my_party_rank1_gusigun_num,
-				'total': 226,
-			}]
+			else:
+				card_num = '18'
+				graph = False
+				win_data = [{
+					'name': '시도지사 선거',
+					'value': my_party_rank1_sido_num,
+					'total': 17,
+				},{
+					'name': '시군구청장 선거',
+					'value': my_party_rank1_gusigun_num,
+					'total': 226,
+				}]
+		except IndexError:
+			raise NoTextError
 			
 		text = text_templates[card_num].format(**data)
 		if graph:

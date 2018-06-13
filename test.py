@@ -167,7 +167,117 @@ with session_scope() as sess:
 	# print(openrate_sunname2_ranks)
 	index = 0
 	region1 = '제주특별자치도'
+	parties = [1]
+	party = sess.query(PartyCode.jdName).filter(PartyCode.pOrder==parties[index]).scalar()
+		# print(party)
+		
+	# 시도지사
 	subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
 
-	sub_r = sess.query(OpenProgress3.gusigun, OpenProgress3.tooTotal, OpenProgress3.n_total, OpenProgress3.invalid).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
-	print(sub_r.all())
+	sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
+
+	if sub_ranks == None:
+		raise NoTextError
+	ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
+	if len(ranksDf) == 0:
+		raise NoTextError
+	ranks_vote = ranksDf.filter(regex="n*_percent")
+	ranks_ttl = []
+	for i, ranks in ranks_vote.iterrows():
+		ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
+
+	ranking = []
+	for idx, ranks in enumerate(ranks_ttl):
+		for i, r in enumerate(ranks):
+			if ranksDf.loc[idx, r+'_jdName'] != None:
+				ranking.append({
+					'idx': idx,
+					'rank': i,
+					'jdName':ranksDf.loc[idx, r+'_jdName'],
+					'name': ranksDf.loc[idx, r+'_name'],
+					'percent': ranksDf.loc[idx, r+'_percent'],
+					})
+	rank1_count = Counter([r['jdName'] for r in ranking if r['rank']==0]).most_common()
+	print(rank1_count)
+	
+	# 구시군청장
+	subq_g = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.gusigun).filter(OpenProgress4.datatime<=time).subquery()
+
+	sub_ranks_g = sess.query(OpenProgress4).join(subq_g, and_(OpenProgress4.serial==subq_g.c.maxserial, OpenProgress4.datatime==subq_g.c.maxtime))
+
+	ranksDf_g = pd.read_sql(sub_ranks_g.statement, sub_ranks_g.session.bind)
+	ranks_vote_g = ranksDf_g.filter(regex="n*_percent")
+	ranks_ttl_g = []
+	for i, ranks in ranks_vote_g.iterrows():
+		ranks_ttl_g.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
+
+	ranking_g = []
+	for idx, ranks in enumerate(ranks_ttl_g):
+		for i, r in enumerate(ranks):
+			ranking_g.append({
+				'idx': idx,
+				'rank': i,
+				'jdName':ranksDf_g.loc[idx, r+'_jdName'],
+				'name': ranksDf_g.loc[idx, r+'_name'],
+				'percent': ranksDf_g.loc[idx, r+'_percent'],
+				})
+	rank1_count_g = Counter([r['jdName'] for r in ranking_g if r['rank']==0]).most_common()
+	print(rank1_count_g)
+	# 
+	# print(rank1_count)
+	try:
+		my_party_rank1_sido_num = [v for r, v in rank1_count if r == party][0]
+	except IndexError:
+		my_party_rank1_sido_num = 0
+	try:
+		my_party_rank1_gusigun_num = [v for r, v in rank1_count_g if r == party][0]
+	except IndexError:
+		my_party_rank1_gusigun_num = 0
+	party_rank1_sido_num = rank1_count[0][1]
+	party_rank1_sido_name = rank1_count[0][0]
+	party_rank2_sido_num = rank1_count[1][1]
+	party_rank2_sido_name = rank1_count[1][0]
+	try:
+		party_rank3_sido_num = rank1_count[2][1]
+		party_rank3_sido_name = rank1_count[2][0]
+	except IndexError:
+		raise NoTextError
+
+	party_rank1_gusigun_num = rank1_count_g[0][1]
+	party_rank123_gusigun_name = ', '.join([r[0] for r in rank1_count_g])
+
+	confirms = []
+	for idx, rank in enumerate(ranks_ttl):
+		rank1_cnt = ranksDf.loc[idx, rank[0]+'_vote']
+		rank2_cnt = ranksDf.loc[idx, rank[1]+'_vote']
+		yet_cnt = ranksDf.loc[idx, 'tooTotal'] - ranksDf.loc[idx, 'n_total'] - ranksDf.loc[idx, 'invalid']
+		confirm = 1 if (rank1_cnt-rank2_cnt) > yet_cnt else 0
+		if confirm:
+			confirms.append(ranksDf.loc[idx, rank[0]+'_jdName'])
+	confirms_count = Counter(confirms).most_common()
+	print(confirms_count)
+	confirms_g = []
+	for idx, rank in enumerate(ranks_ttl_g):
+		rank1_cnt = ranksDf_g.loc[idx, rank[0]+'_vote']
+		rank2_cnt = ranksDf_g.loc[idx, rank[1]+'_vote']
+		yet_cnt = ranksDf_g.loc[idx, 'tooTotal'] - ranksDf_g.loc[idx, 'n_total'] - ranksDf_g.loc[idx, 'invalid']
+		confirm = 1 if (rank1_cnt-rank2_cnt) > yet_cnt else 0
+		if confirm:
+			confirms_g.append(ranksDf_g.loc[idx, rank[0]+'_jdName'])
+	confirms_count_g = Counter(confirms_g).most_common()
+	
+	data = {
+		'party': party,
+		'my_party_rank1_sido_num': my_party_rank1_sido_num,
+		'my_party_rank1_gusigun_num': my_party_rank1_gusigun_num,
+		'party_rank1_sido_num': party_rank1_sido_num,
+		'party_rank1_sido_name': party_rank1_sido_name,
+		'party_rank2_sido_num': party_rank2_sido_num,
+		'party_rank2_sido_name': party_rank2_sido_name,
+		'party_rank3_sido_name': party_rank3_sido_name,
+		'josa': josaPick(party_rank3_sido_name, '이'),
+		'party_rank3_sido_num': party_rank3_sido_num,
+		'party_rank1_gusigun_num': party_rank1_gusigun_num,
+		'party_rank123_gusigun_name': party_rank123_gusigun_name,
+	}
+	print(confims_count)
