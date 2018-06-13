@@ -392,7 +392,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		for tc, r, yooTotal, tooTotal in toorate_region1_sub:
 			if tc == 4901:
 				r = '제주특별자치도'
-			elif tc == 5100:
+			elif tc == 5101:
 				r = '세종특별자치시'
 			
 			try:
@@ -458,7 +458,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		for tc, r, yooTotal, tooTotal in candidate_region_sub:
 			if tc == 4901:
 				r = '제주특별자치도'
-			elif tc == 5100:
+			elif tc == 5101:
 				r = '세종특별자치시'
 			
 			try:
