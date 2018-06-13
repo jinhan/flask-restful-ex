@@ -311,10 +311,16 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			only_sido = False
 
 		if only_sido:
-			toorate_region1 = sess.query(func.sum(VoteProgressLatest.tooRate)).filter( VoteProgressLatest.sido==region1, VoteProgressLatest.gusigun!='합계').scalar()
-			# print(toorate_region1)
-			if toorate_region1 == None: # toorate_region1 없으면
+			# toorate_region1 = sess.query(func.max(VoteProgressLatest.tooRate)).filter( VoteProgressLatest.sido==region1, VoteProgressLatest.gusigun!='합계').scalar()
+			yoo, too = sess.query(func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.sido==region1, VoteProgressLatest.gusigun!='합계').first()
+			try:
+				toorate_region1 = too/yoo*100
+			except TypeError:
 				raise NoTextError
+
+			# print(toorate_region1)
+			# if toorate_region1 == None: # toorate_region1 없으면
+			# 	raise NoTextError
 			
 			each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.gusigun!='합계').subquery()
 		
@@ -418,11 +424,16 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		else:
 			t = time.hour
 
-		candidate_region_toorate = sess.query(func.sum(VoteProgressLatest.tooRate)).filter(VoteProgressLatest.sido==candidate_sdName, VoteProgressLatest.gusigun!='합계').scalar()
+		# candidate_region_toorate = sess.query(func.max(VoteProgressLatest.tooRate)).filter(VoteProgressLatest.sido==candidate_sdName, VoteProgressLatest.gusigun!='합계').scalar()
+		yoo, too = sess.query(func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.sido==candidate_sdName, VoteProgressLatest.gusigun!='합계').first()
+		try:
+			candidate_region_toorate = too/yoo*100
+		except TypeError:
+			raise NoTextError
 
 		# VoteProgress에 sggName 필요함
-		if candidate_region_toorate == None:
-			raise NoTextError
+		# if candidate_region_toorate == None:
+		# 	raise NoTextError
 
 		data = {
 			'candidate': candidate,

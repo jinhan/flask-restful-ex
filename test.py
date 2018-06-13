@@ -102,3 +102,6 @@ with session_scope() as sess:
 	yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
 
 	print(tooTotal/yooTotal*100)
+	region1 = '경기도'
+	yoo, too = sess.query(func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.sido==region1, VoteProgressLatest.gusigun!='합계').first()
+	print(too/yoo*100)
