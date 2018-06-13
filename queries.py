@@ -2200,6 +2200,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						else:
 							current_candidate = None
 							pass
+				else:
+					rank1_candidate = None
+					rank2_candidate = None
+					current_candidate = None
 
 				try:
 					if rank1_candidate['huboid'] == current_candidate['huboid']:
@@ -2321,6 +2325,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 						else:
 							current_candidate = None
 							pass
+				else:
+					rank1_candidate = None
+					rank2_candidate = None
+					current_candidate = None
 				try:
 					if rank1_candidate_g['huboid'] == current_candidate_g['huboid']:
 						# current = rank1
