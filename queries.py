@@ -2382,36 +2382,36 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				meta_card = None
 				pass
 
-		elif rnum == '5': # 바른정당
-			sido_rank1_party_num = 0
-			for idx, ranks in enumerate(ranks_ttl):
-				if ranksDf.loc[idx, ranks[0]+'_jdName'] == '바른미래당':
-					sido_rank1_party_num += 1
+		# elif rnum == '5': # 바른정당
+		# 	sido_rank1_party_num = 0
+		# 	for idx, ranks in enumerate(ranks_ttl):
+		# 		if ranksDf.loc[idx, ranks[0]+'_jdName'] == '바른미래당':
+		# 			sido_rank1_party_num += 1
 			
-			gusigun_rank1_party_num = 0
-			for idx, ranks in enumerate(ranks_ttl_g):
-				if ranksDf_g.loc[idx, ranks[0]+'_jdName'] == '바른미래당':
-					gusigun_rank1_party_num += 1
+		# 	gusigun_rank1_party_num = 0
+		# 	for idx, ranks in enumerate(ranks_ttl_g):
+		# 		if ranksDf_g.loc[idx, ranks[0]+'_jdName'] == '바른미래당':
+		# 			gusigun_rank1_party_num += 1
 			
-			if (sido_rank1_party_num == 0) and (gusigu_rank1_party_num == 0):
-				pass
-			else:
-				data = {
-					'hour': timeDisplay(time),
-					'sido_rank1_party_num': sido_rank1_party_num,
-					'gusigun_rank1_party_num': gusigun_rank1_party_num,
-				}
-				card_num = '20-5'
-				text = text_templates[card_num].format(**data)
-				meta_card = {
-					'order': order,
-					'type': 'wins',
-					'party': 'default',
-					'win_data': win_data,
-					'text': text,
-					'title': '바른미래당 선거 결과',
-					'debugging': card_num,
-				}
+		# 	if (sido_rank1_party_num == 0) and (gusigu_rank1_party_num == 0):
+		# 		pass
+		# 	else:
+		# 		data = {
+		# 			'hour': timeDisplay(time),
+		# 			'sido_rank1_party_num': sido_rank1_party_num,
+		# 			'gusigun_rank1_party_num': gusigun_rank1_party_num,
+		# 		}
+		# 		card_num = '20-5'
+		# 		text = text_templates[card_num].format(**data)
+		# 		meta_card = {
+		# 			'order': order,
+		# 			'type': 'wins',
+		# 			'party': 'default',
+		# 			'win_data': win_data,
+		# 			'text': text,
+		# 			'title': '바른미래당 선거 결과',
+		# 			'debugging': card_num,
+		# 		}
 
 		elif rnum == '3':
 			# 지역주의
