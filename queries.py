@@ -888,9 +888,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				v = (n_total) / tooTotal
 				poll_openrate_ranks.append({'name':r, 'value':v})
 			
-			poll_openrate_ranks = sorted(poll_openrate_ranks, key=lambda x: x['value'], reverse=True)
+			
 			# print(poll_openrate_ranks)
 			poll_openrate_ranks = list({v['name']:v for v in poll_openrate_ranks}.values())
+			poll_openrate_ranks = sorted(poll_openrate_ranks, key=lambda x: x['value'], reverse=True)
 
 			if poll_openrate_nat_avg >= 100:
 				data = {
