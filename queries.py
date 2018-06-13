@@ -1143,7 +1143,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 			ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
 			ranksDf = ranksDf.sort_values(by=['openPercent', 'n_total'], ascending=False)
-			# print(len(ranksDf))
+			print(len(ranksDf))
 
 			openrate_rank1_region = ranksDf.loc[0,'sido']
 			if openrate_rank1_region == None:
@@ -1153,11 +1153,11 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			ranks_ttl = []
 			for i, ranks in ranks_vote.iterrows():
 				ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
-
+			print(ranks_ttl)
 			ranking = []
 			for idx, ranks in enumerate(ranks_ttl):
 				for i, r in enumerate(ranks):
-					if ranksDf.loc[idx, r+'_jdName'] != None:
+					if ranksDf.loc[idx, r+'_name'] != None:
 						ranking.append({
 							'idx': idx,
 							'rank': i,
@@ -1165,8 +1165,9 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 							'name': ranksDf.loc[idx, r+'_name'],
 							'percent': ranksDf.loc[idx, r+'_percent'],
 							})
-			# print(ranking)
+			print(ranking)
 			rank1_count = Counter([r['jdName'] for r in ranking if r['rank']==0]).most_common()
+			print(rank1_count)
 			rank1_party = rank1_count[0][0]
 			rank1_party_num = rank1_count[0][1]
 			# print(rank1_count)
@@ -1439,7 +1440,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		ranking = []
 		for idx, ranks in enumerate(ranks_ttl):
 			for i, r in enumerate(ranks):
-				if ranksDf.loc[idx, r+'_jdName'] != None:
+				if ranksDf.loc[idx, r+'_name'] != None:
 					ranking.append({
 						'jdName':ranksDf.loc[idx, r+'_jdName'],
 						'name': ranksDf.loc[idx, r+'_name'],
