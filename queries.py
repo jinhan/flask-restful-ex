@@ -2415,59 +2415,59 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		# 			'debugging': card_num,
 		# 		}
 
-		elif rnum == '3':
-			# 지역주의
-			bsjbtexts = []
-			sub_bs = sess.query(OpenProgress.serial, func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.sido).filter(OpenProgress.electionCode.in_([3,4]), OpenProgress.sido.in_(['전라남도', '광주광역시']), OpenProgress.datatime<=time).subquery()
-			query_bs = sess.query(OpenProgress).join(sub_bs, and_(OpenProgress.serial==sub_bs.c.serial, OpenProgress.datatime==sub_bs.c.maxtime))
+		# elif rnum == '3':
+		# 	# 지역주의
+		# 	bsjbtexts = []
+		# 	sub_bs = sess.query(OpenProgress.serial, func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.sido).filter(OpenProgress.electionCode.in_([3,4]), OpenProgress.sido.in_(['전라남도', '광주광역시']), OpenProgress.datatime<=time).subquery()
+		# 	query_bs = sess.query(OpenProgress).join(sub_bs, and_(OpenProgress.serial==sub_bs.c.serial, OpenProgress.datatime==sub_bs.c.maxtime))
 			
-			bsDf = pd.read_sql(query_bs.statement, query_bs.session.bind)
-			bsDf_ranks = bsDf.filter(regex="n*_percent").dropna(axis=1)
-			bsDf_ranks_ttl = []
-			for i, ranks in bsDf_ranks.iterrows():
-				bsDf_ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
+		# 	bsDf = pd.read_sql(query_bs.statement, query_bs.session.bind)
+		# 	bsDf_ranks = bsDf.filter(regex="n*_percent").dropna(axis=1)
+		# 	bsDf_ranks_ttl = []
+		# 	for i, ranks in bsDf_ranks.iterrows():
+		# 		bsDf_ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
 
-			gj_num = len(bsDf_ranks_ttl)
-			bs_jayu = 0
-			bs_bamin = 0
-			for idx, ranks in enumerate(bsDf_ranks_ttl):
-				for i, r in enumerate(ranks):
-					if i == 0:
-						if bsDf.loc[idx, r+'_jdName'] == '자유한국당':
-							bs_jayu += 1
-						elif bsDf.loc[idx, r+'_jdName'] == '바른미래당':
-							bs_bamin += 1
-			try:
-				bs_ratio = round((bs_jayu + bs_bamin) / gj_num * 100, 2)
-			except ZeroDivisionError:
-				bs_ratio = 0
-			card_num = '20-3'
-			# bsjbtexts.append(text_templates[card_num].format(bs_jayu=bs_jayu, bs_bamin=bs_bamin, bs_ratio=bs_ratio))
-			if bs_ratio > 0:
-				text = text_templates[card_num].format(bs_jayu=bs_jayu, bs_bamin=bs_bamin, bs_ratio=bs_ratio)
-				meta_card = {
-					'order': order,
-					'type': 'compare',
-					'party': 'default',
-					'data': {
-						'compare_data': {
-							'type': 'party',
-							'data': [{
-								'party': '자유한국당',
-								'value': bs_jayu,
-								'unit': '개',
-							}, {
-								'party': '바른미래당',
-								'value': bs_bamin,
-								'unit': '개',
-							}]
-						},
-						'text': text,
-					},
-					'debugging': card_num,
-				}
-			else:
-				pass
+		# 	gj_num = len(bsDf_ranks_ttl)
+		# 	bs_jayu = 0
+		# 	bs_bamin = 0
+		# 	for idx, ranks in enumerate(bsDf_ranks_ttl):
+		# 		for i, r in enumerate(ranks):
+		# 			if i == 0:
+		# 				if bsDf.loc[idx, r+'_jdName'] == '자유한국당':
+		# 					bs_jayu += 1
+		# 				elif bsDf.loc[idx, r+'_jdName'] == '바른미래당':
+		# 					bs_bamin += 1
+		# 	try:
+		# 		bs_ratio = round((bs_jayu + bs_bamin) / gj_num * 100, 2)
+		# 	except ZeroDivisionError:
+		# 		bs_ratio = 0
+		# 	card_num = '20-3'
+		# 	# bsjbtexts.append(text_templates[card_num].format(bs_jayu=bs_jayu, bs_bamin=bs_bamin, bs_ratio=bs_ratio))
+		# 	if bs_ratio > 0:
+		# 		text = text_templates[card_num].format(bs_jayu=bs_jayu, bs_bamin=bs_bamin, bs_ratio=bs_ratio)
+		# 		meta_card = {
+		# 			'order': order,
+		# 			'type': 'compare',
+		# 			'party': 'default',
+		# 			'data': {
+		# 				'compare_data': {
+		# 					'type': 'party',
+		# 					'data': [{
+		# 						'party': '자유한국당',
+		# 						'value': bs_jayu,
+		# 						'unit': '개',
+		# 					}, {
+		# 						'party': '바른미래당',
+		# 						'value': bs_bamin,
+		# 						'unit': '개',
+		# 					}]
+		# 				},
+		# 				'text': text,
+		# 			},
+		# 			'debugging': card_num,
+		# 		}
+		# 	else:
+		# 		pass
 
 		elif rnum == '4':
 			# 대국경북 민주당
