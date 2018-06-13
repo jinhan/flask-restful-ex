@@ -165,32 +165,62 @@ with session_scope() as sess:
 
 	# openrate_sunname2_ranks = sess.query(func.max(OpenProgress4.openPercent).label('max'),  OpenProgress4.gusigun).filter(OpenProgress4.datatime<=time).group_by(OpenProgress4.sggCityCode).order_by(func.max(OpenProgress4.openPercent).desc(), func.max(OpenProgress4.n_total).desc()).all()
 	# print(openrate_sunname2_ranks)
+	index = 0
+	regions = [4300]
 
+	region_num = regionCodeCheck(regions[index])
 
-	subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
+	try:
+		# region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==region_num).first()
+		region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==region_num).first()
+	except TypeError:
+		raise NoTextError
 
-	sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
+	if (region2 == '합계') or (region2 == None): # 시도만
+		only_sido = True
+	else: # 시 + 구시군
+		only_sido = False
+	
+	if only_sido:
+		region1_poll = regionPoll(region1, 3)
+
+		region1_openrate = sess.query(OpenProgress3.openPercent).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==region1, OpenProgress3.gusigun=='합계').scalar()
+
+		subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==region1, OpenProgress3.gusigun=='합계').subquery()
+
+		sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
+
+		region_name = region1
+	
+	else:
+		region1_poll = regionPoll(region2, 4)
+
+		region1_openrate = sess.query(OpenProgress4.openPercent).filter(OpenProgress4.datatime<=time, OpenProgress4.sido==region1, OpenProgress4.gusigun==region2).scalar()
+
+		subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.sggCityCode).filter(OpenProgress4.datatime<=time, OpenProgress4.sido==region1, OpenProgress4.gusigun==region2, OpenProgress4.sggCityCode!=None).subquery()
+
+		sub_ranks = sess.query(OpenProgress4).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
+
+		region_name = region1 + ' ' + region2
+
+	if sub_ranks == None:
+		raise NoTextError
 	ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
-	# print(ranksDf)
 	if len(ranksDf) == 0:
 		raise NoTextError
-	# for i, row in enumerate(ranksDf):
-		# print(pd.DataFrame(row))
-		# print(pd.DataFrame(row).filter(regex="n*_percent").dropna(axis=1))
-	# ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)
-	ranks_vote = ranksDf.filter(regex="n*_percent")
-	print(ranks_vote)
 
-
-	# print(ranks_vote)
-	ranks_ttl = []
+	ranks_vote = ranksDf.filter(regex="n*_percent")	
+	ranks_ttl = [] # one line
 	for i, ranks in ranks_vote.iterrows():
 		ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
-	print(ranks_ttl)
-
 	ranking = []
 	for idx, ranks in enumerate(ranks_ttl):
-		
-		ranking.append(ranksDf.loc[idx, ranks[0]+'_jdName'])
-	rank1_count = Counter(ranking).most_common()
-	print(rank1_count)
+		for i, r in enumerate(ranks):
+			if ranksDf.loc[idx, r+'_jdName'] != None:
+				ranking.append({
+					'jdName':ranksDf.loc[idx, r+'_jdName'],
+					'name': ranksDf.loc[idx, r+'_name'],
+					'percent': ranksDf.loc[idx, r+'_percent'],
+					'vote': ranksDf.loc[idx, r+'_vote'],
+				})
+	print(ranking)
