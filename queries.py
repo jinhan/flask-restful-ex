@@ -304,7 +304,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==region_num).first()
 		except TypeError:
 			raise NoTextError
-		print(region1, region2)
+		# print(region1, region2)
 		if (region2 == '합계') or (region2 == None): # 시도만
 			only_sido = True
 		else: # 시 + 구시군
@@ -360,7 +360,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				toorate_avg_nat = (tooTotal_a) / (yooTotal_a) * 100
 			except TypeError:
 				raise NoTextError
-			print(toorate_avg_nat)
+			# print(toorate_avg_nat)
 
 			toorate_region1_toorate_avg_nat = toorate_region1 - toorate_avg_nat
 
