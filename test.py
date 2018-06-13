@@ -8,8 +8,9 @@ from collections import Counter
 from random import choice
 
 with session_scope() as sess:
-	t = '20180613180000'
-	time = datetime.datetime.strptime(t, '%Y%m%d%H%M%S')
+	# t = '20180613180000'
+	# time = datetime.datetime.strptime(t, '%Y%m%d%H%M%S')
+	time = datetime.datetime.now()
 	index = 0
 	# regions = [1100]
 	order = 0
@@ -97,11 +98,33 @@ with session_scope() as sess:
 	# each_toorate_p = sess.query(func.max(PastVoteProgress.yooTotal).label('yooTotal'), func.max(PastVoteProgress.tooTotal).label('tooTotal')).filter(PastVoteProgress.timeslot<=t, PastVoteProgress.gusigun=='합계').group_by(PastVoteProgress.sido)
 	# print(each_toorate_p.all())
 
-	each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter( VoteProgressLatest.gusigun!='합계').subquery()
+	# each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter( VoteProgressLatest.gusigun!='합계').subquery()
+
+	# yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
+
+	# print(tooTotal/yooTotal*100)
+	# region1 = '경기도'
+	# yoo, too = sess.query(func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.sido==region1, VoteProgressLatest.gusigun!='합계').first()
+	# too_too/yoo*100)
+
+	# sido_rank1 = sess.query(VoteProgressLatest.sido).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계').order_by(func.max(VoteProgressLatest.tooRate).desc()).first()[0]
+	# print(sido_rank1)
+
+	# sido_rank1 = sess.query(VoteProgress.sido).filter(VoteProgress.timeslot==t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).order_by(func.max(VoteProgress.tooRate).desc()).first()[0]
+	# print(sido_rank1)
+	each_toorate = sess.query(func.max(VoteProgress.yooTotal).label('yooTotal'), func.max(VoteProgress.tooTotal).label('tooTotal')).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).subquery()
+	yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
+		
+	toorate_avg_nat = (tooTotal) / (yooTotal) * 100
+	print(toorate_avg_nat)
+
+	each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계').subquery()
 
 	yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
+	
+	try:	
+		toorate_avg_nat = (tooTotal) / (yooTotal) * 100
+	except TypeError:
+		raise NoTextError
+	print(toorate_avg_nat)
 
-	print(tooTotal/yooTotal*100)
-	region1 = '경기도'
-	yoo, too = sess.query(func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.sido==region1, VoteProgressLatest.gusigun!='합계').first()
-	print(too/yoo*100)

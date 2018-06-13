@@ -7,7 +7,7 @@ from queries import query_card_data, NoTextError, regionCodeCheck
 import uuid
 import ast
 
-deploy_mode = True
+deploy_mode = False
 
 def generateMeta(args):
 	with session_scope() as sess:
@@ -15,10 +15,10 @@ def generateMeta(args):
 		regions = args['region']
 		parties = args['party']
 		candidates = args['candidate']
-
-		# time = datetime.datetime.strptime(args['time'], '%Y%m%d%H%M%S')
+		# TODO
+		time = datetime.datetime.strptime(args['time'], '%Y%m%d%H%M%S')
 		print(datetime.datetime.now())
-		time = datetime.datetime.now()
+		# time = datetime.datetime.now()
 
 		serial_current = str(uuid.uuid4().hex)
 		arguments = args
@@ -33,10 +33,11 @@ def generateMeta(args):
 			t = time.hour
 
 		time_update = []
-		try:
-			time_update.append(sess.query(VoteProgressLatest.datatime).order_by(VoteProgressLatest.datatime.desc()).first()[0])
-		except TypeError:
-			pass
+		# TODO:
+		# try:
+		# 	time_update.append(sess.query(VoteProgressLatest.datatime).order_by(VoteProgressLatest.datatime.desc()).first()[0])
+		# except TypeError:
+		# 	pass
 		try:
 			time_update.append(sess.query(OpenProgress2.datatime).order_by(OpenProgress2.datatime.desc()).first()[0])
 		except TypeError:
