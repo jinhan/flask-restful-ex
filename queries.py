@@ -782,7 +782,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			}
 		else:
 			# if only_sido:
-			sub = sess.query(func.max(OpenProgress3.tooTotal).label('tooTotal'), func.max(OpenProgress3.n_total).label('n_total'), func.max(OpenProgress3.invalid).label('invalid')).filter(OpenProgress3.sido==region1, OpenProgress3.datatime<=time).group_by(OpenProgress3.townCode).subquery()
+			sub = sess.query(OpenProgress3.gusigun, func.max(OpenProgress3.tooTotal).label('tooTotal'), func.max(OpenProgress3.n_total).label('n_total'), func.max(OpenProgress3.invalid).label('invalid')).filter(OpenProgress3.sido==region1, OpenProgress3.gusigun!='합계',OpenProgress3.datatime<=time).group_by(OpenProgress3.townCode).subquery()
 			# else:
 
 
@@ -1169,7 +1169,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			rank1_party_num = rank1_count[0][1]
 			# print(rank1_count)
 			ranks_party = ', '.join(r[0] for r in rank1_count[1:3] if r[0] != None)
-
+			# TODO: ddddd
 			openrate_rank1_region_candidate = [r['name'] for r in ranking if (r['idx']==0) and (r['rank']==0)][0]
 			openrate_rank2_region_candidate = [r['name'] for r in ranking if (r['idx']==0) and (r['rank']==1)][0]
 

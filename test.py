@@ -21,6 +21,8 @@ with session_scope() as sess:
 	else:
 		t = time.hour
 
-	region1='경기도'
-	sub = sess.query(func.max(OpenProgress3.tooTotal).label('tooTotal'), func.max(OpenProgress3.n_total).label('n_total'), func.max(OpenProgress3.invalid).label('invalid')).filter(OpenProgress3.sido==region1, OpenProgress3.datatime<=time).group_by(OpenProgress3.townCode)
+	region1='경상남도'
+	# sub = sess.query(func.max(OpenProgress3.tooTotal).label('tooTotal'), func.max(OpenProgress3.n_total).label('n_total'), func.max(OpenProgress3.invalid).label('invalid')).filter(OpenProgress3.sido==region1, OpenProgress3.datatime<=time).group_by(OpenProgress3.townCode)
+	# print(sub.all())
+	sub = sess.query(OpenProgress3.gusigun, func.max(OpenProgress3.tooTotal).label('tooTotal'), func.max(OpenProgress3.n_total).label('n_total'), func.max(OpenProgress3.invalid).label('invalid')).filter(OpenProgress3.sido==region1, OpenProgress3.gusigun!='합계',OpenProgress3.datatime<=time).group_by(OpenProgress3.townCode)
 	print(sub.all())
