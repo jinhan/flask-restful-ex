@@ -145,6 +145,21 @@ with session_scope() as sess:
 	print(len(sess.query(VoteProgressLatest.timeslot).group_by(VoteProgressLatest.timeslot).all()))
 
 	region1 = "제주특별자치도"
+	# region1 = "경기도"
 	toorate_region1_sub = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.gusigun!='합계', VoteProgressLatest.sido==region1).group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun)
-	print(toorate_region1_sub.all())
+	# print(toorate_region1_sub.all())
+	map_data = []
+	for tc, r, yooTotal, tooTotal in toorate_region1_sub:
+		print(tc)
+		if tc == 4901:
+			r = '제주특별자치도'
+		elif tc == 5100:
+			r = '세종특별자치시'
+		try:
+			v = (tooTotal) / (yooTotal)
+		except TypeError:
+			v = 0
+		map_data.append({'name':r, 'value':float(v)})
+	print(map_data)
+
 

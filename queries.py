@@ -389,7 +389,11 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		# print(region1)
 		# print(toorate_region1_sub)
 		map_data = []
-		for _, r, yooTotal, tooTotal in toorate_region1_sub:
+		for tc, r, yooTotal, tooTotal in toorate_region1_sub:
+			if tc == 4901:
+				r = '제주특별자치도'
+			elif tc == 5100:
+				r = '세종특별자치시'
 			
 			try:
 				v = (tooTotal) / (yooTotal)
@@ -451,7 +455,11 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		# print(candidate_sdName)
 		# print(candidate_region_sub)
 		map_data = []
-		for _, r, yooTotal, tooTotal in candidate_region_sub:
+		for tc, r, yooTotal, tooTotal in candidate_region_sub:
+			if tc == 4901:
+				r = '제주특별자치도'
+			elif tc == 5100:
+				r = '세종특별자치시'
 			
 			try:
 				v = (tooTotal) / (yooTotal)
