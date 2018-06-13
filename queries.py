@@ -698,6 +698,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		}
 
 	elif card_seq == 10:
+		raise NoTextError
 		region_num = regionCodeCheck(regions[index])
 		try:
 			# region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==region_num).first()
@@ -751,7 +752,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			'region1': region_name,
 			'josa1': josaPick(region_name, '은')
 		}
-
+		print(openrate_region1)
 		if openrate_region1 == 0:
 			card_num = '10-1'
 			text = text_templates[card_num].format(**data)
