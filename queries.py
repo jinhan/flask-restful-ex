@@ -245,9 +245,9 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		# print(past_toorate, current_toorate)
 		toorate_compare = '높은' if current_toorate_past_toorate > 0 else '낮은'
 
-		ranks = sess.query(func.max(VoteProgressLatest.tooRate).label('max'), VoteProgressLatest.sido).filter(VoteProgressLatest.timeslot<=t).group_by(VoteProgressLatest.sido, VoteProgressLatest.gusigun!='합계').order_by(func.max(VoteProgressLatest.tooRate).desc(), func.max(VoteProgressLatest.tooTotal).desc()).all()
+		ranks = sess.query((VoteProgressLatest.tooRate).label('max'), VoteProgressLatest.sido).filter(VoteProgressLatest.timeslot<=t, VoteProgressLatest.gusigun=='합계').order_by(VoteProgressLatest.tooRate.desc()).all()
 		# print(ranks)
-		ranks_map = sess.query(func.max(VoteProgressLatest.tooRate).label('max'), VoteProgressLatest.sido).group_by(VoteProgressLatest.sido, VoteProgressLatest.gusigun!='합계').order_by(func.max(VoteProgressLatest.tooRate).desc(), func.max(VoteProgressLatest.tooTotal).desc()).all()
+		ranks_map = sess.query((VoteProgressLatest.tooRate).label('max'), VoteProgressLatest.sido).filter(VoteProgressLatest.timeslot<=t, VoteProgressLatest.gusigun=='합계').order_by(VoteProgressLatest.tooRate.desc()).all()
 
 		toorate_rank1 = ranks[0][1]
 		toorate_rank = ', '.join(rank[1] for rank in ranks[1:3])
@@ -1086,19 +1086,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		else:
 			raise NoTextError
-			# card_num = '13-2'
-			# text = text_templates[card_num].format(hour=hourConverter(time.hour))
-			# meta_card = {
-			# 	'order': order,
-			# 	'type': 'rate',
-			# 	'party': 'default',
-			# 	'data': {
-			# 		'title': '전국 개표 완료',
-			# 		'rate': 100,
-			# 		'text': text,
-			# 	},
-			# 	'debugging': card_num,
-			# }	
+
 
 	elif card_seq == 15:
 		try:

@@ -137,29 +137,33 @@ with session_scope() as sess:
 	# ranks = sess.query(func.max(VoteProgressLatest.tooRate).label('max'), VoteProgressLatest.sido).filter(VoteProgressLatest.timeslot<=t).group_by(VoteProgressLatest.sido, VoteProgressLatest.gusigun!='합계').order_by(func.max(VoteProgressLatest.tooRate).desc(), func.max(VoteProgressLatest.tooTotal).desc()).all()
 
 	# print(ranks)
-	sido_rank1 = sess.query(VoteProgress.sido).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).order_by(func.max(VoteProgress.tooRate).desc()).first()[0]
-	print(sido_rank1)
-
-	# sido_rank1 = sess.query(VoteProgressLatest.sido).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계').group_by(VoteProgress.sido).order_by(func.max(VoteProgress.tooRate).desc()).first()[0]
+	# sido_rank1 = sess.query(VoteProgress.sido).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun=='합계').group_by(VoteProgress.sido).order_by(func.max(VoteProgress.tooRate).desc()).first()[0]
 	# print(sido_rank1)
-	print(len(sess.query(VoteProgressLatest.timeslot).group_by(VoteProgressLatest.timeslot).all()))
 
-	region1 = "세종특별자치시"
-	# region1 = "경기도"
-	toorate_region1_sub = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.gusigun!='합계', VoteProgressLatest.sido==region1).group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun)
-	# print(toorate_region1_sub.all())
-	map_data = []
-	for tc, r, yooTotal, tooTotal in toorate_region1_sub:
-		print(tc)
-		if tc == 4901:
-			r = '제주특별자치도'
-		elif tc == 5101:
-			r = '세종특별자치시'
-		try:
-			v = (tooTotal) / (yooTotal)
-		except TypeError:
-			v = 0
-		map_data.append({'name':r, 'value':float(v)})
-	print(map_data)
+	# # sido_rank1 = sess.query(VoteProgressLatest.sido).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계').group_by(VoteProgress.sido).order_by(func.max(VoteProgress.tooRate).desc()).first()[0]
+	# # print(sido_rank1)
+	# print(len(sess.query(VoteProgressLatest.timeslot).group_by(VoteProgressLatest.timeslot).all()))
+
+	# region1 = "세종특별자치시"
+	# # region1 = "경기도"
+	# toorate_region1_sub = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.gusigun!='합계', VoteProgressLatest.sido==region1).group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun)
+	# # print(toorate_region1_sub.all())
+	# map_data = []
+	# for tc, r, yooTotal, tooTotal in toorate_region1_sub:
+	# 	print(tc)
+	# 	if tc == 4901:
+	# 		r = '제주특별자치도'
+	# 	elif tc == 5101:
+	# 		r = '세종특별자치시'
+	# 	try:
+	# 		v = (tooTotal) / (yooTotal)
+	# 	except TypeError:
+	# 		v = 0
+	# 	map_data.append({'name':r, 'value':float(v)})
+	# print(map_data)
+
+
+	d = sess.query(OpenProgress3.openPercent.label('max'), OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').group_by(OpenProgress3.cityCode).order_by(func.max(OpenProgress3.openPercent).desc(), func.max(OpenProgress3.n_total).desc()).all()
+	print(d)
 
 
