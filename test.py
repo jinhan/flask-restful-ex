@@ -166,16 +166,31 @@ with session_scope() as sess:
 	# openrate_sunname2_ranks = sess.query(func.max(OpenProgress4.openPercent).label('max'),  OpenProgress4.gusigun).filter(OpenProgress4.datatime<=time).group_by(OpenProgress4.sggCityCode).order_by(func.max(OpenProgress4.openPercent).desc(), func.max(OpenProgress4.n_total).desc()).all()
 	# print(openrate_sunname2_ranks)
 
-	openrate_sunname2_ranks = sess.query((OpenProgress4.openPercent).label('max'),  OpenProgress4.gusigun).filter(OpenProgress4.datatime<=time).group_by(OpenProgress4.gusigun).order_by((OpenProgress4.openPercent).desc()).all()
-	print(openrate_sunname2_ranks[:10])
-	graph_data = []
-	for v, r in openrate_sunname2_ranks[:10]:
-		graph_data.append({'name':r, 'value':float(v)*0.01})
-		# print(graph_data[:10])
-	graph_data = list({v['name']:v for v in graph_data}.values())
 
-	print(graph_data)
+	subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
 
-	region1_openrate = sess.query(OpenProgress3.openPercent).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==region1).scalar()
+	sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
+	ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
+	# print(ranksDf)
+	if len(ranksDf) == 0:
+		raise NoTextError
+	# for i, row in enumerate(ranksDf):
+		# print(pd.DataFrame(row))
+		# print(pd.DataFrame(row).filter(regex="n*_percent").dropna(axis=1))
+	# ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)
+	ranks_vote = ranksDf.filter(regex="n*_percent")
+	print(ranks_vote)
 
-	print(region1_openrate)
+
+	# print(ranks_vote)
+	ranks_ttl = []
+	for i, ranks in ranks_vote.iterrows():
+		ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
+	print(ranks_ttl)
+
+	ranking = []
+	for idx, ranks in enumerate(ranks_ttl):
+		
+		ranking.append(ranksDf.loc[idx, ranks[0]+'_jdName'])
+	rank1_count = Counter(ranking).most_common()
+	print(rank1_count)

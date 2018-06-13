@@ -1141,7 +1141,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			if openrate_rank1_region == None:
 				raise NoTextError
 
-			ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)
+			ranks_vote = ranksDf.filter(regex="n*_percent")
 			ranks_ttl = []
 			for i, ranks in ranks_vote.iterrows():
 				ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
@@ -1221,7 +1221,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			if len(ranksDf) == 0:
 				raise NoTextError
 
-			ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)	
+			ranks_vote = ranksDf.filter(regex="n*_percent")	
 			ranks_ttl = []
 			for i, ranks in ranks_vote.iterrows():
 				ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
@@ -1304,7 +1304,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		if len(ranksDf) == 0:
 			raise NoTextError
 
-		ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)	
+		ranks_vote = ranksDf.filter(regex="n*_percent")	
 		ranks_ttl = [] # one line
 		for i, ranks in ranks_vote.iterrows():
 			ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
@@ -1417,7 +1417,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
 		if len(ranksDf) == 0:
 			raise NoTextError
-		ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)
+		ranks_vote = ranksDf.filter(regex="n*_percent")
 		ranks_ttl = []
 		for i, ranks in ranks_vote.iterrows():
 			ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
@@ -1549,7 +1549,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
 		if len(ranksDf) == 0:
 			raise NoTextError
-		ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)
+		ranks_vote = ranksDf.filter(regex="n*_percent")
 		ranks_ttl = []
 		for i, ranks in ranks_vote.iterrows():
 			ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
@@ -1572,7 +1572,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		sub_ranks_g = sess.query(OpenProgress4).join(subq_g, and_(OpenProgress4.serial==subq_g.c.maxserial, OpenProgress4.datatime==subq_g.c.maxtime))
 
 		ranksDf_g = pd.read_sql(sub_ranks_g.statement, sub_ranks_g.session.bind)
-		ranks_vote_g = ranksDf_g.filter(regex="n*_percent").dropna(axis=1)
+		ranks_vote_g = ranksDf_g.filter(regex="n*_percent")
 		ranks_ttl_g = []
 		for i, ranks in ranks_vote_g.iterrows():
 			ranks_ttl_g.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
@@ -1778,7 +1778,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			if len(ranksDf) == 0:
 				raise NoTextError
 
-			ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)
+			ranks_vote = ranksDf.filter(regex="n*_percent")
 
 			ranks_ttl = [] # 각 지역 - 순위
 			for i, ranks in ranks_vote.iterrows():
@@ -1847,7 +1847,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				raise NoTextError
 
 			ranksDf = ranksDf.sort_values(by='openPercent', ascending=False)
-			ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)
+			ranks_vote = ranksDf.filter(regex="n*_percent")
 
 			ranks_ttl = []
 			for i, ranks in ranks_vote.iterrows(): # 가로 등수, 세로 지역수: 지역끼리
@@ -2149,7 +2149,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			# if sub_ranks == None:
 				# raise NoTextError
 			ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
-			ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)	
+			ranks_vote = ranksDf.filter(regex="n*_percent")	
 			ranks_ttl = [] # one line
 			for i, ranks in ranks_vote.iterrows():
 				ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
@@ -2274,7 +2274,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			sub_ranks_g = sess.query(OpenProgress4).join(subq_g, and_(OpenProgress4.serial==subq_g.c.maxserial, OpenProgress4.datatime==subq_g.c.maxtime))
 
 			ranksDf_g = pd.read_sql(sub_ranks_g.statement, sub_ranks_g.session.bind)
-			ranks_vote_g = ranksDf_g.filter(regex="n*_percent").dropna(axis=1)	
+			ranks_vote_g = ranksDf_g.filter(regex="n*_percent")	
 			ranks_ttl_g = [] # one line
 			for i, ranks in ranks_vote_g.iterrows():
 				ranks_ttl_g.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
@@ -2479,7 +2479,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			query_jb = sess.query(OpenProgress).join(sub_jb, and_(OpenProgress.serial==sub_jb.c.serial, OpenProgress.datatime==sub_jb.c.maxtime))
 			
 			jbDf = pd.read_sql(query_jb.statement, query_jb.session.bind)
-			jbDf_ranks = jbDf.filter(regex="n*_percent").dropna(axis=1)
+			jbDf_ranks = jbDf.filter(regex="n*_percent")
 			jbDf_ranks_ttl = []
 			for i, ranks in jbDf_ranks.iterrows():
 				jbDf_ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
@@ -2538,7 +2538,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			# print(len(ranksDf))
 			if len(ranksDf) == 0:
 				raise NoTextError
-			ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)
+			ranks_vote = ranksDf.filter(regex="n*_percent")
 			ranks_ttl = []
 			for i, ranks in ranks_vote.iterrows():
 				ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
@@ -2614,7 +2614,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 				ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
 				if len(ranksDf) > 0:
-					ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)
+					ranks_vote = ranksDf.filter(regex="n*_percent")
 
 					ranks_ttl = []
 					for i, ranks in ranks_vote.iterrows():
@@ -2660,7 +2660,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 				ranksDf = pd.read_sql(sub_ranks.statement, sub_ranks.session.bind)
 				if len(ranksDf) > 0:
-					ranks_vote = ranksDf.filter(regex="n*_percent").dropna(axis=1)	
+					ranks_vote = ranksDf.filter(regex="n*_percent")	
 					ranks_ttl = [] # one line
 					for i, ranks in ranks_vote.iterrows():
 						ranks_ttl.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
@@ -2690,7 +2690,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 					sub_ranks_g = sess.query(OpenProgress4).filter(OpenProgress4.sido==region1, OpenProgress4.gusigun==region2)
 					ranksDf_g = pd.read_sql(sub_ranks_g.statement, sub_ranks_g.session.bind)
 					if len(ranksDf_g) > 0:
-						ranks_vote_g = ranksDf_g.filter(regex="n*_percent").dropna(axis=1)	
+						ranks_vote_g = ranksDf_g.filter(regex="n*_percent")	
 						ranks_ttl_g = [] # one line
 						for i, ranks in ranks_vote_g.iterrows():
 							ranks_ttl_g.append([v.split('_')[0] for v in ranks.sort_values(ascending=False).index.values])
