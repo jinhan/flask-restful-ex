@@ -582,7 +582,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		}
 
 	elif card_seq == 8:
-		openrate_sunname1_ranks = sess.query(OpenProgress3.openPercent.label('max'), OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').group_by(OpenProgress3.cityCode).order_by(func.max(OpenProgress3.openPercent).desc(), func.max(OpenProgress3.n_total).desc()).all()
+		openrate_sunname1_ranks = sess.query(OpenProgress3.openPercent.label('max'), OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').group_by(OpenProgress3.cityCode).order_by(func.max(OpenProgress3.openPercent).desc()).all()
 		#[(Decimal('60.00'), '충청남도'), (Decimal('56.00'), '서울특별시'), (Decimal('55.00'), '부산광역시')]
 
 		# TODO: find openrat == 100
@@ -640,7 +640,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		}
 
 	elif card_seq == 9:
-		openrate_sunname2_ranks = sess.query(func.max(OpenProgress4.openPercent).label('max'),  OpenProgress4.gusigun).filter(OpenProgress4.datatime<=time).group_by(OpenProgress4.sggCityCode).order_by(func.max(OpenProgress4.openPercent).desc(), func.max(OpenProgress4.n_total).desc()).all()
+		openrate_sunname2_ranks = sess.query(func.max(OpenProgress4.openPercent).label('max'),  OpenProgress4.gusigun).filter(OpenProgress4.datatime<=time).group_by(OpenProgress4.sggCityCode).order_by(func.max(OpenProgress4.openPercent).desc()).all()
 		# sggCityCode 매치 안됨, OpenProgress, PrecinctCode
 		# 시군구청장 선거 group by 뭘로
 		# print(openrate_sunname2_ranks)
@@ -801,7 +801,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.sggCityCode).filter(OpenProgress4.datatime<=time, OpenProgress4.sido==region1, OpenProgress4.sggCityCode!=None).subquery()
 
 			sub_r = sess.query(OpenProgress4.gusigun, OpenProgress4.tooTotal, OpenProgress4.n_total, OpenProgress4.invalid).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
-			
+
 			card_num = '10'
 			text = text_templates[card_num].format(**data)
 
