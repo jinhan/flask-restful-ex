@@ -582,7 +582,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		}
 
 	elif card_seq == 8:
-		openrate_sunname1_ranks = sess.query(OpenProgress3.openPercent.label('max'), OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').group_by(OpenProgress3.cityCode).order_by(func.max(OpenProgress3.openPercent).desc()).all()
+		openrate_sunname1_ranks = sess.query(OpenProgress3.openPercent.label('max'), OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').group_by(OpenProgress3.cityCode).order_by(OpenProgress3.openPercent).desc()).all()
 		#[(Decimal('60.00'), '충청남도'), (Decimal('56.00'), '서울특별시'), (Decimal('55.00'), '부산광역시')]
 
 		# TODO: find openrat == 100
@@ -640,7 +640,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		}
 
 	elif card_seq == 9:
-		openrate_sunname2_ranks = sess.query(func.max(OpenProgress4.openPercent).label('max'),  OpenProgress4.gusigun).filter(OpenProgress4.datatime<=time).group_by(OpenProgress4.sggCityCode).order_by(func.max(OpenProgress4.openPercent).desc()).all()
+		openrate_sunname2_ranks = sess.query((OpenProgress4.openPercent).label('max'),  OpenProgress4.gusigun).filter(OpenProgress4.datatime<=time).group_by(OpenProgress4.gusigun).order_by((OpenProgress4.openPercent).desc()).all()
 		# sggCityCode 매치 안됨, OpenProgress, PrecinctCode
 		# 시군구청장 선거 group by 뭘로
 		# print(openrate_sunname2_ranks)
@@ -678,7 +678,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			raise NoTextError
 
 		graph_data = []
-		for v, r in openrate_sunname2_ranks:
+		for v, r in openrate_sunname2_ranks[:10]:
 			graph_data.append({'name':r, 'value':float(v)*0.01})
 		# print(graph_data[:10])
 		graph_data = list({v['name']:v for v in graph_data}.values())
@@ -690,7 +690,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			'data': {
 				'graph_data': {
 					'type': 'region',
-					'data': graph_data[:10],
+					'data': graph_data,
 				},
 				'text': text,
 			},
