@@ -438,7 +438,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		data = {
 			'candidate': candidate,
 			'candidate_region': candidate_region,
-			'candidate_region_toorate': candidate_region_toorate,
+			'candidate_region_toorate': float(round(candidate_region_toorate, 2)),
 		}
 		if t > 18:
 			card_num = '5'
