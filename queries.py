@@ -1,7 +1,7 @@
 from templates import text_templates, background_variations
 from orm import *
 from sqlalchemy.sql import func, and_
-from graph import generateMap, generateGraph
+# from graph import generateMap, generateGraph
 import pandas as pd
 from timeit import default_timer as timer
 import tossi
@@ -21,6 +21,9 @@ def hourConverter(h):
 		return '오후 ' + str(h) + '시'
 	else:
 		return '오후 ' + str(h - 12) + '시'
+
+def timeDisplay(t):
+	return hourConverter(t.hour) + ' ' + str(t.minute) + '분'
 
 def josaPick(word, josa):
 	return tossi.pick(word, josa)
@@ -557,7 +560,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			raise NoTextError
 
 		data = {
-			'hour': hourConverter(time.hour),
+			'hour': timeDisplay(time),
 			'openrate_avg_nat': round(openrate_avg_nat, 2),
 		}
 		card_num = '7'
@@ -568,7 +571,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			'type': 'rate',
 			'party': 'default',
 			'data': {
-				'title': hourConverter(time.hour) + ', 평균 개표율',
+				'title': timeDisplay(time) + ', 평균 개표율',
 				'rate': round(openrate_avg_nat),
 				'text': text,
 			},
@@ -590,7 +593,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				except IndexError:
 					raise NoTextError
 				data = {
-					'hour': hourConverter(time.hour),
+					'hour': timeDisplay(time),
 					'open_finished': open_finished,
 					'openrate_sunname1_rank1': openrate_sunname1_rank1['sido'],
 					'openrate_sunname1_rank1_rate': openrate_sunname1_rank1['max'],
@@ -599,7 +602,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				text = text_templates[card_num].format(**data)
 			else:
 				data = {
-					'hour': hourConverter(time.hour),
+					'hour': timeDisplay(time),
 					'openrate_sunname1_rank1': openrate_sunname1_ranks[0][1],
 					'josa': josaPick(openrate_sunname1_ranks[0][1],'으로'),
 					'openrate_sunname1_rank1_rate': round(openrate_sunname1_ranks[0][0], 2),
@@ -648,7 +651,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				except IndexError:
 					raise NoTextError
 				data = {
-					'hour': hourConverter(time.hour),
+					'hour': timeDisplay(time),
 					'open_finished': open_finished,
 					'openrate_sunname2_rank1': openrate_sunname2_rank1['gusigun'],
 					'josa': josaPick(openrate_sunname2_rank1['gusigun'], '이'),
@@ -658,7 +661,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				text = text_templates[card_num].format(**data)
 			else:
 				data = {
-					'hour': hourConverter(time.hour),
+					'hour': timeDisplay(time),
 					'openrate_sunname2_rank1': openrate_sunname2_ranks[0][1],
 					'josa1': josaPick(openrate_sunname2_ranks[0][1], '이'),
 					'openrate_sunname2_rank1_rate': round(openrate_sunname2_ranks[0][0], 2),
@@ -739,7 +742,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		# print(sub_r.all())
 		data = {
-			'hour': hourConverter(time.hour),
+			'hour': timeDisplay(time),
 			'region1': region_name,
 			'josa1': josaPick(region_name, '은')
 		}
@@ -877,7 +880,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 			if poll_openrate_nat_avg >= 100:
 				data = {
-					'hour': hourConverter(time.hour),
+					'hour': timeDisplay(time),
 					'poll': poll,
 				}
 				card_num = '11-2'
@@ -923,7 +926,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		except TypeError:
 			if tooTotal == None:
 				data = {
-					'hour': hourConverter(time.hour),
+					'hour': timeDisplay(time),
 					'poll': poll,
 					'josa': josaPick(poll, '은'),
 				}
@@ -1044,7 +1047,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			openrate_sido = sess.query(OpenProgress3.sido).filter(OpenProgress3.openPercent==100, OpenProgress3.gusigun=='합계').group_by(OpenProgress3.sido).all()
 			if len(openrate_sido) > 0:
 				data = {
-					'hour': hourConverter(time.hour),
+					'hour': timeDisplay(time),
 					'open_finished_sido': ', '.join(sido[0] for sido in openrate_sido),
 				}
 				card_num = '13'
@@ -1055,7 +1058,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			openrate_gusigun = sess.query(OpenProgress4.gusigun).filter(OpenProgress4.openPercent==100).group_by(OpenProgress4.gusigun).all()
 			if len(openrate_gusigun) > 0:
 				data = {
-					'hour': hourConverter(time.hour),
+					'hour': timeDisplay(time),
 					'open_finished_gusigun': ', '.join(gusigun[0] for gusigun in openrate_gusigun),
 				}
 				card_num = '13-1'
@@ -1166,7 +1169,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			openrate_rank2_region_candidate = [r['name'] for r in ranking if (r['idx']==0) and (r['rank']==1)][0]
 
 			data = {
-				'hour': hourConverter(time.hour),
+				'hour': timeDisplay(time),
 				'rank1_party': rank1_party, 
 				'josa1': josaPick(rank1_party, '이'),
 				'rank1_party_num': rank1_party_num,
@@ -1241,7 +1244,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			rank1_party_num = rank1_count[0][1]
 
 			data = {
-				'hour': hourConverter(time.hour),
+				'hour': timeDisplay(time),
 				'rank1_party': rank1_party,
 				'josa1': josaPick(rank1_party, '이'),
 				'josa2': josaPick(rank1_party, '은'),
@@ -1325,7 +1328,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		region1_rank2_rate = ranking[1]['percent']
 
 		data = {
-			'hour': hourConverter(time.hour),
+			'hour': timeDisplay(time),
 			'region1': region_name,
 			'region1_poll': region1_poll,
 			'region1_openrate': region1_openrate,
@@ -1440,7 +1443,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		candidate_poll_rank2_rate = ranking[1]['percent']
 
 		data = {
-			'hour': hourConverter(time.hour),
+			'hour': timeDisplay(time),
 			'candidate': candidate,
 			'candidate_rate': candidate_rate,
 			'candidate_region': candidate_region,
@@ -1823,7 +1826,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				confirms_rank2 = ''
 
 			data = {
-				'hour': hourConverter(time.hour),
+				'hour': timeDisplay(time),
 				'rank1_party': rank1_party,
 				'josa1': josaPick(rank1_party, '은'),
 				'rank1_party_num': rank1_party_num,
@@ -1895,7 +1898,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				confirms_open_ranks = ''
 
 			data = {
-				'hour': hourConverter(time.hour),
+				'hour': timeDisplay(time),
 				'open_rank1_region': open_rank1_region,
 				'open_rank1_region_candidate': open_rank1_region_candidate,
 				# 'open_rank2_region': open_rank2_region,
@@ -2391,7 +2394,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				pass
 			else:
 				data = {
-					'hour': hourConverter(time.hour),
+					'hour': timeDisplay(time),
 					'sido_rank1_party_num': sido_rank1_party_num,
 					'gusigun_rank1_party_num': gusigun_rank1_party_num,
 				}
@@ -2711,7 +2714,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		# print(regions_text)
 		
 		if (len(candidates_text) > 0) or (len(regions_text) > 0):
-			text = hourConverter(time.hour) + ' 현재 ' + candidates_text + regions_text + ' 당선이 확정되었다.'
+			text = timeDisplay(time) + ' 현재 ' + candidates_text + regions_text + ' 당선이 확정되었다.'
 			meta_card = {
 				'order': order,
 				'type': 'final',
@@ -2966,7 +2969,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		elif template == 4:
 			card_num = '23-' + str(choice([2,9,10,11,12]))
 
-		text = text_templates[card_num].format(hour=hourConverter(time.hour))
+		text = text_templates[card_num].format(hour=timeDisplay(time))
 		meta_card = {
 			'order': order,
 			'type': 'closing',
