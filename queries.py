@@ -2739,8 +2739,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계').subquery()
 
 		yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
-		
-		toorate_avg_nat = (tooTotal) / (yooTotal) * 100
+		try:
+			toorate_avg_nat = (tooTotal) / (yooTotal) * 100
+		except TypeError:
+			raise NoTextError
 
 		if (toorate_avg_nat < 68.4) and (toorate_avg_nat >= 50):
 			card_num = '22'
