@@ -1389,28 +1389,28 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		# candidate_poll table 선택
 		if sgtype == 2: 
-			candidate_poll_openrate = sess.query(OpenProgress2.openPercent).filter(OpenProgress2.datatime<=time, OpenProgress2.sgg==candidate_region).scalar()
+			candidate_poll_openrate = sess.query(func.max(OpenProgress2.openPercent)).filter(OpenProgress2.datatime<=time, OpenProgress2.sgg==candidate_region).scalar()
 
 			subq = sess.query(func.max(OpenProgress2.serial).label('maxserial'), func.max(OpenProgress2.datatime).label('maxtime')).group_by(OpenProgress2.sggCityCode).filter(OpenProgress2.datatime<=time, OpenProgress2.sgg==candidate_region, OpenProgress2.sggCityCode!=None).subquery()
 
 			sub_ranks = sess.query(OpenProgress2).join(subq, and_(OpenProgress2.serial==subq.c.maxserial, OpenProgress2.datatime==subq.c.maxtime))
 
 		elif sgtype == 3:
-			candidate_poll_openrate = sess.query(OpenProgress3.openPercent).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==candidate_region, OpenProgress3.gusigun=='합계').scalar()
+			candidate_poll_openrate = sess.query(func.max(OpenProgress3.openPercent)).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==candidate_region, OpenProgress3.gusigun=='합계').scalar()
 
 			subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==candidate_region, OpenProgress3.gusigun=='합계').subquery()
 
 			sub_ranks = sess.query(OpenProgress3).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
 
 		elif sgtype == 4:
-			candidate_poll_openrate = sess.query(OpenProgress4.openPercent).filter(OpenProgress4.datatime<=time, OpenProgress4.gusigun==candidate_region).scalar()
+			candidate_poll_openrate = sess.query(func.max(OpenProgress4.openPercent)).filter(OpenProgress4.datatime<=time, OpenProgress4.gusigun==candidate_region).scalar()
 			
 			subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.sggCityCode).filter(OpenProgress4.datatime<=time, OpenProgress4.gusigun==candidate_region, OpenProgress4.sggCityCode!=None).subquery()
 
 			sub_ranks = sess.query(OpenProgress4).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
 
 		elif sgtype == 11:
-			candidate_poll_openrate = sess.query(OpenProgress11.openPercent).filter(OpenProgress11.sido==candidate_region, OpenProgress11.gusigun=='합계').scalar()
+			candidate_poll_openrate = sess.query(func.max(OpenProgress11.openPercent)).filter(OpenProgress11.sido==candidate_region, OpenProgress11.gusigun=='합계').scalar()
 
 			subq = sess.query(func.max(OpenProgress11.serial).label('maxserial'), func.max(OpenProgress11.datatime).label('maxtime')).group_by(OpenProgress11.sido).filter(OpenProgress11.datatime<=time, OpenProgress11.sido==candidate_region, OpenProgress11.gusigun=='합계').subquery()
 
