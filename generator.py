@@ -124,7 +124,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 	card_seqs = []
 
 	if t > 18:
-		if (len(candidates) > 0) and (len(regions) > 0) and (len(parties) > 0) and (len(polls) > 0):
+		if (len(candidates) > 0):
 			print(1)
 			try:
 				candidate, candidate_region, candidate_poll_code = sess.query(CandidateInfo.name, CandidateInfo.sggName, CandidateInfo.sgTypecode).filter(CandidateInfo.huboid==candidates[0]).first()
@@ -144,7 +144,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 				openrate = None
 			# print(candidate_poll_code, openrate)
 
-		elif (len(candidates) == 0) and (len(regions) > 0) and (len(parties) > 0) and (len(polls) > 0):
+		elif (len(candidates) == 0) and (len(regions) > 0):
 			print(2)
 			region_num = regionCodeCheck(regions[0])
 			try:
@@ -157,7 +157,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 			# print(openrate)
 
 		# 	parites
-		elif (len(candidates) == 0) and (len(regions) == 0) and (len(parties) == 0) and (len(polls) > 0):
+		elif (len(candidates) == 0) and (len(regions) == 0) and (len(polls) > 0):
 			print(3)
 			if polls[0] == 2:
 				subq = sess.query(func.max(OpenProgress2.serial).label('maxserial'), func.max(OpenProgress2.datatime).label('maxtime')).group_by(OpenProgress2.sggCityCode).filter(OpenProgress2.datatime<=time, OpenProgress2.sggCityCode!=None).subquery()
