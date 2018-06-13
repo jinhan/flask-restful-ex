@@ -16,9 +16,9 @@ def generateMeta(args):
 		parties = args['party']
 		candidates = args['candidate']
 		# TODO
-		time = datetime.datetime.strptime(args['time'], '%Y%m%d%H%M%S')
+		# time = datetime.datetime.strptime(args['time'], '%Y%m%d%H%M%S')
 		print(datetime.datetime.now())
-		# time = datetime.datetime.now()
+		time = datetime.datetime.now()
 
 		serial_current = str(uuid.uuid4().hex)
 		arguments = args
