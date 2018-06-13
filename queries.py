@@ -713,7 +713,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		if only_sido:
 			subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
 
-			sub_r = sess.query(OpenProgress3.gusigun, OpenProgress3.tooTotal, OpenProgress3.n_total, OpenProgress3.invalid).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
+			sub_r = sess.query(OpenProgress3.sido, OpenProgress3.gusigun, OpenProgress3.tooTotal, OpenProgress3.n_total, OpenProgress3.invalid).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))
 			# print(sub_r.all())
 
 			tooTotal_r, n_total_r, invalid_r = sess.query(func.sum(OpenProgress3.tooTotal), func.sum(OpenProgress3.n_total), func.sum(OpenProgress3.invalid)).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime)).first()
@@ -730,7 +730,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		else: # 시+도 : 도의 결과
 			subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.sggCityCode).filter(OpenProgress4.datatime<=time, OpenProgress4.sido==region1, OpenProgress4.sggCityCode!=None).subquery()
 
-			sub_r = sess.query(OpenProgress4.gusigun, OpenProgress4.tooTotal, OpenProgress4.n_total, OpenProgress4.invalid).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
+			sub_r = sess.query(OpenProgress4.sido, OpenProgress4.gusigun, OpenProgress4.tooTotal, OpenProgress4.n_total, OpenProgress4.invalid).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
 			
 			# print(sub_r.all())
 
@@ -806,10 +806,12 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			text = text_templates[card_num].format(**data)
 
 			map_data = []
-			for r, tooTotal, n_total, invalid in sub_r.all():
+			for r1, r, tooTotal, n_total, invalid in sub_r.all():
 				if invalid == None:
 					invalid = 0
 				v = (n_total) / tooTotal
+				if r == '합계':
+					r = r1
 				map_data.append({'name':r, 'value':v})
 			map_data = list({v['name']:v for v in map_data}.values())
 			meta_card = {
@@ -1359,7 +1361,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		text = text_templates[card_num].format(**data)
 
 		graph_data = []
-		print(ranking)
+		# print(ranking)
 		for r in ranking:
 			graph_data.append({
 				'name': r['name'],
@@ -1516,7 +1518,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		text = text_templates[card_num].format(**data)
 		
 		graph_data = []
-		print(ranking)
+		# print(ranking)
 		for r in ranking:
 			graph_data.append({
 				'name': r['name'],
