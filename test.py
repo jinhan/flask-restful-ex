@@ -145,7 +145,7 @@ with session_scope() as sess:
 	# print(len(sess.query(VoteProgressLatest.timeslot).group_by(VoteProgressLatest.timeslot).all()))
 
 	# region1 = "세종특별자치시"
-	# # region1 = "경기도"
+	region1 = "경기도"
 	# toorate_region1_sub = sess.query(VoteProgressLatest.townCode, PrecinctCode4.gusigun,  func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).outerjoin(PrecinctCode4, and_(VoteProgressLatest.sido==PrecinctCode4.sido, VoteProgressLatest.gusigun==PrecinctCode4.sgg)).filter(VoteProgressLatest.gusigun!='합계', VoteProgressLatest.sido==region1).group_by(VoteProgressLatest.sido, PrecinctCode4.gusigun)
 	# # print(toorate_region1_sub.all())
 	# map_data = []
@@ -175,3 +175,7 @@ with session_scope() as sess:
 	graph_data = list({v['name']:v for v in graph_data}.values())
 
 	print(graph_data)
+
+	region1_openrate = sess.query(OpenProgress3.openPercent).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==region1).scalar()
+
+	print(region1_openrate)
