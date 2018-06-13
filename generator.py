@@ -76,8 +76,8 @@ def generateMeta(args):
 				# sess.commit()
 
 			card_seqs, seqs_type, template = getCardSeqs(sess, polls, regions, parties, candidates, time)
-			print(card_seqs)
-
+			print(template, card_seqs)
+			
 			meta = {}
 			meta['scenario'] = str(card_seqs)
 			meta['updated'] = True
