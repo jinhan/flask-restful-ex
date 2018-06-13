@@ -418,7 +418,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		}
 
 	elif card_seq == 5:
-		candidate, candidate_region, candidate_sdName = sess.query(CandidateInfo.name, CandidateInfo.sggName, CandidateInfo.wiwName).filter(CandidateInfo.huboid==candidates[index]).first()
+		candidate, candidate_region, candidate_sdName, candidate_wiwName = sess.query(CandidateInfo.name, CandidateInfo.sggName, CandidateInfo.sdName, CandidateInfo.wiwName).filter(CandidateInfo.huboid==candidates[index]).first()
 		# print(candidate_sdName)
 
 		if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
@@ -427,7 +427,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			t = time.hour
 
 		# candidate_region_toorate = sess.query(func.max(VoteProgressLatest.tooRate)).filter(VoteProgressLatest.sido==candidate_sdName, VoteProgressLatest.gusigun!='합계').scalar()
-		yoo, too = sess.query(func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.gusigun==candidate_sdName).first()
+		yoo, too = sess.query(func.sum(VoteProgressLatest.yooTotal).label('yooTotal'), func.sum(VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.gusigun==candidate_wiwName).first()
 		try:
 			candidate_region_toorate = too/yoo*100
 		except TypeError:
