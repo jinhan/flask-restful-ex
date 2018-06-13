@@ -558,7 +558,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		if invalid == None:
 			invalid = 0
 		try:		
-			openrate_avg_nat = (n_total + invalid) / tooTotal * 100
+			openrate_avg_nat = (n_total) / tooTotal * 100
 		except TypeError:
 			raise NoTextError
 
@@ -785,9 +785,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 			if invalid == None:
 				invalid = 0
-			# openrate_avg_nat = (n_total + invalid) / tooTotal * 100
 			try:		
-				openrate_avg_nat = (n_total + invalid) / tooTotal * 100
+				openrate_avg_nat = (n_total) / tooTotal * 100
 			except TypeError:
 				raise NoTextError
 
@@ -805,7 +804,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			for r, tooTotal, n_total, invalid in sub_r.all():
 				if invalid == None:
 					invalid = 0
-				v = (n_total + invalid) / tooTotal
+				v = (n_total) / tooTotal
 				map_data.append({'name':r, 'value':v})
 			map_data = list({v['name']:v for v in map_data}.values())
 			meta_card = {
@@ -869,12 +868,12 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			invalid = 0
 
 		try:
-			poll_openrate_nat_avg = (n_total + invalid) / tooTotal * 100
+			poll_openrate_nat_avg = (n_total) / tooTotal * 100
 			
 			for r, tooTotal, n_total, invalid in sub.all():
 				if invalid == None:
 					invalid = 0
-				v = (n_total + invalid) / tooTotal
+				v = (n_total) / tooTotal
 				poll_openrate_ranks.append({'name':r, 'value':v})
 			
 			poll_openrate_ranks = sorted(poll_openrate_ranks, key=lambda x: x['value'], reverse=True)
@@ -1040,9 +1039,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		if invalid == None:
 			invalid = 0
-		# openrate_avg_nat = (n_total + invalid) / tooTotal * 100
 		try:		
-			openrate_avg_nat = (n_total + invalid) / tooTotal * 100
+			openrate_avg_nat = (n_total) / tooTotal * 100
 		except TypeError:
 			raise NoTextError
 
