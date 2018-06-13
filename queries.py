@@ -241,8 +241,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 		# current_toorate = sess.query(func.avg(current.c.max)).scalar()
 		each_toorate = sess.query((VoteProgressLatest.yooTotal).label('yooTotal'), (VoteProgressLatest.tooTotal).label('tooTotal')).filter(VoteProgressLatest.timeslot==t, VoteProgressLatest.gusigun!='합계').subquery()
 		yooTotal, tooTotal = sess.query(func.sum(each_toorate.c.yooTotal), func.sum(each_toorate.c.tooTotal)).first()
-		
-		current_toorate = (tooTotal) / (yooTotal) * 100
+		try:
+			current_toorate = (tooTotal) / (yooTotal) * 100
+		except TypeError:
+			raise NoTextError
 
 		current_toorate_past_toorate = current_toorate - past_toorate
 		# print(past_toorate, current_toorate)
@@ -2896,7 +2898,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				josa1 = josaPick(sido_rank1, '이며')
 
 				gusigun_rank1 = sess.query(VoteProgress.gusigun).filter(VoteProgress.timeslot<=t, VoteProgress.gusigun!='합계').group_by(VoteProgress.gusigun).order_by(func.max(VoteProgress.tooRate).desc()).first()[0]
-				
+
 				josa2 = josaPick(gusigun_rank1, '으로')
 				text = text_templates[card_num].format(sido_rank1=sido_rank1, josa1=josa1, gusigun_rank1=gusigun_rank1, josa2=josa2)
 
