@@ -2221,18 +2221,21 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 								'percent': ranksDf.loc[idx, ranks[1]+'_percent'],
 							}
 					for i, r in enumerate(ranks): # 한 지역
-						if sess.query(CandidateInfo.current).filter(CandidateInfo.huboid==int(ranksDf.loc[idx, r+'_huboid'])).scalar() == 1:
-							current_candidate = {
-								'idx': idx,
-								'rank': i,
-								'sido': ranksDf.loc[idx, 'sido'],
-								'huboid': ranksDf.loc[idx, r+'_huboid'],
-								'name': ranksDf.loc[idx, r+'_name'],
-								'current': 1,
-								'percent': ranksDf.loc[idx, r+'_percent'],
-							}
-						else:
-							current_candidate = None
+						try:
+							if sess.query(CandidateInfo.current).filter(CandidateInfo.huboid==int(ranksDf.loc[idx, r+'_huboid'])).scalar() == 1:
+								current_candidate = {
+									'idx': idx,
+									'rank': i,
+									'sido': ranksDf.loc[idx, 'sido'],
+									'huboid': ranksDf.loc[idx, r+'_huboid'],
+									'name': ranksDf.loc[idx, r+'_name'],
+									'current': 1,
+									'percent': ranksDf.loc[idx, r+'_percent'],
+								}
+							else:
+								current_candidate = None
+								pass
+						except ValueError:
 							pass
 				else:
 					rank1_candidate = None

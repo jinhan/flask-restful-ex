@@ -7,7 +7,7 @@ from queries import query_card_data, NoTextError, regionCodeCheck
 import uuid
 import ast
 
-deploy_mode = True
+deploy_mode = False
 
 def generateMeta(args):
 	with session_scope() as sess:
