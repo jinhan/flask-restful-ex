@@ -165,5 +165,19 @@ with session_scope() as sess:
 
 	d = sess.query(OpenProgress3.openPercent.label('max'), OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').group_by(OpenProgress3.cityCode).order_by(func.max(OpenProgress3.openPercent).desc(), func.max(OpenProgress3.n_total).desc()).all()
 	print(d)
+	candidate_region = '군위군'
+	openrate = sess.query(func.max(OpenProgress4.openPercent)).filter(OpenProgress4.gusigun==candidate_region,OpenProgress4.datatime<=time, OpenProgress4.sggCityCode!=None).scalar() 
+	print(openrate)
+	
+	candidate, candidate_region, candidate_poll_code = sess.query(CandidateInfo.name, CandidateInfo.sggName, CandidateInfo.sgTypecode).filter(CandidateInfo.huboid==100130241).first()
+	print(candidate_poll_code)
 
-
+	if candidate_poll_code == 2: # 국회의원
+		openrate = sess.query(func.max(OpenProgress2.openPercent)).filter(OpenProgress2.sgg==candidate_region,OpenProgress2.datatime<=time, OpenProgress2.sggCityCode!=None).scalar() # , 
+	elif candidate_poll_code == 3:
+		openrate = sess.query(func.max(OpenProgress3.openPercent)).filter(OpenProgress3.sido==candidate_region, OpenProgress3.gusigun=='합계',OpenProgress3.datatime<=time).scalar() # ,  
+	elif candidate_poll_code == 4:
+		openrate = sess.query(func.max(OpenProgress4.openPercent)).filter(OpenProgress4.gusigun==candidate_region,OpenProgress4.datatime<=time, OpenProgress4.sggCityCode!=None).scalar() # , 
+	elif candidate_poll_code == 11:
+		openrate = sess.query(func.max(OpenProgress11.openPercent)).filter(OpenProgress11.sido==candidate_region, OpenProgress11.gusigun=='합계',OpenProgress11.datatime<=time).scalar() #
+	print(openrate)

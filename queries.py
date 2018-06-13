@@ -899,6 +899,10 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 					'debugging': card_num,
 				}
 			else:
+				try:
+					d = poll_openrate_ranks[1]['name']
+				except TypeError:
+					raise NoTextError
 				data = {
 					'poll_num_sunname': poll_num_sunname,
 					'poll': poll,

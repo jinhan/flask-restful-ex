@@ -127,6 +127,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 		if (len(candidates) > 0) and (len(regions) > 0) and (len(parties) > 0) and (len(polls) > 0):
 			try:
 				candidate, candidate_region, candidate_poll_code = sess.query(CandidateInfo.name, CandidateInfo.sggName, CandidateInfo.sgTypecode).filter(CandidateInfo.huboid==candidates[0]).first()
+				print(candidate_region)
 			except TypeError:
 				raise NoTextError
 
