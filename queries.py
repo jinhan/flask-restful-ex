@@ -561,6 +561,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			openrate_avg_nat = (n_total) / tooTotal * 100
 		except TypeError:
 			raise NoTextError
+		if openrate_avg_nat > 100:
+			openrate_avg_nat = 100
 
 		data = {
 			'hour': timeDisplay(time),
@@ -727,6 +729,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				openrate_region1 = (n_total_r) / tooTotal_r * 100
 			except TypeError:
 				openrate_region1 = 0
+			if openrate_region1 > 100:
+				openrate_region1 = 100
 
 
 		else: # 시+도 : 도의 결과
@@ -745,6 +749,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				openrate_region1 = (n_total_r) / tooTotal_r * 100
 			except TypeError:
 				openrate_region1 = 0
+			if openrate_region1 > 100:
+				openrate_region1 = 100
 
 		# print(sub_r.all())
 		data = {
@@ -795,6 +801,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 				openrate_avg_nat = (n_total) / tooTotal * 100
 			except TypeError:
 				raise NoTextError
+			if openrate_avg_nat > 100:
+				openrate_avg_nat = 100
 
 			openrate_region1_openrate_avg_nat = openrate_region1 - openrate_avg_nat
 			compare_region1 = '높은' if openrate_region1_openrate_avg_nat > 0 else '낮은'
@@ -881,6 +889,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 
 		try:
 			poll_openrate_nat_avg = (n_total) / tooTotal * 100
+			if poll_openrate_nat_avg > 100:
+				poll_openrate_nat_avg = 100
 			
 			for r, tooTotal, n_total, invalid in sub.all():
 				if invalid == None:
@@ -1060,6 +1070,8 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			openrate_avg_nat = (n_total) / tooTotal * 100
 		except TypeError:
 			raise NoTextError
+		if openrate_avg_nat > 100:
+			openrate_avg_nat = 100
 
 		if openrate_avg_nat < 100:
 			openrate_sido = sess.query(OpenProgress3.sido).filter(OpenProgress3.openPercent==100, OpenProgress3.gusigun=='합계').group_by(OpenProgress3.sido).all()
