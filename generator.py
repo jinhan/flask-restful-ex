@@ -125,6 +125,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 
 	if t > 18:
 		if (len(candidates) > 0) and (len(regions) > 0) and (len(parties) > 0) and (len(polls) > 0):
+			print(1)
 			try:
 				candidate, candidate_region, candidate_poll_code = sess.query(CandidateInfo.name, CandidateInfo.sggName, CandidateInfo.sgTypecode).filter(CandidateInfo.huboid==candidates[0]).first()
 				print(candidate_region)
@@ -144,6 +145,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 			# print(candidate_poll_code, openrate)
 
 		elif (len(candidates) == 0) and (len(regions) > 0) and (len(parties) > 0) and (len(polls) > 0):
+			print(2)
 			region_num = regionCodeCheck(regions[0])
 			try:
 				# region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.townCode==region_num).first()
@@ -156,6 +158,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 
 		# 	parites
 		elif (len(candidates) == 0) and (len(regions) == 0) and (len(parties) == 0) and (len(polls) > 0):
+			print(3)
 			if polls[0] == 2:
 				subq = sess.query(func.max(OpenProgress2.serial).label('maxserial'), func.max(OpenProgress2.datatime).label('maxtime')).group_by(OpenProgress2.sggCityCode).filter(OpenProgress2.datatime<=time, OpenProgress2.sggCityCode!=None).subquery()
 
@@ -202,6 +205,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 			# print(polls[0], openrate)
 
 		else:
+			print(4)
 			subq = sess.query(func.max(OpenProgress3.serial).label('maxserial'), func.max(OpenProgress3.datatime).label('maxtime')).group_by(OpenProgress3.sido).filter(OpenProgress3.datatime<=time, OpenProgress3.gusigun=='합계').subquery()
 
 			sub = sess.query(OpenProgress3.sido, OpenProgress3.tooTotal, OpenProgress3.n_total, OpenProgress3.invalid).join(subq, and_(OpenProgress3.serial==subq.c.maxserial, OpenProgress3.datatime==subq.c.maxtime))

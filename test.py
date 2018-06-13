@@ -181,3 +181,6 @@ with session_scope() as sess:
 	elif candidate_poll_code == 11:
 		openrate = sess.query(func.max(OpenProgress11.openPercent)).filter(OpenProgress11.sido==candidate_region, OpenProgress11.gusigun=='합계',OpenProgress11.datatime<=time).scalar() #
 	print(openrate)
+	region1 = '충청북도'
+	openrate = sess.query(func.max(OpenProgress3.openPercent)).filter(OpenProgress3.datatime<=time, OpenProgress3.sido==region1, OpenProgress3.gusigun=='합계').scalar()
+	print(openrate)
