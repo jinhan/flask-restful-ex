@@ -722,7 +722,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			if invalid_r == None:
 				invalid_r = 0
 			try:
-				openrate_region1 = (n_total_r + invalid_r) / tooTotal_r * 100
+				openrate_region1 = (n_total_r) / tooTotal_r * 100
 			except TypeError:
 				openrate_region1 = 0
 
@@ -731,6 +731,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			subq = sess.query(func.max(OpenProgress4.serial).label('maxserial'), func.max(OpenProgress4.datatime).label('maxtime')).group_by(OpenProgress4.sggCityCode).filter(OpenProgress4.datatime<=time, OpenProgress4.sido==region1, OpenProgress4.sggCityCode!=None).subquery()
 
 			sub_r = sess.query(OpenProgress4.gusigun, OpenProgress4.tooTotal, OpenProgress4.n_total, OpenProgress4.invalid).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime))
+			
 			# print(sub_r.all())
 
 			tooTotal_r, n_total_r, invalid_r = sess.query(func.sum(OpenProgress4.tooTotal), func.sum(OpenProgress4.n_total), func.sum(OpenProgress4.invalid)).join(subq, and_(OpenProgress4.serial==subq.c.maxserial, OpenProgress4.datatime==subq.c.maxtime)).first()
@@ -739,7 +740,7 @@ def query_card_data(sess, order, index, polls, regions, parties, candidates, tim
 			if invalid_r == None:
 				invalid_r = 0
 			try:
-				openrate_region1 = (n_total_r + invalid_r) / tooTotal_r * 100
+				openrate_region1 = (n_total_r) / tooTotal_r * 100
 			except TypeError:
 				openrate_region1 = 0
 
