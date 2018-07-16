@@ -12,9 +12,14 @@
 	<!-- pip install git+git://github.com/geopandas/geopandas.git -->
 	
 	pip install -r requirements.txt
+    pip install --upgrade google-api-python-client oauth2client
 
 	<!-- sudo cp ./res/H2GTRE.TTF /usr/share/fonts/
 	sudo fc-cache -fv -->
+
+### Hidden Files
+    dbinfo.py
+    credentials.json
 
 ### Run Server
 	python api.py

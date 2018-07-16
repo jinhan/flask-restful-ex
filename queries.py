@@ -1,4 +1,5 @@
-from templates import text_templates, background_variations
+from templates import background_variations
+from templates_parser import text_templates
 from orm import *
 from sqlalchemy.sql import func, and_
 import pandas as pd

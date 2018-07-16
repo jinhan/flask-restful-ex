@@ -97,21 +97,35 @@ import urllib
 import ast
 
 url = 'http://127.0.0.1:5000/api?'
+# url = 'http://13.209.65.180:5000/api?'
 error_params = []
-with open("../remake_log_180618_1833.txt", 'r') as f:
+with open("../remake_log_180627_0507.txt", 'r') as f:
+	previous_line = ''
 	for line in f:
-		# print(line)
-		try:
-			p = ast.literal_eval(line)
-			# print(p)
-			if 'ERROR' in p:
-				pass
-			else:
-				params = urllib.parse.urlencode(p, doseq=True)
-				response = requests.post(url+params)
-				if response.status_code != 200:
-					error_params.append(params)
-					# print(params)
-		except SyntaxError:
+		if line == "CARD MODULE ERROR RESPONSE ;\n":
+			error_params.append(previous_line)
+			previous_line = line
+		else:
+			previous_line = line
+print(error_params)
+
+
+
+# with open("../remake_log_180627_0507.txt", 'r') as f:
+# 	for line in f:
+ee = []
+for line in error_params:	# print(line)
+	try:
+		p = ast.literal_eval(line)
+		# print(p)
+		if 'ERROR' in p:
 			pass
-	print(error_params)
+		else:
+			params = urllib.parse.urlencode(p, doseq=True)
+			response = requests.post(url+params)
+			if response.status_code != 200:
+				ee.append(params)
+				# print(params)
+	except SyntaxError:
+		pass
+print(ee)
