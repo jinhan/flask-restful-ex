@@ -47,4 +47,4 @@ else:
         # print('%s, %s' % (row[0], row[1]))
         text_templates[row[0]] = row[1]
 # [END sheets_quickstart]
-print(text_templates)
+# print(text_templates)
