@@ -33,18 +33,16 @@ service = build('sheets', 'v4', http=creds.authorize(Http()))
 # Call the Sheets API
 SPREADSHEET_ID = '1PRaqDmhznfu0IRR_zjfnMhLgn2yc160drCwlVwOmhNE'
 RANGE_NAME = 'Text'
-result = service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID,
-                                             range=RANGE_NAME).execute()
-values = result.get('values', [])
 
-text_templates = {}
-if not values:
-    print('No data found.')
-else:
-    # print('Name, Major:')
-    for row in values:
-        # Print columns A and E, which correspond to indices 0 and 4.
-        # print('%s, %s' % (row[0], row[1]))
-        text_templates[row[0]] = row[1]
-# [END sheets_quickstart]
-# print(text_templates)
+def templates_parser():
+    result = service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID,
+                                                range=RANGE_NAME).execute()
+    values = result.get('values', [])
+
+    text_templates = {}
+    if not values:
+        print('No data found.')
+    else:
+        for row in values:
+            text_templates[row[0]] = row[1]
+    return text_templates

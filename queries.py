@@ -1,5 +1,5 @@
 from templates import background_variations
-from templates_parser import text_templates
+# from generator import text_templates
 from orm import *
 from sqlalchemy.sql import func, and_
 import pandas as pd
@@ -101,7 +101,7 @@ def regionCodeCheck(r):
 		r = int(str(4)+str(r)+str(0)*2)
 	return r
 
-def query_card_data(sess, order, index, polls, regions, parties, candidates, time, card_seq, seqs_type, template):
+def query_card_data(text_templates, sess, order, index, polls, regions, parties, candidates, time, card_seq, seqs_type, template):
 	if card_seq == 1:
 		if (len(candidates) > 0):
 			card_num = '1'

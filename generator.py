@@ -6,11 +6,15 @@ from timeit import default_timer as timer
 from queries import query_card_data, NoTextError, regionCodeCheck
 import uuid
 import ast
+from templates_parser import templates_parser
+
 
 deploy_mode = False
 
 def generateMeta(args):
 	with session_scope() as sess:
+		text_templates = templates_parser()
+		
 		polls = args['type']
 		regions = args['region']
 		parties = args['party']
@@ -96,7 +100,7 @@ def generateMeta(args):
 				order = i+1
 				
 				try:
-					meta_card = query_card_data(sess, order, index, polls, regions, parties, candidates, time, card_seq, seqs_type, template)
+					meta_card = query_card_data(text_templates, sess, order, index, polls, regions, parties, candidates, time, card_seq, seqs_type, template)
 				except NoTextError:
 					print("pass:    ", card_seq)
 					continue
