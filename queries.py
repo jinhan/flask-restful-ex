@@ -163,7 +163,7 @@ def query_card_data(text_templates, sess, order, index, polls, regions, parties,
 						text = '현재 {poll_names} {tooOrget} 현황'.format(**data)
 					
 					else:
-                        card_num = '1-4'
+						card_num = '1-4'
 						text = '당신의 SNU 카드뉴스봇'
 
 		meta_card = {
