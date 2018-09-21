@@ -8,14 +8,17 @@ from collections import Counter
 from random import choice
 
 with session_scope() as sess:
-# 	t = '20180614070000'
-# 	time = datetime.datetime.strptime(t, '%Y%m%d%H%M%S')
+	t = '20180613230000'
+	time = datetime.datetime.strptime(t, '%Y%m%d%H%M%S')
 # 	# time = datetime.datetime.now()
 	index = 0
-# 	# regions = [1100]
+	regions = [4500, 2900]
 # 	order = 0
-	candidates = [100131357]
+	# candidates = [100131357]
+	polls = [4]
 
+	s = sess.query(OpenProgress.sido, OpenProgress.gusigun, func.max(OpenProgress.n_total).label('n_total'), func.max(OpenProgress.invalid).label('invalid'), func.max(OpenProgress.tooTotal).label('tooTotal')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==4, OpenProgress.sggCityCode!=None).group_by(OpenProgress.gusigun)
+	print(s.all())
 # 	if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
 # 		t = 23
 # 	else:
@@ -92,40 +95,40 @@ with session_scope() as sess:
 # 	print(sess.query(OpenProgress.serial, OpenProgress.sido, OpenProgress.gusigun(OpenProgress.tooTotal-OpenProgress.n_total+OpenProgress.invalid)).filter(OpenProgress.electionCode==2).group_by(OpenProgress.serial).all())
 
 
-import requests
-import urllib
-import ast
+# import requests
+# import urllib
+# import ast
 
-url = 'http://127.0.0.1:5000/api?'
-# url = 'http://13.209.65.180:5000/api?'
-error_params = []
-with open("../remake_log_180627_0507.txt", 'r') as f:
-	previous_line = ''
-	for line in f:
-		if line == "CARD MODULE ERROR RESPONSE ;\n":
-			error_params.append(previous_line)
-			previous_line = line
-		else:
-			previous_line = line
-print(error_params)
-
-
-
+# url = 'http://127.0.0.1:5000/api?'
+# # url = 'http://13.209.65.180:5000/api?'
+# error_params = []
 # with open("../remake_log_180627_0507.txt", 'r') as f:
+# 	previous_line = ''
 # 	for line in f:
-ee = []
-for line in error_params:	# print(line)
-	try:
-		p = ast.literal_eval(line)
-		# print(p)
-		if 'ERROR' in p:
-			pass
-		else:
-			params = urllib.parse.urlencode(p, doseq=True)
-			response = requests.post(url+params)
-			if response.status_code != 200:
-				ee.append(params)
-				# print(params)
-	except SyntaxError:
-		pass
-print(ee)
+# 		if line == "CARD MODULE ERROR RESPONSE ;\n":
+# 			error_params.append(previous_line)
+# 			previous_line = line
+# 		else:
+# 			previous_line = line
+# print(error_params)
+
+
+
+# # with open("../remake_log_180627_0507.txt", 'r') as f:
+# # 	for line in f:
+# ee = []
+# for line in error_params:	# print(line)
+# 	try:
+# 		p = ast.literal_eval(line)
+# 		# print(p)
+# 		if 'ERROR' in p:
+# 			pass
+# 		else:
+# 			params = urllib.parse.urlencode(p, doseq=True)
+# 			response = requests.post(url+params)
+# 			if response.status_code != 200:
+# 				ee.append(params)
+# 				# print(params)
+# 	except SyntaxError:
+# 		pass
+# print(ee)

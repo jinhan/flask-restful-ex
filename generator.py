@@ -233,7 +233,10 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 		card_seqs.sort()
 		card_seqs.insert(1, 21)
 		seqs_type = 1
-		template = 4
+		if openrate < 100:
+			template = 4
+		else:
+			template = 5
 		# 내가 선택한 선거에서 한명이라도 당선 확정이 나오는 경우 21번을 index 1에 insert
 	# else:
 	# 	seqs_type = 0
