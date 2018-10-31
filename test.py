@@ -18,12 +18,20 @@ with session_scope() as sess:
 	polls = [4]
 
 	# s = sess.query(OpenProgress.sido, OpenProgress.gusigun, func.max(OpenProgress.n_total).label('n_total'), func.max(OpenProgress.invalid).label('invalid'), func.max(OpenProgress.tooTotal).label('tooTotal')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==4, OpenProgress.sggCityCode!=None, OpenProgress.sido=='강원도').group_by(OpenProgress.gusigun)
-	subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxdate')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==4, OpenProgress.sggCityCode!=None, OpenProgress.sido=='강원도').group_by(OpenProgress.gusigun)
-	print(subq.all())
-	subq = subq.subquery()
+	# subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxdate')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==4, OpenProgress.sggCityCode!=None, OpenProgress.sido=='강원도').group_by(OpenProgress.gusigun)
+	# print(subq.all())
+	# subq = subq.subquery()
+	# subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxdate')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==11, OpenProgress.gusigun=='합계').group_by(OpenProgress.sido).subquery()
 
-	s = sess.query(OpenProgress.sido, OpenProgress.gusigun, OpenProgress.n_total, OpenProgress.invalid, OpenProgress.tooTotal).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxdate))
+	# s = sess.query(OpenProgress.sido, OpenProgress.gusigun, OpenProgress.n_total, OpenProgress.invalid, OpenProgress.tooTotal).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxdate))
 	# s = sess.query(OpenProgress).join(subq, and_(OpenProgress.serial==subq.c.serial, OpenProgress.datatime==subq.c.maxdate))
+
+	# subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxdate')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==3, OpenProgress.gusigun=='합계').group_by(OpenProgress.sido).subquery()
+
+	# s = sess.query(OpenProgress.sido, OpenProgress.gusigun, OpenProgress.n_total, OpenProgress.invalid, OpenProgress.tooTotal).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxdate))
+	subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxdate')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==2, OpenProgress.sggCityCode!=None).group_by(OpenProgress.sgg).subquery()
+
+	s = sess.query(OpenProgress.sido, OpenProgress.sgg, OpenProgress.n_total, OpenProgress.invalid, OpenProgress.tooTotal).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxdate))
 	print(s.all())
 	
 	# subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.sido).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==11, OpenProgress.gusigun=='합계').subquery()

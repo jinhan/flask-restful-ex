@@ -733,7 +733,7 @@ def query_card_data(text_templates, sess, order, index, polls, regions, parties,
 			# s = sess.query(OpenProgress.sido, OpenProgress.sgg, func.max(OpenProgress.n_total).label('n_total'), func.max(OpenProgress.invalid).label('invalid'), func.max(OpenProgress.tooTotal).label('tooTotal')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==2, OpenProgress.sggCityCode!=None).group_by(OpenProgress.sgg)
 			subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxdate')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==2, OpenProgress.sggCityCode!=None).group_by(OpenProgress.sgg).subquery()
 
-			s = sess.query(OpenProgress.sido, OpenProgress.gusigun, OpenProgress.n_total, OpenProgress.invalid, OpenProgress.tooTotal).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxdate))
+			s = sess.query(OpenProgress.sido, OpenProgress.sgg, OpenProgress.n_total, OpenProgress.invalid, OpenProgress.tooTotal).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxdate))
 			
 			
 		elif polls[index] == 3:
