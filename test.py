@@ -8,17 +8,45 @@ from collections import Counter
 from random import choice
 
 with session_scope() as sess:
-	t = '20180613230000'
+	t = '20180614120000'
 	time = datetime.datetime.strptime(t, '%Y%m%d%H%M%S')
 # 	# time = datetime.datetime.now()
 	index = 0
-	regions = [4500, 2900]
+	regions = []
 # 	order = 0
 	# candidates = [100131357]
 	polls = [4]
 
-	s = sess.query(OpenProgress.sido, OpenProgress.gusigun, func.max(OpenProgress.n_total).label('n_total'), func.max(OpenProgress.invalid).label('invalid'), func.max(OpenProgress.tooTotal).label('tooTotal')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==4, OpenProgress.sggCityCode!=None).group_by(OpenProgress.gusigun)
+	# s = sess.query(OpenProgress.sido, OpenProgress.gusigun, func.max(OpenProgress.n_total).label('n_total'), func.max(OpenProgress.invalid).label('invalid'), func.max(OpenProgress.tooTotal).label('tooTotal')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==4, OpenProgress.sggCityCode!=None, OpenProgress.sido=='강원도').group_by(OpenProgress.gusigun)
+	subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxdate')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==4, OpenProgress.sggCityCode!=None, OpenProgress.sido=='강원도').group_by(OpenProgress.gusigun)
+	print(subq.all())
+	subq = subq.subquery()
+
+	s = sess.query(OpenProgress.sido, OpenProgress.gusigun, OpenProgress.n_total, OpenProgress.invalid, OpenProgress.tooTotal).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxdate))
+	# s = sess.query(OpenProgress).join(subq, and_(OpenProgress.serial==subq.c.serial, OpenProgress.datatime==subq.c.maxdate))
 	print(s.all())
+	
+	# subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.sido).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==11, OpenProgress.gusigun=='합계').subquery()
+	# sub_ranks = sess.query(OpenProgress.sido).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxtime))
+	# print(sub_ranks.all())
+
+
+
+	poll_openrate_ranks = []
+	for r1, r2, n_total, invalid, tooTotal in s:
+		if invalid == None:
+			invalid = 0
+		if r2 == '합계':
+			r = r1
+		else:
+			r = r1 + ' ' + r2
+		v = (n_total + invalid) / tooTotal
+		poll_openrate_ranks.append({'name':r, 'value':v})
+
+	poll_openrate_ranks = list({v['name']:v for v in poll_openrate_ranks}.values())
+	poll_openrate_ranks = sorted(poll_openrate_ranks, key=lambda x: x['value'], reverse=True)
+
+	print(poll_openrate_ranks)
 # 	if time > datetime.datetime(2018, 6, 13, 23, 59, 59):
 # 		t = 23
 # 	else:
