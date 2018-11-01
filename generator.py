@@ -223,7 +223,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 		seqs_type = 1
 		template = 3
 	elif (t2 > 18) and (openrate >= 30): # 개표율 30% 이상
-		card_seqs.extend([1, 2, 7, 13, 15, 20, 23]) # 13, 20 특이사항
+		card_seqs.extend([1, 2, 7, 15, 20, 23]) # 13, 20 특이사항
 		card_seqs.extend([10] * len(regions))
 		card_seqs.extend([11] * len(polls))
 		card_seqs.extend([12] * len(candidates))

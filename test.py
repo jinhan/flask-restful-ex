@@ -8,7 +8,7 @@ from collections import Counter
 from random import choice
 
 with session_scope() as sess:
-	t = '20180614120000'
+	t = '20180701000000'
 	time = datetime.datetime.strptime(t, '%Y%m%d%H%M%S')
 # 	# time = datetime.datetime.now()
 	index = 0
@@ -32,6 +32,9 @@ with session_scope() as sess:
 	subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxdate')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==2, OpenProgress.sggCityCode!=None).group_by(OpenProgress.sgg).subquery()
 
 	s = sess.query(OpenProgress.sido, OpenProgress.sgg, OpenProgress.n_total, OpenProgress.invalid, OpenProgress.tooTotal).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxdate))
+	# subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxdate')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==4, OpenProgress.sggCityCode!=None, OpenProgress.sido=='경기도').group_by(OpenProgress.gusigun).subquery()
+
+	# s = sess.query(OpenProgress.sido, OpenProgress.gusigun, OpenProgress.n_total, OpenProgress.invalid, OpenProgress.tooTotal).join(subq, and_(OpenProgress.serial==subq.c.maxserial, OpenProgress.datatime==subq.c.maxdate))
 	print(s.all())
 	
 	# subq = sess.query(func.max(OpenProgress.serial).label('maxserial'), func.max(OpenProgress.datatime).label('maxtime')).group_by(OpenProgress.sido).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==11, OpenProgress.gusigun=='합계').subquery()
