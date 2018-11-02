@@ -329,7 +329,7 @@ def query_card_data(text_templates, sess, order, index, polls, regions, parties,
 
 		toorate_region1_sub = sess.query((func.sum(VoteProgress.tooTotal) / func.sum(VoteProgress.yooTotal) * 100), PrecinctCode4.gusigun).outerjoin(PrecinctCode4, and_(VoteProgress.sido==PrecinctCode4.sido, VoteProgress.gusigun==PrecinctCode4.sgg)).filter(VoteProgress.timeslot==t, VoteProgress.sido==region1, VoteProgress.gusigun!='합계').group_by(VoteProgress.sido, PrecinctCode4.gusigun)
 
-		if region1 == '제주특별자치도':
+		if region1 in ['제주특별자치도', '세종특별자치시']:
 			toorate_region1_sub = sess.query((func.sum(VoteProgress.tooTotal) / func.sum(VoteProgress.yooTotal) * 100), VoteProgress.gusigun).filter(VoteProgress.timeslot==t, VoteProgress.sido==region1, VoteProgress.gusigun!='합계').group_by(VoteProgress.sido, VoteProgress.gusigun)
 		# print(toorate_region1_sub.all())
 
@@ -713,7 +713,7 @@ def query_card_data(text_templates, sess, order, index, polls, regions, parties,
 	
 			# sub_r = sess.query(func.max(OpenProgress.openPercent).label('rate'), PrecinctCode4.sido, PrecinctCode4.gusigun).outerjoin(PrecinctCode4, and_(OpenProgress.sido==PrecinctCode4.sido, OpenProgress.gusigun==PrecinctCode4.sgg)).filter(OpenProgress.electionCode==3, OpenProgress.datatime<=time, PrecinctCode4.gusigun!='합계', OpenProgress.sido==region1).group_by(OpenProgress.sido, PrecinctCode4.gusigun)
 
-			if region1 == '제주특별자치도':
+			if region1 in ['제주특별자치도', '세종특별자치시']:
 				sub_r = sess.query(func.max(OpenProgress.openPercent).label('rate'), OpenProgress.sido, OpenProgress.gusigun).filter(OpenProgress.electionCode==3, OpenProgress.datatime<=time, OpenProgress.gusigun!='합계', OpenProgress.sido==region1).group_by(OpenProgress.sido, OpenProgress.gusigun)
 			# print(sub_r.all())
 
