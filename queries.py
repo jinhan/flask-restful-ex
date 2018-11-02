@@ -657,7 +657,7 @@ def query_card_data(text_templates, sess, order, index, polls, regions, parties,
 				openrate_region1 = sess.query(func.max(OpenProgress.openPercent).label('max'), OpenProgress.sido).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==3, OpenProgress.sido==region1, OpenProgress.gusigun==region2).scalar()
 
 			region_name = region1 + ' ' + region2
-			print(region_name, openrate_region1)
+			# print(region_name, openrate_region1)
 			
 		data = {
 			'hour': timeDisplay(time),
