@@ -715,7 +715,7 @@ def query_card_data(text_templates, sess, order, index, polls, regions, parties,
 
 			if region1 == '제주특별자치도':
 				sub_r = sess.query(func.max(OpenProgress.openPercent).label('rate'), OpenProgress.sido, OpenProgress.gusigun).filter(OpenProgress.electionCode==3, OpenProgress.datatime<=time, OpenProgress.gusigun!='합계', OpenProgress.sido==region1).group_by(OpenProgress.sido, OpenProgress.gusigun)
-			print(sub_r.all())
+			# print(sub_r.all())
 
 
 			map_data = []
