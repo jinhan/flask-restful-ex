@@ -45,4 +45,5 @@ def templates_parser():
     else:
         for row in values:
             text_templates[row[0]] = row[1]
+    print(text_templates)
     return text_templates

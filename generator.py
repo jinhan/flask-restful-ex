@@ -6,14 +6,15 @@ from timeit import default_timer as timer
 from queries import query_card_data, NoTextError, regionCodeCheck
 import uuid
 import ast
-from templates_parser import templates_parser
+# from templates_parser import templates_parser
+from text_templates import text_templates
 
 
 deploy_mode = False
 
 def generateMeta(args):
 	with session_scope() as sess:
-		text_templates = templates_parser()
+		# text_templates = templates_parser()
 		
 		polls = args['type']
 		regions = args['region']
