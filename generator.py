@@ -245,8 +245,4 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 
 
 if __name__ == '__main__':
-	# print(VoteProgressLatest)
-
-
-
-
+	print(VoteProgressLatest)
