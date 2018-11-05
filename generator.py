@@ -65,7 +65,7 @@ def generateMeta(args):
 		if deploy_mode:
 			if serial_ontable != None:
 				serial_ontable = serial_ontable[0]
-			print("serial:  ", serial_ontable)
+			# print("serial:  ", serial_ontable)
 			meta_previous = sess.query(MetaCards.meta).filter(MetaCards.serial==serial_ontable).scalar()
 		else:
 			serial_ontable = None
@@ -81,7 +81,7 @@ def generateMeta(args):
 				# sess.commit()
 
 			card_seqs, seqs_type, template = getCardSeqs(sess, polls, regions, parties, candidates, time)
-			print(template, card_seqs)
+			# print(template, card_seqs)
 			
 			meta = {}
 			meta['scenario'] = str(card_seqs)
@@ -135,10 +135,10 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 
 	if t2 > 18:
 		if (len(candidates) > 0):
-			print(1)
+			# print(1)
 			try:
 				candidate, candidate_region, candidate_poll_code = sess.query(CandidateInfo.name, CandidateInfo.sggName, CandidateInfo.sgTypecode).filter(CandidateInfo.huboid==candidates[0]).first()
-				print(candidate_region)
+				# print(candidate_region)
 			except TypeError:
 				raise NoTextError
 
@@ -155,7 +155,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 			# print(candidate_poll_code, openrate)
 
 		elif (len(candidates) == 0) and (len(regions) > 0):
-			print(2)
+			# print(2)
 			region_num = regionCodeCheck(regions[0])
 			try:
 				region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==region_num).first()
@@ -167,7 +167,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 
 		# 	parites
 		elif (len(candidates) == 0) and (len(regions) == 0) and (len(polls) > 0):
-			print(3)
+			# print(3)
 			if polls[0] == 2:
 				s = sess.query(OpenProgress.sgg, func.max(OpenProgress.n_total).label('n_total'), func.max(OpenProgress.invalid).label('invalid'), func.max(OpenProgress.tooTotal).label('tooTotal')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==2, OpenProgress.sggCityCode!=None).group_by(OpenProgress.sgg)
 
@@ -183,7 +183,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 			openrate = sess.query((func.sum(s.subquery().c.n_total) + func.sum(s.subquery().c.invalid)) / func.sum(s.subquery().c.tooTotal) * 100).scalar()
 	
 		else:
-			print(4)
+			# print(4)
 			s = sess.query(OpenProgress.sido, func.max(OpenProgress.n_total).label('n_total'), func.max(OpenProgress.invalid).label('invalid'), func.max(OpenProgress.tooTotal).label('tooTotal')).filter(OpenProgress.datatime<=time, OpenProgress.electionCode==3, OpenProgress.gusigun=='합계').group_by(OpenProgress.sido)
 
 			openrate = sess.query((func.sum(s.subquery().c.n_total) + func.sum(s.subquery().c.invalid)) / func.sum(s.subquery().c.tooTotal) * 100).scalar()
@@ -193,7 +193,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 	if openrate == None:
 		openrate = 0
 
-	print("openrate:     ", openrate)
+	# print("openrate:     ", openrate)
 	
 	if t2 <= 18: # 투표중
 		card_seqs.extend([1, 2, 3, 6, 23]) # 6 특이사항
@@ -245,7 +245,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 
 
 if __name__ == '__main__':
-	print(VoteProgressLatest)
+	# print(VoteProgressLatest)
 
 
 
