@@ -156,7 +156,7 @@ def getCardSeqs(sess, polls, regions, parties, candidates, time):
 
 		elif (len(candidates) == 0) and (len(regions) > 0):
 			# print(2)
-			region_num = regionCodeCheck(regions[0])
+			region_num, _ = regionCodeCheck(regions[0])
 			try:
 				region1, region2 = sess.query(PrecinctCode.sido, PrecinctCode.gusigun).filter(PrecinctCode.sggCityCode==region_num).first()
 			except TypeError:
