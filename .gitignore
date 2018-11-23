@@ -1,5 +1,6 @@
 .DS_Store
 dbinfo.py
 *.pyc
-*.png
 credentials.json
+.vscode
+.res
